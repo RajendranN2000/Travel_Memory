@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
 import { toast } from "sonner";
 import { DevicePreview, DeviceToggle, type PreviewDevice } from "@/components/memory/device-preview";
+import { MotionProvider } from "@/components/motion/motion-provider";
 import { LogoMark } from "@/components/site/logo";
 import {
   AlertDialog,
@@ -193,6 +194,7 @@ export function Editor({ trip, userId, demo }: { trip: EditorTrip; userId: strin
   );
 
   return (
+    <MotionProvider>
     <div className="flex min-h-svh flex-col bg-background">
       <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
         {demo ? (
@@ -298,6 +300,7 @@ export function Editor({ trip, userId, demo }: { trip: EditorTrip; userId: strin
         </AlertDialogContent>
       </AlertDialog>
     </div>
+    </MotionProvider>
   );
 }
 

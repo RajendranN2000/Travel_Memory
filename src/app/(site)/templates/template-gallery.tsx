@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useState } from "react";
+import { MotionProvider } from "@/components/motion/motion-provider";
 import { TemplateThumbnail } from "@/components/memory/template-thumbnail";
 import { DestinationChips, type DestinationOption } from "@/components/memory/destination-picker";
 import type { MemoryContent } from "@/features/memories/types";
@@ -22,7 +23,7 @@ export function TemplateGallery({
   const sample = samples[destination];
 
   return (
-    <>
+    <MotionProvider>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p id="theme-label" className="text-sm font-medium text-muted-foreground">
           Preview every template in a destination theme
@@ -57,6 +58,6 @@ export function TemplateGallery({
           </li>
         ))}
       </ul>
-    </>
+    </MotionProvider>
   );
 }

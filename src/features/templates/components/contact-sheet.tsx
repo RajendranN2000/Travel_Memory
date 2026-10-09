@@ -102,7 +102,7 @@ function Scrapbook(props: TemplateProps) {
         ) : (
           <ul className="mt-10 columns-1 gap-8 @md:columns-2 @4xl:columns-3" aria-label="Scrapbook">
             {memory.photos.map((photo, i) => (
-              <li key={photo.id} className="mb-10 break-inside-avoid px-2">
+              <li key={photo.id} className="mb-6 break-inside-avoid px-2 pt-5">
                 <figure
                   className={cn(
                     "relative bg-white p-2.5 pb-4 shadow-print transition-transform duration-500 ease-out-soft hover:rotate-0 motion-reduce:transition-none",

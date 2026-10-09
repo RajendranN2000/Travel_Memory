@@ -138,7 +138,7 @@ function Destinations() {
       <ul className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {themes.map((theme, i) => (
           <Reveal as="li" key={theme.slug} delay={i * 0.06} className={i === 0 ? "sm:col-span-2 lg:col-span-1" : ""}>
-            <DestinationCard theme={theme} aspect={i === 0 ? "aspect-[4/3] sm:aspect-[16/9] lg:aspect-[3/4]" : "aspect-[3/4]"} />
+            <DestinationCard theme={theme} aspect={i === 0 ? "aspect-[4/3] sm:aspect-[16/9] lg:aspect-[3/4]" : "aspect-[4/3] sm:aspect-[3/4]"} />
           </Reveal>
         ))}
       </ul>

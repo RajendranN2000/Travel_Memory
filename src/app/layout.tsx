@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { MotionProvider } from "@/components/motion/motion-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { fontVariables } from "@/config/fonts";
@@ -38,9 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
-        <MotionProvider>
-          <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
-        </MotionProvider>
+        <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
         <Toaster position="bottom-center" />
       </body>
     </html>

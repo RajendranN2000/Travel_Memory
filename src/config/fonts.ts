@@ -23,7 +23,7 @@ import {
 const appDisplay = Fraunces({
   subsets: ["latin"],
   variable: "--font-app-display",
-  axes: ["opsz", "SOFT"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 const appBody = DM_Sans({ subsets: ["latin"], variable: "--font-app-body", display: "swap" });

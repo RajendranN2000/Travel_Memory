@@ -193,6 +193,12 @@
   }
 }
 
+@media print {
+  .reveal {
+    animation: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
