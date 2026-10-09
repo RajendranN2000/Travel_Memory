@@ -1,6 +1,7 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import type { Database } from "./database.types";
 import { getSupabaseConfig } from "./env";
 
@@ -15,6 +16,9 @@ export async function createClient(): Promise<ServerSupabase | null> {
   const config = getSupabaseConfig();
   if (!config) return null;
   const cookieStore = await cookies();
+  // Auth checks compare token expiry with Date.now() and may refresh the
+  // session over the network, so keep them out of prerenders and prefetches.
+  await connection();
   return createServerClient<Database>(config.url, config.key, {
     cookies: {
       getAll() {
