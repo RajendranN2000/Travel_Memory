@@ -37,6 +37,7 @@ pnpm dev                     # http://localhost:3000
 | `pnpm test:e2e` | Playwright end-to-end tests (starts a dev server on port 3300) |
 | `pnpm check` | Lint, type-check, unit tests and build in one go |
 | `pnpm images:fetch` | Re-downloads destination photos listed in `scripts/image-sources.json` |
+| `node scripts/build-brand-assets.mjs assets/brand/travel-memory-logo-master.png` | Rebuilds the logo emblem, footer logo, favicon and app icons from the master logo |
 | `pnpm db:types` | Regenerates database types from a local Supabase stack |
 
 ## Setting up Supabase
@@ -45,7 +46,7 @@ pnpm dev                     # http://localhost:3000
    - the Project URL, into `NEXT_PUBLIC_SUPABASE_URL`
    - the publishable key (`sb_publishable_…`), or the legacy anon key, into `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    - the secret key (`sb_secret_…`), or the legacy service-role key, into `SUPABASE_SECRET_KEY`. This one is **server-only**.
-2. **Apply the migrations** in `supabase/migrations`. These create the tables, constraints, RLS policies, the `trip-photos` private bucket with its policies, and the reference data.
+2. **Apply the migrations** in `supabase/migrations`. These create the tables, constraints, RLS policies, the private `trip-photos` and `avatars` buckets with their policies, and the reference data. Profile photos need `20261009000200_profile_avatars.sql`; until it is applied, everything else works and uploading a profile photo shows a clear "apply the latest migration" message.
    ```bash
    pnpm exec supabase login
    pnpm exec supabase link --project-ref <your-ref>

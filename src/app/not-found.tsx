@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 export default function NotFound() {
   return (
     <main id="main" className="flex flex-1 flex-col items-center justify-center px-4 py-24 text-center">
-      <LogoMark className="size-12" />
+      <LogoMark className="h-16" />
       <p className="eyebrow mt-8 text-brand">404 · Off the map</p>
       <h1 className="mt-3 max-w-xl font-display text-[clamp(2.25rem,6vw,3.75rem)] leading-tight tracking-tight">
         We couldn&apos;t find that page

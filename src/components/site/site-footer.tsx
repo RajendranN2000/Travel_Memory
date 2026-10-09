@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { listDestinationThemes } from "@/features/themes/registry";
-import { Logo } from "./logo";
+import { LogoFull } from "./logo";
 
 export function SiteFooter() {
   const destinations = listDestinationThemes();
@@ -8,7 +8,9 @@ export function SiteFooter() {
     <footer className="mt-auto border-t border-border bg-secondary/50">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr] lg:px-8">
         <div className="max-w-xs">
-          <Logo />
+          <Link href="/" className="inline-block rounded-md" aria-label="Travel Memory Studio home">
+            <LogoFull className="w-36" />
+          </Link>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
             Turn trip photos into personal, shareable memory pages, styled after the places you visited.
           </p>

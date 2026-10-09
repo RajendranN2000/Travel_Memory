@@ -11,9 +11,9 @@ export type Database = {
   public: {
     Tables: {
       profiles: {
-        Row: { id: string; display_name: string | null } & Timestamps;
-        Insert: { id: string; display_name?: string | null; created_at?: string; updated_at?: string };
-        Update: { display_name?: string | null };
+        Row: { id: string; display_name: string | null; avatar_path: string | null } & Timestamps;
+        Insert: { id: string; display_name?: string | null; avatar_path?: string | null; created_at?: string; updated_at?: string };
+        Update: { display_name?: string | null; avatar_path?: string | null };
         Relationships: [];
       };
       destinations: {

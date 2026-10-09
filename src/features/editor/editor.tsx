@@ -257,7 +257,7 @@ export function Editor({
               <ArrowLeft />
             </Link>
           </Button>
-          <LogoMark className="hidden size-7 shrink-0 sm:block" />
+          <LogoMark className="hidden h-8 shrink-0 sm:block" />
           <div className="min-w-0 flex-1 sm:ml-1">
             <div className="flex min-w-0 items-center gap-2">
               <h1 className="truncate font-display text-lg leading-tight">{draft.title || "Untitled trip"}</h1>

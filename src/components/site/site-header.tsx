@@ -10,7 +10,7 @@ import { CreateCta, NavLinks, NavLinksFallback } from "./nav-links";
 
 async function Account() {
   const user = await getCurrentUser();
-  const headerUser = user ? { displayName: user.displayName, email: user.email } : null;
+  const headerUser = user ? { displayName: user.displayName, email: user.email, avatarUrl: user.avatarUrl } : null;
   return (
     <>
       <div className="hidden items-center gap-2 md:flex">

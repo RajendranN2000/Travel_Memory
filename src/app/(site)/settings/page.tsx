@@ -4,6 +4,7 @@ import { Suspense, type ReactNode } from "react";
 import { PageIntro } from "@/components/site/page-intro";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireUser } from "@/features/auth/session";
+import { AvatarForm } from "./avatar-form";
 import { DeleteAccountForm, PasswordForm, ProfileForm } from "./settings-forms";
 
 export const metadata: Metadata = { title: "Settings", robots: { index: false } };
@@ -37,6 +38,9 @@ async function SettingsContent() {
   const { user } = await requireUser("/settings");
   return (
     <>
+      <Section id="photo" title="Profile photo" description="Shown in the header and menu while you're signed in.">
+        <AvatarForm user={{ displayName: user.displayName, email: user.email, avatarUrl: user.avatarUrl }} userId={user.id} />
+      </Section>
       <Section id="profile" title="Profile" description={<>Signed in as <strong className="text-foreground">{user.email}</strong>.</>}>
         <ProfileForm displayName={user.displayName ?? ""} />
       </Section>

@@ -1,13 +1,18 @@
 import "server-only";
 import { redirect } from "next/navigation";
 import { cache } from "react";
+import { AVATAR_BUCKET } from "@/features/account/avatar";
 import { createClient, type ServerSupabase } from "@/lib/supabase/server";
 
 export interface CurrentUser {
   id: string;
   email: string | null;
   displayName: string | null;
+  /** Short-lived signed URL for the profile photo, or null. */
+  avatarUrl: string | null;
 }
+
+const AVATAR_URL_TTL = 60 * 60;
 
 /**
  * Returns the signed-in user, verified on the server, or null. Deduplicated
@@ -20,11 +25,19 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const claims = data?.claims;
   if (error || !claims?.sub) return null;
 
-  const { data: profile } = await supabase.from("profiles").select("display_name").eq("id", claims.sub).maybeSingle();
+  // `*` keeps this working if the avatar migration hasn't been applied yet.
+  const { data: profile } = await supabase.from("profiles").select("*").eq("id", claims.sub).maybeSingle();
+  const avatarPath = profile?.avatar_path ?? null;
+  let avatarUrl: string | null = null;
+  if (avatarPath) {
+    const { data: signed } = await supabase.storage.from(AVATAR_BUCKET).createSignedUrl(avatarPath, AVATAR_URL_TTL);
+    avatarUrl = signed?.signedUrl ?? null;
+  }
   return {
     id: claims.sub,
     email: typeof claims.email === "string" ? claims.email : null,
     displayName: profile?.display_name ?? null,
+    avatarUrl,
   };
 });
 

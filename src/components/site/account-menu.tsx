@@ -13,25 +13,23 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { signOut } from "@/features/auth/actions";
 import type { HeaderUser } from "./mobile-nav";
-
-function initials(user: HeaderUser) {
-  const source = user.displayName ?? user.email ?? "?";
-  return source.trim().charAt(0).toUpperCase() || "?";
-}
+import { UserAvatar } from "./user-avatar";
 
 export function AccountMenu({ user }: { user: HeaderUser }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Account menu" className="rounded-full">
-          <span className="grid size-9 place-items-center rounded-full bg-primary font-display text-base text-primary-foreground">
-            {initials(user)}
-          </span>
+        <Button variant="ghost" size="icon" aria-label="Account menu" className="size-11 rounded-full">
+          <UserAvatar user={user} className="ring-2 ring-background" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60">
-        <DropdownMenuLabel className="truncate font-normal text-muted-foreground">
-          {user.displayName ?? user.email ?? "Signed in"}
+      <DropdownMenuContent align="end" className="w-64">
+        <DropdownMenuLabel className="flex items-center gap-3 font-normal">
+          <UserAvatar user={user} className="size-10" />
+          <span className="min-w-0">
+            {user.displayName ? <span className="block truncate font-medium text-foreground">{user.displayName}</span> : null}
+            <span className="block truncate text-xs text-muted-foreground">{user.email ?? "Signed in"}</span>
+          </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild className="min-h-10">

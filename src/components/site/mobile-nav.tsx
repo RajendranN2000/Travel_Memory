@@ -15,11 +15,9 @@ import {
 } from "@/components/ui/sheet";
 import { signOut } from "@/features/auth/actions";
 import { CreateCta, NavLinks } from "./nav-links";
+import { UserAvatar, type AvatarUser } from "./user-avatar";
 
-export interface HeaderUser {
-  displayName: string | null;
-  email: string | null;
-}
+export type HeaderUser = AvatarUser;
 
 export function MobileNav({ user }: { user: HeaderUser | null }) {
   const [open, setOpen] = useState(false);
@@ -33,9 +31,17 @@ export function MobileNav({ user }: { user: HeaderUser | null }) {
       <SheetContent side="right" className="w-[min(22rem,88vw)] bg-background">
         <SheetHeader>
           <SheetTitle className="font-display text-xl">Menu</SheetTitle>
-          <SheetDescription className={user ? "truncate" : "sr-only"}>
-            {user ? `Signed in as ${user.displayName ?? user.email ?? "traveller"}` : "Site navigation"}
-          </SheetDescription>
+          {user ? (
+            <div className="mt-2 flex items-center gap-3">
+              <UserAvatar user={user} className="size-11" />
+              <SheetDescription className="min-w-0">
+                {user.displayName ? <span className="block truncate font-medium text-foreground">{user.displayName}</span> : null}
+                <span className="block truncate">{user.email ?? "Signed in"}</span>
+              </SheetDescription>
+            </div>
+          ) : (
+            <SheetDescription className="sr-only">Site navigation</SheetDescription>
+          )}
         </SheetHeader>
         <nav aria-label="Mobile" className="px-2">
           <NavLinks className="flex flex-col gap-1 [&_a]:w-full [&_a]:text-lg" onNavigate={() => setOpen(false)} />
