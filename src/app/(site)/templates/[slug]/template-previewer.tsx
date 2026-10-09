@@ -42,7 +42,7 @@ export function TemplatePreviewer({
   };
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[20rem_1fr] lg:items-start">
+    <div className="grid gap-8 lg:grid-cols-[20rem_minmax(0,1fr)] lg:items-start">
       <aside className="space-y-8 lg:sticky lg:top-24">
         <div>
           <h2 className="text-sm font-semibold">Destination</h2>
@@ -81,7 +81,7 @@ export function TemplatePreviewer({
         </Button>
       </aside>
 
-      <section aria-label="Template preview">
+      <section aria-label="Template preview" className="min-w-0">
         <div className="mb-4 flex items-center justify-between gap-3">
           <p className="text-sm text-muted-foreground">Sample photos · {template.name}</p>
           <DeviceToggle value={device} onChange={setDevice} />

@@ -217,11 +217,15 @@ function UploadRow({ item, onRetry, onRemove }: { item: UploadItem; onRetry: (id
           <RotateCcw />
         </Button>
       ) : null}
-      {failed || item.status === "queued" ? (
-        <Button size="icon-sm" variant="ghost" onClick={() => onRemove(item.localId)} aria-label={`Remove ${item.name}`}>
-          <X />
-        </Button>
-      ) : null}
+      <Button
+        size="icon-sm"
+        variant="ghost"
+        onClick={() => onRemove(item.localId)}
+        aria-label={failed || item.status === "queued" ? `Remove ${item.name}` : `Cancel upload of ${item.name}`}
+        title={failed || item.status === "queued" ? "Remove" : "Cancel upload"}
+      >
+        <X />
+      </Button>
     </li>
   );
 }

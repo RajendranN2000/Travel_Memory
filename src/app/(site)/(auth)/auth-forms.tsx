@@ -3,7 +3,7 @@
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useActionState } from "react";
-import { FormMessage, TextField } from "@/components/forms/field";
+import { FormMessage, PasswordField, TextField } from "@/components/forms/field";
 import { Button } from "@/components/ui/button";
 import { requestPasswordReset, signIn, signUp } from "@/features/auth/actions";
 import { idleState, type FormState } from "@/features/auth/schemas";
@@ -43,10 +43,9 @@ export function SignInForm({ next, disabled }: { next: string; disabled?: boolea
         error={fe.email}
         disabled={disabled}
       />
-      <TextField
+      <PasswordField
         id="password"
         name="password"
-        type="password"
         label="Password"
         autoComplete="current-password"
         required
@@ -108,10 +107,9 @@ export function SignUpForm({ next, disabled }: { next: string; disabled?: boolea
         error={fe.email}
         disabled={disabled}
       />
-      <TextField
+      <PasswordField
         id="password"
         name="password"
-        type="password"
         label="Password"
         autoComplete="new-password"
         required

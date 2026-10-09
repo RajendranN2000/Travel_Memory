@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getBrowserClient } from "@/lib/supabase/browser";
-import { registerPhoto } from "@/features/trips/actions";
+import { deletePhoto, registerPhoto } from "@/features/trips/actions";
 import { LIMITS, photoStoragePath } from "@/features/trips/schemas";
 import type { EditorPhoto } from "@/features/trips/types";
 import { partitionFiles } from "./upload-validation";
@@ -21,7 +21,7 @@ export interface UploadItem {
 const MAX_CONCURRENT = 2;
 const OUTPUT_TYPE = "image/jpeg";
 
-async function compress(file: File): Promise<{ blob: Blob; width: number; height: number }> {
+async function compress(file: File, signal: AbortSignal): Promise<{ blob: Blob; width: number; height: number }> {
   const { default: imageCompression } = await import("browser-image-compression");
   // Re-encoding through a canvas strips EXIF metadata, including GPS location.
   const blob = await imageCompression(file, {
@@ -31,6 +31,7 @@ async function compress(file: File): Promise<{ blob: Blob; width: number; height
     fileType: OUTPUT_TYPE,
     useWebWorker: true,
     preserveExif: false,
+    signal,
   });
   const bitmap = await createImageBitmap(blob);
   const size = { width: bitmap.width, height: bitmap.height };
@@ -62,6 +63,8 @@ export function useUploads({
   const active = useRef(0);
   const started = useRef(new Set<string>());
   const urls = useRef(new Set<string>());
+  /** Abort controllers for uploads in flight; aborted means the user cancelled. */
+  const controllers = useRef(new Map<string, AbortController>());
   const onUploadedRef = useRef(onUploaded);
   const queueRef = useRef<UploadItem[]>([]);
 
@@ -92,17 +95,22 @@ export function useUploads({
     async (item: UploadItem) => {
       const file = files.current.get(item.localId);
       if (!file) return;
+      const controller = new AbortController();
+      controllers.current.set(item.localId, controller);
+      const cancelled = () => controller.signal.aborted;
       active.current += 1;
       try {
         patch(item.localId, { status: "processing", error: undefined });
         let compressed: Awaited<ReturnType<typeof compress>>;
         try {
-          compressed = await compress(file);
+          compressed = await compress(file, controller.signal);
         } catch (e) {
+          if (cancelled()) return;
           const reason = e instanceof Error && e.message === "too-large" ? "is still over 10 MB after compression" : "couldn't be read as an image";
           patch(item.localId, { status: "error", error: `This photo ${reason}.` });
           return;
         }
+        if (cancelled()) return;
 
         if (demo || !userId) {
           onUploadedRef.current({
@@ -131,7 +139,13 @@ export function useUploads({
           .from("trip-photos")
           .upload(path, compressed.blob, { contentType: OUTPUT_TYPE, upsert: false, cacheControl: "31536000" });
         if (uploadError && !/exists|duplicate/i.test(uploadError.message)) {
+          if (cancelled()) return;
           patch(item.localId, { status: "error", error: "The upload failed. Check your connection and try again." });
+          return;
+        }
+        if (cancelled()) {
+          // The file reached storage but was never registered: remove it again.
+          await supabase.storage.from("trip-photos").remove([path]);
           return;
         }
 
@@ -144,14 +158,26 @@ export function useUploads({
           height: compressed.height,
         });
         if (!result.ok) {
+          if (cancelled()) {
+            await supabase.storage.from("trip-photos").remove([path]);
+            return;
+          }
           patch(item.localId, { status: "error", error: result.error });
+          return;
+        }
+        if (cancelled()) {
+          // Cancelled while the server was saving it. Delete it; if that fails the
+          // photo really exists, so show it rather than pretend it's gone.
+          const removed = await deletePhoto(result.data.id);
+          if (!removed.ok) onUploadedRef.current(result.data);
           return;
         }
         onUploadedRef.current(result.data);
         finish(item.localId, false);
       } catch {
-        patch(item.localId, { status: "error", error: "Something went wrong with this upload. Try again." });
+        if (!cancelled()) patch(item.localId, { status: "error", error: "Something went wrong with this upload. Try again." });
       } finally {
+        controllers.current.delete(item.localId);
         active.current -= 1;
       }
     },
@@ -192,7 +218,14 @@ export function useUploads({
     },
     [patch],
   );
-  const remove = useCallback((localId: string) => finish(localId, false), [finish]);
+  /** Removes a queued or failed item, or cancels one that is in progress. */
+  const remove = useCallback(
+    (localId: string) => {
+      controllers.current.get(localId)?.abort();
+      finish(localId, false);
+    },
+    [finish],
+  );
 
   // Revoke any object URLs still alive when the editor unmounts.
   useEffect(() => {

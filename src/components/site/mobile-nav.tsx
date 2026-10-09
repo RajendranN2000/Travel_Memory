@@ -14,7 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { signOut } from "@/features/auth/actions";
-import { NavLinks } from "./nav-links";
+import { CreateCta, NavLinks } from "./nav-links";
 
 export interface HeaderUser {
   displayName: string | null;
@@ -65,11 +65,7 @@ export function MobileNav({ user }: { user: HeaderUser | null }) {
               </Button>
             </SheetClose>
           )}
-          <SheetClose asChild>
-            <Button asChild size="lg">
-              <Link href="/create">Create your memory</Link>
-            </Button>
-          </SheetClose>
+          <CreateCta className="h-11 px-6" onNavigate={() => setOpen(false)} />
         </div>
       </SheetContent>
     </Sheet>

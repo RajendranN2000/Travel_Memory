@@ -6,7 +6,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { AccountMenu } from "./account-menu";
 import { Logo } from "./logo";
 import { MobileNav } from "./mobile-nav";
-import { NavLinks, NavLinksFallback } from "./nav-links";
+import { CreateCta, NavLinks, NavLinksFallback } from "./nav-links";
 
 async function Account() {
   const user = await getCurrentUser();
@@ -59,9 +59,10 @@ export function SiteHeader() {
           </Suspense>
         </nav>
         <div className="ml-auto flex items-center gap-2">
-          <Button asChild className="hidden sm:inline-flex">
-            <Link href="/create">Create your memory</Link>
-          </Button>
+          {/* Fallback is empty so the button never flashes on /create. */}
+          <Suspense fallback={null}>
+            <CreateCta className="hidden sm:inline-flex" />
+          </Suspense>
           <Suspense fallback={<AccountFallback />}>
             <Account />
           </Suspense>

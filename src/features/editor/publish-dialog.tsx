@@ -36,6 +36,8 @@ export function PublishDialog({
   demo,
   flush,
   onChange,
+  open: openProp,
+  onOpenChange,
 }: {
   tripId: string;
   publication: Publication | null;
@@ -45,8 +47,13 @@ export function PublishDialog({
   demo: boolean;
   flush: () => Promise<boolean>;
   onChange: (publication: Publication | null) => void;
+  /** Optional control, so other buttons (e.g. the step footer) can open the dialog. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = onOpenChange ?? setOpenState;
   const [visibility, setVisibility] = useState<Visibility>(publication?.visibility ?? "unlisted");
   const [indexing, setIndexing] = useState(publication?.allowIndexing ?? false);
   const [error, setError] = useState<string | null>(null);

@@ -40,7 +40,7 @@ export function DevicePreview({
     );
   }
   return (
-    <div className={cn("overflow-hidden rounded-lg border border-border bg-card shadow-lifted", className)}>
+    <div className={cn("w-full min-w-0 overflow-hidden rounded-lg border border-border bg-card shadow-lifted", className)}>
       <div className="flex items-center gap-1.5 border-b border-border bg-secondary/60 px-4 py-2.5" aria-hidden>
         <span className="size-2.5 rounded-full bg-foreground/15" />
         <span className="size-2.5 rounded-full bg-foreground/15" />
@@ -73,8 +73,16 @@ function ScaledFrame({ children, label, height }: { children: ReactNode; label: 
   }, []);
 
   return (
-    <div ref={outer} className={cn("overflow-x-hidden overflow-y-auto overscroll-contain", height)} tabIndex={0} role="region" aria-label={label}>
-      <div style={{ height: contentHeight === null ? undefined : contentHeight * scale }}>
+    // contain:inline-size stops the 1280px canvas from widening the page: the
+    // frame takes its width from the layout, and the canvas is scaled to it.
+    <div
+      ref={outer}
+      className={cn("w-full overflow-x-hidden overflow-y-auto overscroll-contain [contain:inline-size]", height)}
+      tabIndex={0}
+      role="region"
+      aria-label={label}
+    >
+      <div className="overflow-hidden" style={{ height: contentHeight === null ? undefined : contentHeight * scale }}>
         <div ref={inner} style={{ width: DESKTOP_WIDTH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
           {children}
         </div>

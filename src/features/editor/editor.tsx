@@ -1,7 +1,7 @@
 "use client";
 
 import { arrayMove } from "@dnd-kit/sortable";
-import { ArrowLeft, Eye } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Eye, Images, NotebookPen, Palette, Send, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
@@ -23,6 +23,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { MemoryContent } from "@/features/memories/types";
 import { getTemplate, templates } from "@/features/templates/registry";
+import { getDestinationTheme } from "@/features/themes/registry";
+import { LIMITS } from "@/features/trips/schemas";
+import { cn } from "@/lib/utils";
 import { MemoryRenderer } from "@/features/templates/render";
 import { deletePhoto, reorderPhotos, updatePhoto, updateTrip } from "@/features/trips/actions";
 import type { EditorPhoto, EditorTrip, Publication } from "@/features/trips/types";
@@ -35,7 +38,18 @@ import type { DraftFields, SetField } from "./types";
 import { useAutosave, type SaveHandler } from "./use-autosave";
 import { useUploads } from "./use-uploads";
 
-export function Editor({ trip, userId, demo }: { trip: EditorTrip; userId: string | null; demo: boolean }) {
+export function Editor({
+  trip,
+  userId,
+  demo,
+  openPublish = false,
+}: {
+  trip: EditorTrip;
+  userId: string | null;
+  demo: boolean;
+  /** Open the publish dialog straight away (arriving from the full preview). */
+  openPublish?: boolean;
+}) {
   const router = useRouter();
   const [draft, setDraft] = useState<DraftFields>({
     title: trip.title,
@@ -54,8 +68,9 @@ export function Editor({ trip, userId, demo }: { trip: EditorTrip; userId: strin
   );
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [device, setDevice] = useState<PreviewDevice>("mobile");
-  const [tab, setTab] = useState("details");
+  const [tab, setTab] = useState(openPublish ? "design" : "details");
   const [leaveTo, setLeaveTo] = useState<string | null>(null);
+  const [publishOpen, setPublishOpen] = useState(openPublish);
 
   const save = useCallback<SaveHandler>(
     async (key, patch) => {
@@ -139,6 +154,14 @@ export function Editor({ trip, userId, demo }: { trip: EditorTrip; userId: strin
     }
   };
 
+  // The dialog opened from ?publish=1; drop the flag so a reload doesn't reopen it.
+  useEffect(() => {
+    if (!openPublish) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete("publish");
+    window.history.replaceState(window.history.state, "", url);
+  }, [openPublish]);
+
   // Warn before closing the tab with unsaved changes or uploads in flight.
   const uploadsBusy = uploads.busy;
   useEffect(() => {
@@ -181,15 +204,41 @@ export function Editor({ trip, userId, demo }: { trip: EditorTrip; userId: strin
     [draft, photos, uploads.items],
   );
 
+  const template = getTemplate(draft.templateSlug) ?? templates[0];
+  const layoutName = template.layouts.find((l) => l.key === draft.layout)?.name ?? template.layouts[0].name;
+  const destinationName = getDestinationTheme(draft.destinationSlug)?.name ?? "Custom";
+  const done: Record<StepKey, boolean> = {
+    details: draft.title.trim().length > 0,
+    photos: photos.length > 0,
+    design: false,
+  };
+
+  const goTo = (step: string) => {
+    setTab(step);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const preview = (
-    <section aria-label="Live preview" className="flex min-h-0 flex-col">
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">Live preview</p>
+    <section aria-label="Live preview" className="flex min-h-0 flex-col rounded-xl border border-border bg-card p-3 shadow-soft sm:p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3 px-1">
+        <div className="min-w-0">
+          <h2 className="flex items-center gap-2 font-semibold">
+            <span aria-hidden className="size-2 rounded-full bg-success" />
+            Live preview
+          </h2>
+          <p className="truncate text-sm text-muted-foreground">
+            {template.name} · {layoutName} · {destinationName} theme
+          </p>
+        </div>
         <DeviceToggle value={device} onChange={setDevice} />
       </div>
-      <DevicePreview device={device} label="Memory preview" height="h-[min(52rem,calc(100svh-12rem))]">
+      <DevicePreview device={device} label="Memory preview" height="h-[min(52rem,calc(100svh-17.5rem))]">
         <MemoryRenderer memory={memory} sizesHint="preview" />
       </DevicePreview>
+      <p className="mt-3 px-1 text-xs text-muted-foreground">
+        Changes appear here as you edit.{" "}
+        {demo ? "Nothing is saved in demo mode." : "Your draft stays private until you publish it."}
+      </p>
     </section>
   );
 
@@ -202,21 +251,31 @@ export function Editor({ trip, userId, demo }: { trip: EditorTrip; userId: strin
             Demo mode with sample data. Nothing is saved or uploaded. Connect Supabase to save your work.
           </p>
         ) : null}
-        <div className="flex h-16 items-center gap-2 px-3 sm:gap-3 sm:px-5">
-          <Button asChild variant="ghost" size="icon" aria-label="Back to my memories">
+        <div className="mx-auto flex h-16 w-full max-w-[96rem] items-center gap-2 px-3 sm:gap-3 sm:px-6 lg:px-8">
+          <Button asChild variant="ghost" size="icon" aria-label="Back to my memories" className="-ml-2">
             <Link href="/my-memories" onClick={(e) => guardedNavigate(e, "/my-memories")}>
               <ArrowLeft />
             </Link>
           </Button>
-          <LogoMark className="hidden size-7 sm:block" />
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate font-display text-lg leading-tight">{draft.title || "Untitled trip"}</h1>
+          <LogoMark className="hidden size-7 shrink-0 sm:block" />
+          <div className="min-w-0 flex-1 sm:ml-1">
+            <div className="flex min-w-0 items-center gap-2">
+              <h1 className="truncate font-display text-lg leading-tight">{draft.title || "Untitled trip"}</h1>
+              <span
+                className={cn(
+                  "hidden shrink-0 rounded-full px-2 py-0.5 text-[0.7rem] font-semibold tracking-wide uppercase sm:inline",
+                  publication ? "bg-success/10 text-success" : "bg-muted text-muted-foreground",
+                )}
+              >
+                {publication ? (editedSincePublish ? "Published · edited" : "Published") : "Draft"}
+              </span>
+            </div>
             <SaveIndicator status={autosave.status} error={autosave.error} lastSavedAt={autosave.lastSavedAt} demo={demo} onRetry={() => void autosave.flush()} />
           </div>
           {!demo ? (
-            <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex sm:h-11">
+            <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex sm:h-11 sm:px-4">
               <Link href={`/preview/${trip.id}`} onClick={(e) => guardedNavigate(e, `/preview/${trip.id}`)}>
-                <Eye data-icon="inline-start" /> Preview
+                <Eye data-icon="inline-start" /> Full preview
               </Link>
             </Button>
           ) : null}
@@ -227,6 +286,8 @@ export function Editor({ trip, userId, demo }: { trip: EditorTrip; userId: strin
             hasChangesSincePublish={editedSincePublish}
             demo={demo}
             flush={autosave.flush}
+            open={publishOpen}
+            onOpenChange={setPublishOpen}
             onChange={(p) => {
               setPublication(p);
               setEditedSincePublish(false);
@@ -235,43 +296,98 @@ export function Editor({ trip, userId, demo }: { trip: EditorTrip; userId: strin
         </div>
       </header>
 
-      <div className="mx-auto grid w-full max-w-[96rem] flex-1 gap-8 px-3 py-5 sm:px-5 lg:grid-cols-[minmax(22rem,30rem)_1fr] lg:gap-10">
-        <Tabs value={tab} onValueChange={setTab} className="min-w-0">
-          <TabsList className="grid h-auto w-full grid-cols-4 lg:grid-cols-3">
-            <EditorTab value="details">Details</EditorTab>
-            <EditorTab value="photos">Photos{photos.length ? ` (${photos.length})` : ""}</EditorTab>
-            <EditorTab value="design">Design</EditorTab>
-            <EditorTab value="preview" className="lg:hidden">
+      <div className="mx-auto grid w-full max-w-[96rem] flex-1 items-start gap-6 px-3 py-5 sm:px-6 sm:py-8 lg:grid-cols-[minmax(0,32rem)_minmax(0,1fr)] lg:gap-8 lg:px-8 xl:grid-cols-[minmax(0,36rem)_minmax(0,1fr)] xl:gap-10">
+        <Tabs value={tab} onValueChange={setTab} className="min-w-0 gap-4">
+          <TabsList aria-label="Editor steps" className="grid h-auto w-full grid-cols-4 gap-1 rounded-xl group-data-horizontal/tabs:h-auto border border-border bg-card p-1.5 shadow-soft lg:grid-cols-3">
+            {STEPS.map((step, i) => (
+              <StepTab key={step.value} value={step.value} number={i + 1} done={done[step.value]} icon={step.icon}>
+                {step.label}
+                {step.value === "photos" && photos.length > 0 ? (
+                  <span className="rounded-full bg-current/10 px-1.5 text-xs tabular-nums">{photos.length}</span>
+                ) : null}
+              </StepTab>
+            ))}
+            <StepTab value="preview" icon={Eye} className="lg:hidden">
               Preview
-            </EditorTab>
+            </StepTab>
           </TabsList>
-          <TabsContent value="details" className="pt-6">
-            <DetailsPanel draft={draft} setField={setField} errors={fieldErrors} />
-          </TabsContent>
-          <TabsContent value="photos" className="pt-6">
-            <PhotosPanel
-              photos={photos}
-              uploads={uploads.items}
-              demo={demo}
-              onFiles={onFiles}
-              onRetryUpload={uploads.retry}
-              onRemoveUpload={uploads.remove}
-              onReorder={onReorder}
-              onChangePhoto={onChangePhoto}
-              onDeletePhoto={onDeletePhoto}
-            />
-          </TabsContent>
-          <TabsContent value="design" className="pt-6">
-            <DesignPanel draft={draft} setField={setField} />
-          </TabsContent>
-          <TabsContent value="preview" className="pt-6 lg:hidden">
+
+          {STEPS.map((step, i) => (
+            <TabsContent key={step.value} value={step.value} className="text-base">
+              <div className="rounded-xl border border-border bg-card shadow-soft">
+                <div className="border-b border-border px-4 py-4 sm:px-6 sm:py-5">
+                  <p className="eyebrow text-muted-foreground">
+                    Step {i + 1} of {STEPS.length}
+                  </p>
+                  <h2 className="mt-1 font-display text-2xl leading-tight">{step.title}</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">{step.description}</p>
+                </div>
+                <div className="px-4 py-5 sm:px-6 sm:py-6">
+                  {step.value === "details" ? (
+                    <DetailsPanel draft={draft} setField={setField} errors={fieldErrors} />
+                  ) : step.value === "photos" ? (
+                    <PhotosPanel
+                      photos={photos}
+                      uploads={uploads.items}
+                      demo={demo}
+                      onFiles={onFiles}
+                      onRetryUpload={uploads.retry}
+                      onRemoveUpload={uploads.remove}
+                      onReorder={onReorder}
+                      onChangePhoto={onChangePhoto}
+                      onDeletePhoto={onDeletePhoto}
+                    />
+                  ) : (
+                    <DesignPanel draft={draft} setField={setField} />
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-b-xl border-t border-border bg-muted/40 px-4 py-3 sm:px-6">
+                  {i > 0 ? (
+                    <Button variant="ghost" onClick={() => goTo(STEPS[i - 1].value)}>
+                      <ArrowLeft data-icon="inline-start" /> {STEPS[i - 1].label}
+                    </Button>
+                  ) : (
+                    <span />
+                  )}
+                  {i < STEPS.length - 1 ? (
+                    <Button onClick={() => goTo(STEPS[i + 1].value)}>
+                      Next: {STEPS[i + 1].label} <ArrowRight data-icon="inline-end" />
+                    </Button>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="outline" className="lg:hidden" onClick={() => goTo("preview")}>
+                        <Eye data-icon="inline-start" /> Preview
+                      </Button>
+                      {!demo ? (
+                        <Button asChild variant="outline" className="hidden lg:inline-flex">
+                          <Link href={`/preview/${trip.id}`} onClick={(e) => guardedNavigate(e, `/preview/${trip.id}`)}>
+                            <Eye data-icon="inline-start" /> Full preview
+                          </Link>
+                        </Button>
+                      ) : null}
+                      <Button onClick={() => setPublishOpen(true)}>
+                        <Send data-icon="inline-start" /> {publication ? "Next: Update & share" : "Next: Publish"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+          ))}
+          <TabsContent value="preview" className="lg:hidden">
             {preview}
+            <div className="mt-4 flex justify-between gap-2">
+              <Button variant="ghost" onClick={() => goTo("design")}>
+                <ArrowLeft data-icon="inline-start" /> Design
+              </Button>
+              <Button onClick={() => setPublishOpen(true)}>
+                <Send data-icon="inline-start" /> {publication ? "Next: Update & share" : "Next: Publish"}
+              </Button>
+            </div>
           </TabsContent>
         </Tabs>
 
-        <div className="hidden lg:block">
-          <div className="sticky top-24">{preview}</div>
-        </div>
+        <div className="hidden min-w-0 lg:block lg:sticky lg:top-24">{preview}</div>
       </div>
 
       <AlertDialog open={leaveTo !== null} onOpenChange={(open) => !open && setLeaveTo(null)}>
@@ -304,10 +420,67 @@ export function Editor({ trip, userId, demo }: { trip: EditorTrip; userId: strin
   );
 }
 
-function EditorTab({ value, children, className }: { value: string; children: ReactNode; className?: string }) {
+type StepKey = "details" | "photos" | "design";
+
+const STEPS: Array<{ value: StepKey; label: string; title: string; description: string; icon: LucideIcon }> = [
+  {
+    value: "details",
+    label: "Details",
+    title: "Trip details",
+    description: "Name your trip and tell its story. Only the title is required.",
+    icon: NotebookPen,
+  },
+  {
+    value: "photos",
+    label: "Photos",
+    title: "Photos",
+    description: `Add up to ${LIMITS.photosPerTrip} photos, put them in order and caption the ones that matter.`,
+    icon: Images,
+  },
+  {
+    value: "design",
+    label: "Design",
+    title: "Design",
+    description: "Pick a destination theme, template, layout and colours. The preview updates instantly.",
+    icon: Palette,
+  },
+];
+
+function StepTab({
+  value,
+  number,
+  done,
+  icon: Icon,
+  children,
+  className,
+}: {
+  value: string;
+  number?: number;
+  done?: boolean;
+  icon: LucideIcon;
+  children: ReactNode;
+  className?: string;
+}) {
   return (
-    <TabsTrigger value={value} className={`min-h-11 text-sm ${className ?? ""}`}>
-      {children}
+    <TabsTrigger
+      value={value}
+      className={cn(
+        "group/step h-auto min-h-12 flex-col gap-1 rounded-lg px-1.5 py-2 text-[0.8rem] text-muted-foreground sm:flex-row sm:gap-2 sm:px-3 sm:text-sm",
+        "hover:bg-muted/70 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm",
+        className,
+      )}
+    >
+      <span
+        aria-hidden
+        className={cn(
+          "grid size-6 shrink-0 place-items-center rounded-full border text-xs font-semibold tabular-nums",
+          done ? "border-success bg-success text-white" : "border-current/30",
+          "group-data-[state=active]/step:border-primary-foreground/40 group-data-[state=active]/step:bg-primary-foreground/15 group-data-[state=active]/step:text-primary-foreground",
+        )}
+      >
+        {done ? <Check className="size-3.5" strokeWidth={3} /> : number ? number : <Icon className="size-3.5" />}
+      </span>
+      <span className="flex items-center gap-1.5">{children}</span>
     </TabsTrigger>
   );
 }

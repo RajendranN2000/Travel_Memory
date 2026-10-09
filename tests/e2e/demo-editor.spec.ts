@@ -11,7 +11,7 @@ test.describe("demo editor (development without Supabase)", () => {
     await page.goto("/editor/demo");
     await expect(page.getByText(/Demo mode with sample data. Nothing is saved/)).toBeVisible();
     await expect(page.getByText("Demo · not saved")).toBeVisible();
-    await page.getByRole("button", { name: /Publish/ }).click();
+    await page.locator("header").getByRole("button", { name: /Publish/ }).click();
     await expect(page.getByText(/Publishing is disabled in demo mode/)).toBeVisible();
     await expect(page.getByRole("dialog").getByRole("button", { name: "Publish", exact: true })).toBeDisabled();
   });

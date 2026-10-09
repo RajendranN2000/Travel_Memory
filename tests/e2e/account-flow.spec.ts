@@ -80,7 +80,7 @@ test.describe("account, editing and publishing", () => {
   test("publish unlisted, visible to visitors with the link", async ({ page, browser }) => {
     await signIn(page);
     await page.goto(editorUrl);
-    await page.getByRole("button", { name: /Publish/ }).click();
+    await page.locator("header").getByRole("button", { name: /Publish/ }).click();
     await page.getByLabel(/Unlisted/).check();
     await page.getByRole("dialog").getByRole("button", { name: "Publish", exact: true }).click();
     await expect(page.getByLabel("Link")).toHaveValue(/\/memory\/e2e-forest-weekend-[a-z0-9]{10}$/);
@@ -98,7 +98,7 @@ test.describe("account, editing and publishing", () => {
   test("private memories are hidden from visitors but open for the owner", async ({ page, browser }) => {
     await signIn(page);
     await page.goto(editorUrl);
-    await page.getByRole("button", { name: /Publish|Update/ }).click();
+    await page.locator("header").getByRole("button", { name: /Publish|Update/ }).click();
     await page.getByLabel(/Private/).check();
     await page.getByRole("button", { name: "Save sharing settings" }).click();
     await expect(page.getByText("Sharing settings updated")).toBeVisible();

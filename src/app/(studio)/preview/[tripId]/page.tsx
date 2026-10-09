@@ -1,4 +1,5 @@
-import { ArrowLeft, Lock } from "lucide-react";
+import { ArrowLeft, Lock, Send } from "lucide-react";
+import { PrintButton } from "@/components/memory/print-button";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -55,16 +56,24 @@ async function Preview({ params }: Pick<PageProps<"/preview/[tripId]">, "params"
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-border bg-ink text-paper">
-        <div className="mx-auto flex min-h-14 max-w-7xl items-center gap-3 px-3 py-2 sm:px-6">
+      <header className="sticky top-0 z-30 border-b border-border bg-ink text-paper print:hidden">
+        <div className="mx-auto flex min-h-14 max-w-7xl flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 sm:px-6">
           <Button asChild size="sm" variant="ghost" className="text-paper hover:bg-paper/10 hover:text-paper">
             <Link href={`/editor/${trip.id}`}>
               <ArrowLeft data-icon="inline-start" /> Back to editor
             </Link>
           </Button>
-          <p className="ml-auto flex items-center gap-1.5 text-xs text-paper/80 sm:text-sm">
+          <p className="flex items-center gap-1.5 text-xs text-paper/80 sm:text-sm">
             <Lock aria-hidden className="size-3.5" /> Draft preview, only visible to you
           </p>
+          <div className="ml-auto flex items-center gap-2">
+            <PrintButton className="text-paper hover:bg-paper/10 hover:text-paper" />
+            <Button asChild size="sm" className="bg-paper text-ink hover:bg-paper/90">
+              <Link href={`/editor/${trip.id}?publish=1`}>
+                <Send data-icon="inline-start" /> Publish
+              </Link>
+            </Button>
+          </div>
         </div>
       </header>
       <main id="main" className="flex-1">

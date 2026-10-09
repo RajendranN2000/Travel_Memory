@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const primaryNav = [
@@ -37,6 +38,19 @@ export function NavLinks({ className, onNavigate }: { className?: string; onNavi
         );
       })}
     </ul>
+  );
+}
+
+/** The header's call to action, hidden while the visitor is already creating a memory. */
+export function CreateCta({ className, onNavigate }: { className?: string; onNavigate?: () => void }) {
+  const pathname = usePathname();
+  if (isActive(pathname, "/create")) return null;
+  return (
+    <Button asChild className={className}>
+      <Link href="/create" onClick={onNavigate}>
+        Create your memory
+      </Link>
+    </Button>
   );
 }
 

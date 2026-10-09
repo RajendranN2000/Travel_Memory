@@ -197,6 +197,11 @@
   .reveal {
     animation: none !important;
   }
+  /* Keep theme backgrounds and photo treatments when printing or saving as PDF. */
+  html {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
