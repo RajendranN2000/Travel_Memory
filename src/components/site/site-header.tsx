@@ -1,0 +1,72 @@
+import Link from "next/link";
+import { Suspense } from "react";
+import { Button } from "@/components/ui/button";
+import { getCurrentUser } from "@/features/auth/session";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { AccountMenu } from "./account-menu";
+import { Logo } from "./logo";
+import { MobileNav } from "./mobile-nav";
+import { NavLinks, NavLinksFallback } from "./nav-links";
+
+async function Account() {
+  const user = await getCurrentUser();
+  const headerUser = user ? { displayName: user.displayName, email: user.email } : null;
+  return (
+    <>
+      <div className="hidden items-center gap-2 md:flex">
+        {headerUser ? (
+          <AccountMenu user={headerUser} />
+        ) : (
+          <Button asChild variant="ghost">
+            <Link href="/login">Sign in</Link>
+          </Button>
+        )}
+      </div>
+      <MobileNav user={headerUser} />
+    </>
+  );
+}
+
+function AccountFallback() {
+  return (
+    <>
+      <div className="hidden md:block">
+        <Button asChild variant="ghost">
+          <Link href="/login">Sign in</Link>
+        </Button>
+      </div>
+      <MobileNav user={null} />
+    </>
+  );
+}
+
+export function SiteHeader() {
+  return (
+    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+      {!isSupabaseConfigured() ? (
+        <p className="bg-ink px-4 py-2 text-center text-xs text-paper">
+          Supabase isn&apos;t configured, so accounts and saving are off.{" "}
+          <Link href="/setup" className="underline underline-offset-2">
+            Read the setup guide
+          </Link>
+        </p>
+      ) : null}
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
+        <Logo />
+        <nav aria-label="Primary" className="ml-6 hidden md:block">
+          <Suspense fallback={<NavLinksFallback className="flex items-center gap-1" />}>
+            <NavLinks className="flex items-center gap-1" />
+          </Suspense>
+        </nav>
+        <div className="ml-auto flex items-center gap-2">
+          <Button asChild className="hidden sm:inline-flex">
+            <Link href="/create">Create your memory</Link>
+          </Button>
+          <Suspense fallback={<AccountFallback />}>
+            <Account />
+          </Suspense>
+        </div>
+      </div>
+    </header>
+  );
+}

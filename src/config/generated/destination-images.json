@@ -1,0 +1,324 @@
+{
+  "munnar/hero": {
+    "src": "/images/destinations/munnar/hero.webp",
+    "width": 2400,
+    "height": 1600,
+    "blurDataURL": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAABQAgCdASoQAAsAA4BaJbACdGuAAt06JADMDcgA/slrEm7Bpr/xobhynChl9RU0ixlbXsG+QSSkjIySUIOL67QB1Q1AAA==",
+    "alt": "Rolling tea estates under a clear sky in Munnar, with a stand of trees on a hilltop",
+    "source": {
+      "title": "File:Munnar Tea Plantations-WUS07340.jpg",
+      "author": "Rainer Halama",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Munnar_Tea_Plantations-WUS07340.jpg"
+    }
+  },
+  "munnar/valley": {
+    "src": "/images/destinations/munnar/valley.webp",
+    "width": 2400,
+    "height": 1594,
+    "blurDataURL": "data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAADwAQCdASoQAAsAA4BaJbAC7ADxz4MkiwAA+NyZUjr0hEPuP6CK4NGzkppNkfOrUl6KhaqL+nnbgtX717FFJuAA",
+    "alt": "A tea-covered slope beneath granite peaks in Munnar",
+    "source": {
+      "title": "File:Tea plantation munnar.jpg",
+      "author": "Shino jacob koottanad",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Tea_plantation_munnar.jpg"
+    }
+  },
+  "munnar/rows": {
+    "src": "/images/destinations/munnar/rows.webp",
+    "width": 2400,
+    "height": 1600,
+    "blurDataURL": "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAAAQAgCdASoQAAsAA4BaJaACdADxOOSUubWgAP7rp+7Sek5gwcLCWYk9m4Z5iDPeYlP6PRtTgXbhulER8Bt4ftuXIF+6XegsvDIrrCI35IOuBGRSAq0mg9bOIAA=",
+    "alt": "Neatly clipped rows of tea bushes curving around a hillside in Munnar",
+    "source": {
+      "title": "File:Munnar Tea Plantation and Trees.jpg",
+      "author": "Kondephy",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Munnar_Tea_Plantation_and_Trees.jpg"
+    }
+  },
+  "munnar/road": {
+    "src": "/images/destinations/munnar/road.webp",
+    "width": 2400,
+    "height": 1469,
+    "blurDataURL": "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAAAQAgCdASoQAAoAA4BaJagAAuzwHDnAU6oAAM491qSKr1Y8aijqIgfoS49ijRQgYw1r2iykUKHHRIGkHLh/7DP3m72bN6JDgAA=",
+    "alt": "A quiet road through tea gardens with misty hills behind, near Rajamala",
+    "source": {
+      "title": "File:Tea plantation , Rajamala munnar.jpg",
+      "author": "Shino jacob koottanad",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Tea_plantation_,_Rajamala_munnar.jpg"
+    }
+  },
+  "goa/hero": {
+    "src": "/images/destinations/goa/hero.webp",
+    "width": 2400,
+    "height": 1600,
+    "blurDataURL": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADwAQCdASoQAAsAA4BaJaACdAEOuNy6ygAA+3YlssEeXMOlFN9s6W9Z1VBjlvotvZ/S1+EKZPzs8PbVKmuR0DBFAAA=",
+    "alt": "Glowing orange sunset reflected on the wet sand of Palolem Beach",
+    "source": {
+      "title": "File:Palolem Beach sunset - Goa (46052828755).jpg",
+      "author": "Maciej Kraus",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Palolem_Beach_sunset_-_Goa_(46052828755).jpg"
+    }
+  },
+  "goa/shore": {
+    "src": "/images/destinations/goa/shore.webp",
+    "width": 2400,
+    "height": 1200,
+    "blurDataURL": "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAADQAQCdASoQAAgAA4BaJQBOgCPtYZIAAAD+8D9nz3SJkSZUdSQRoAOqiihIkKM3pjanB8ASvgSBVAAA",
+    "alt": "Turquoise Arabian Sea and a green headland seen from Cabo de Rama",
+    "source": {
+      "title": "File:The shore of Arabian sea from Cabo de Rama Fort.jpg",
+      "author": "iMahesh",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:The_shore_of_Arabian_sea_from_Cabo_de_Rama_Fort.jpg"
+    }
+  },
+  "goa/cove": {
+    "src": "/images/destinations/goa/cove.webp",
+    "width": 2400,
+    "height": 1800,
+    "blurDataURL": "data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAAAwAgCdASoQAAwAA4BaJagCdAEWTpZcXNFTgAD+0ow3sSFYdJPjrDdgI1OLHfOHV8BEqy4CnRawZEskXDpiD3G52ygZg1w7XUDQ9XsH+mm6DJW5CL2DWPoyOFAYAAAA",
+    "alt": "Golden sand, smooth boulders and gentle waves at Butterfly Beach",
+    "source": {
+      "title": "File:Butterflybeach.jpg",
+      "author": "Ashi ashlesh",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Butterflybeach.jpg"
+    }
+  },
+  "goa/palms": {
+    "src": "/images/destinations/goa/palms.webp",
+    "width": 2400,
+    "height": 1800,
+    "blurDataURL": "data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAAAQAgCdASoQAAwAA4BaJYwCdH8AF2oH/OAAAP6RuCihSoEywe/ezZPbHqtSu9P35xyEesKyYo41XH/ckql/vN6ghUXMXAcERKpN5T5aGLkwc2+I3+DStyFXgMuf7TAA",
+    "alt": "Silhouetted coconut palms against a blue evening sky at Sinquerim",
+    "source": {
+      "title": "File:Goa sinquerim beach sunset view.jpg",
+      "author": "Gayatri Priyadarshini",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Goa_sinquerim_beach_sunset_view.jpg"
+    }
+  },
+  "goa/boat": {
+    "src": "/images/destinations/goa/boat.webp",
+    "width": 2400,
+    "height": 1600,
+    "blurDataURL": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAAAQAgCdASoQAAsAA4BaJZACdAEPAv++0KtsAP7t3N/KyM7XnIYYzCMNqoBQeT61B5TE0+NDzLGwEHiLlefXVyiwAAA=",
+    "alt": "A traditional outrigger fishing boat resting on the sand at Palolem",
+    "source": {
+      "title": "File:Palolem beach - panoramio (2).jpg",
+      "author": "Alexey Komarov",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Palolem_beach_-_panoramio_(2).jpg"
+    }
+  },
+  "ooty/hero": {
+    "src": "/images/destinations/ooty/hero.webp",
+    "width": 2400,
+    "height": 1485,
+    "blurDataURL": "data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAACwAQCdASoQAAoAA4BaJZgAAuczBQAAAP73Fs5tlswRKFzYlX/xzjzb7F6jCjGdPHkvLBqtVIyJU/8G5BDgAA==",
+    "alt": "Tea gardens and silver oaks below a cloud-draped Nilgiri mountain near Ooty",
+    "source": {
+      "title": "File:Tea gardens at ooty.jpg",
+      "author": "Sakthiramu",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Tea_gardens_at_ooty.jpg"
+    }
+  },
+  "ooty/silver-oaks": {
+    "src": "/images/destinations/ooty/silver-oaks.webp",
+    "width": 2304,
+    "height": 1728,
+    "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADQAQCdASoQAAwAA4BaJZQAAixhGl7SAAD5Mst3MFcvBaJGMmYxUOo2bux/4AvUX7yTBf/OrMo5TWcFuw7QtqL54y17N7B+4kF4HKXjhAA=",
+    "alt": "Slender silver oak trees rising out of a tea garden on an overcast Nilgiri day",
+    "source": {
+      "title": "File:Tea garden ooty nilgiris, india.jpg",
+      "author": "PiolAtif",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Tea_garden_ooty_nilgiris,_india.jpg"
+    }
+  },
+  "ooty/fog-road": {
+    "src": "/images/destinations/ooty/fog-road.webp",
+    "width": 2400,
+    "height": 1800,
+    "blurDataURL": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAAAQAgCdASoQAAwAA4BaJZwAAxf0fJ7rFPdAAP6cOvfkuNE9enVbvbgdY2Qh3oVX12pKltkw84JfABmo7dHsuMIAAAA=",
+    "alt": "A winding road disappearing into fog in the hills near Kotagiri",
+    "source": {
+      "title": "File:Misty hills kotagiri ooty tamilnadu - panoramio.jpg",
+      "author": "rajaraman sundaram",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Misty_hills_kotagiri_ooty_tamilnadu_-_panoramio.jpg"
+    }
+  },
+  "ooty/garden": {
+    "src": "/images/destinations/ooty/garden.webp",
+    "width": 2400,
+    "height": 1350,
+    "blurDataURL": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAADwAQCdASoQAAkAA4BaJaAC7AC9W0nGXyAA/oQB9mpMR9GEJZhHtdayZ9ZsdNvWRD/AuKgsq8/txvQ4ycwRZcdr4ffebn+9ic8UhXjbiewAAA==",
+    "alt": "Shade trees standing over a lush tea garden in Ooty",
+    "source": {
+      "title": "File:Tea Garden OOTY.jpg",
+      "author": "santhoshkumar.gunda",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Tea_Garden_OOTY.jpg"
+    }
+  },
+  "wayanad/hero": {
+    "src": "/images/destinations/wayanad/hero.webp",
+    "width": 2400,
+    "height": 1800,
+    "blurDataURL": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAADQAQCdASoQAAwAA4BaJbACdAED3wmMAAD+5/s+nBU8GQsl9po41zvhV9Wv/adET2/nn5sZLJOqgGK/4gDebbvh/9QQsiUQ56lgAAAA",
+    "alt": "Cloud-capped Banasura hills above deep green forest in Wayanad",
+    "source": {
+      "title": "File:Banasura hills from View Point Wayanad Resort, Pulinjal (12).jpg",
+      "author": "Vinayaraj",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Banasura_hills_from_View_Point_Wayanad_Resort,_Pulinjal_(12).jpg"
+    }
+  },
+  "wayanad/falls": {
+    "src": "/images/destinations/wayanad/falls.webp",
+    "width": 2400,
+    "height": 1800,
+    "blurDataURL": "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAADwAQCdASoQAAwAA4BaJZQC7ACziCob6gAA4jUmhNMN9Q5SA23goiQ7zqmS9+d7BpypXr/3RBwb0F28CMk8uRa1Pmwa9+taUkgdx460lSm02gAA",
+    "alt": "Soochippara waterfall plunging down a dark rock face in the forest",
+    "source": {
+      "title": "File:Soochippara waterfalls,Wayanad,kerala.jpg",
+      "author": "Siyad saffan shah",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Soochippara_waterfalls,Wayanad,kerala.jpg"
+    }
+  },
+  "wayanad/heart-lake": {
+    "src": "/images/destinations/wayanad/heart-lake.webp",
+    "width": 2400,
+    "height": 1800,
+    "blurDataURL": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAACwAQCdASoQAAwAA4BaJbACdAENS1dYAPKcnjY17yRuCIDiSADQREF/MKk32ka1ZL1oaB4i2LJ9J8DzIqpSuiEGtl6V4uJsB6EWNAAA",
+    "alt": "The heart-shaped lake on the grassy slopes of Chembra Peak",
+    "source": {
+      "title": "File:Chembra Peak Heart Lake.jpg",
+      "author": "Ravi Dwivedi",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Chembra_Peak_Heart_Lake.jpg"
+    }
+  },
+  "wayanad/paddy": {
+    "src": "/images/destinations/wayanad/paddy.webp",
+    "width": 2400,
+    "height": 1350,
+    "blurDataURL": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADQAQCdASoQAAkAA4BaJaACdADbXmBZoAD+tspWzEnRb/k/uU4Exfv7x/+/Xw0YVn9kzUffs2dorzU27bapCum4AAA=",
+    "alt": "Golden paddy fields edged by tall forest trees at Kattikulam",
+    "source": {
+      "title": "File:Kattikulam Wayanad Paddy fields.jpg",
+      "author": "Outlander07",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Kattikulam_Wayanad_Paddy_fields.jpg"
+    }
+  },
+  "wayanad/ghats": {
+    "src": "/images/destinations/wayanad/ghats.webp",
+    "width": 2400,
+    "height": 1596,
+    "blurDataURL": "data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADwAQCdASoQAAsAA4BaJZQAAttvnC6zAeAA/mbKWyG40UtxxjT8abDnQVw48wcuq4kcfqMHL2RzUXWHMq5MEZwIAAA=",
+    "alt": "Storm clouds over layered forested ridges of the Wayanad ghats",
+    "source": {
+      "title": "File:Wayanad Ghats.jpg",
+      "author": "Thejas Panarkandy",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Wayanad_Ghats.jpg"
+    }
+  },
+  "manali/hero": {
+    "src": "/images/destinations/manali/hero.webp",
+    "width": 2400,
+    "height": 1600,
+    "blurDataURL": "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAAAQAgCdASoQAAsAA4BaJZACdAENyQWDljEAAPWZZIwbsEWX9GwWlvrLreN0r5Lrg1uW/1oJuIUL44AA",
+    "alt": "Snow-streaked peaks rising above the green Kullu valley near Manali",
+    "source": {
+      "title": "File:Kullu Valley near Manali, Himachal Pradesh, India.jpg",
+      "author": "UnpetitproleX",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Kullu_Valley_near_Manali,_Himachal_Pradesh,_India.jpg"
+    }
+  },
+  "manali/alpenglow": {
+    "src": "/images/destinations/manali/alpenglow.webp",
+    "width": 2400,
+    "height": 1800,
+    "blurDataURL": "data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAADQAQCdASoQAAwAA4BaJZgCdAEOux4roAD+sT7Uo/qJIFTwlMkAvpbsXSsxOtl1pxAvls8waS2kDxgA",
+    "alt": "Last light turning snowy Himalayan summits pink above dark pine ridges",
+    "source": {
+      "title": "File:Sunset View of Mountains - Manali - Himachal Pradesh - India (26617843255).jpg",
+      "author": "Adam Jones from Kelowna, BC, Canada",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Sunset_View_of_Mountains_-_Manali_-_Himachal_Pradesh_-_India_(26617843255).jpg"
+    }
+  },
+  "manali/river": {
+    "src": "/images/destinations/manali/river.webp",
+    "width": 2400,
+    "height": 1800,
+    "blurDataURL": "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAAAQAgCdASoQAAwAA4BaJZwAD4zLUYzucWiAAP6oz0nAh0MHD+noEDT1MKrIul0Wba4V+jaMfo5TW94+8AxOmgUiQnvYPgwI5qsOz+wNZct/gYVeCbaxYzdSxVtedjbaUBVJQgAA",
+    "alt": "The Beas river rushing white over boulders near Manali",
+    "source": {
+      "title": "File:River View - Manali - Himachal Pradesh - India - 01 (26011262763).jpg",
+      "author": "Adam Jones from Kelowna, BC, Canada",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "url": "https://commons.wikimedia.org/wiki/File:River_View_-_Manali_-_Himachal_Pradesh_-_India_-_01_(26011262763).jpg"
+    }
+  },
+  "manali/bridge": {
+    "src": "/images/destinations/manali/bridge.webp",
+    "width": 2400,
+    "height": 1596,
+    "blurDataURL": "data:image/webp;base64,UklGRmoAAABXRUJQVlA4IF4AAABQAgCdASoQAAsAA4BaJYwCdH8AGX09nE45KHAA/unj8sFJVi/DjWL7yP7wzdkNdPQXnBGUZtnbNzkHkvIyG/W2iY/HsUyG7WzdB/yn79b8vPXHBY2zRhP/FJ+AoAAA",
+    "alt": "A footbridge over the Beas river between deodar-covered slopes near Manali",
+    "source": {
+      "title": "File:Bridge over River Beas - Leh–Manali Highway - Manali 2014-05-10 2259.JPG",
+      "author": "Biswarup Ganguly",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Bridge_over_River_Beas_-_Leh%E2%80%93Manali_Highway_-_Manali_2014-05-10_2259.JPG"
+    }
+  },
+  "manali/snow": {
+    "src": "/images/destinations/manali/snow.webp",
+    "width": 2400,
+    "height": 1600,
+    "blurDataURL": "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAADwAQCdASoQAAsAA4BaJQBOgBtTfx0E0gAA/u/zO/E6VmclPMHU59qwtQmtJT1tLtyUrYyU1m3QO7XI7khx9hV81KaP7tssDv2jk4AA",
+    "alt": "Bare winter trees and a wooden house in falling snow in Solang valley",
+    "source": {
+      "title": "File:Solang valley, H.P.jpg",
+      "author": "Pallav87",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "url": "https://commons.wikimedia.org/wiki/File:Solang_valley,_H.P.jpg"
+    }
+  }
+}

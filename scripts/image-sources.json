@@ -1,0 +1,32 @@
+{
+  "$comment": "Destination photography sourced from Wikimedia Commons. Every entry must carry a licence that permits commercial reuse (CC0, Public domain, CC BY, CC BY-SA). Run `pnpm images:fetch` after editing.",
+  "images": [
+    { "destination": "munnar", "key": "hero", "title": "File:Munnar Tea Plantations-WUS07340.jpg", "alt": "Rolling tea estates under a clear sky in Munnar, with a stand of trees on a hilltop" },
+    { "destination": "munnar", "key": "valley", "title": "File:Tea plantation munnar.jpg", "alt": "A tea-covered slope beneath granite peaks in Munnar" },
+    { "destination": "munnar", "key": "rows", "title": "File:Munnar Tea Plantation and Trees.jpg", "alt": "Neatly clipped rows of tea bushes curving around a hillside in Munnar" },
+    { "destination": "munnar", "key": "road", "title": "File:Tea plantation , Rajamala munnar.jpg", "alt": "A quiet road through tea gardens with misty hills behind, near Rajamala" },
+
+    { "destination": "goa", "key": "hero", "title": "File:Palolem Beach sunset - Goa (46052828755).jpg", "alt": "Glowing orange sunset reflected on the wet sand of Palolem Beach" },
+    { "destination": "goa", "key": "shore", "title": "File:The shore of Arabian sea from Cabo de Rama Fort.jpg", "alt": "Turquoise Arabian Sea and a green headland seen from Cabo de Rama" },
+    { "destination": "goa", "key": "cove", "title": "File:Butterflybeach.jpg", "alt": "Golden sand, smooth boulders and gentle waves at Butterfly Beach" },
+    { "destination": "goa", "key": "palms", "title": "File:Goa sinquerim beach sunset view.jpg", "alt": "Silhouetted coconut palms against a blue evening sky at Sinquerim" },
+    { "destination": "goa", "key": "boat", "title": "File:Palolem beach - panoramio (2).jpg", "alt": "A traditional outrigger fishing boat resting on the sand at Palolem" },
+
+    { "destination": "ooty", "key": "hero", "title": "File:Tea gardens at ooty.jpg", "alt": "Tea gardens and silver oaks below a cloud-draped Nilgiri mountain near Ooty" },
+    { "destination": "ooty", "key": "silver-oaks", "title": "File:Tea garden ooty nilgiris, india.jpg", "alt": "Slender silver oak trees rising out of a tea garden on an overcast Nilgiri day" },
+    { "destination": "ooty", "key": "fog-road", "title": "File:Misty hills kotagiri ooty tamilnadu - panoramio.jpg", "alt": "A winding road disappearing into fog in the hills near Kotagiri" },
+    { "destination": "ooty", "key": "garden", "title": "File:Tea Garden OOTY.jpg", "alt": "Shade trees standing over a lush tea garden in Ooty" },
+
+    { "destination": "wayanad", "key": "hero", "title": "File:Banasura hills from View Point Wayanad Resort, Pulinjal (12).jpg", "alt": "Cloud-capped Banasura hills above deep green forest in Wayanad" },
+    { "destination": "wayanad", "key": "falls", "title": "File:Soochippara waterfalls,Wayanad,kerala.jpg", "alt": "Soochippara waterfall plunging down a dark rock face in the forest" },
+    { "destination": "wayanad", "key": "heart-lake", "title": "File:Chembra Peak Heart Lake.jpg", "alt": "The heart-shaped lake on the grassy slopes of Chembra Peak" },
+    { "destination": "wayanad", "key": "paddy", "title": "File:Kattikulam Wayanad Paddy fields.jpg", "alt": "Golden paddy fields edged by tall forest trees at Kattikulam" },
+    { "destination": "wayanad", "key": "ghats", "title": "File:Wayanad Ghats.jpg", "alt": "Storm clouds over layered forested ridges of the Wayanad ghats" },
+
+    { "destination": "manali", "key": "hero", "title": "File:Kullu Valley near Manali, Himachal Pradesh, India.jpg", "alt": "Snow-streaked peaks rising above the green Kullu valley near Manali" },
+    { "destination": "manali", "key": "alpenglow", "title": "File:Sunset View of Mountains - Manali - Himachal Pradesh - India (26617843255).jpg", "alt": "Last light turning snowy Himalayan summits pink above dark pine ridges" },
+    { "destination": "manali", "key": "river", "title": "File:River View - Manali - Himachal Pradesh - India - 01 (26011262763).jpg", "alt": "The Beas river rushing white over boulders near Manali" },
+    { "destination": "manali", "key": "bridge", "title": "File:Bridge over River Beas - Leh–Manali Highway - Manali 2014-05-10 2259.JPG", "alt": "A footbridge over the Beas river between deodar-covered slopes near Manali" },
+    { "destination": "manali", "key": "snow", "title": "File:Solang valley, H.P.jpg", "alt": "Bare winter trees and a wooden house in falling snow in Solang valley" }
+  ]
+}
