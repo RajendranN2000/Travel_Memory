@@ -1,0 +1,208 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { getBrowserClient } from "@/lib/supabase/browser";
+import { registerPhoto } from "@/features/trips/actions";
+import { LIMITS, photoStoragePath } from "@/features/trips/schemas";
+import type { EditorPhoto } from "@/features/trips/types";
+import { partitionFiles } from "./upload-validation";
+
+export type UploadStatus = "queued" | "processing" | "uploading" | "saving" | "error";
+
+export interface UploadItem {
+  localId: string;
+  name: string;
+  /** Temporary object URL for the preview only. Never persisted. */
+  previewUrl: string;
+  status: UploadStatus;
+  error?: string;
+}
+
+const MAX_CONCURRENT = 2;
+const OUTPUT_TYPE = "image/jpeg";
+
+async function compress(file: File): Promise<{ blob: Blob; width: number; height: number }> {
+  const { default: imageCompression } = await import("browser-image-compression");
+  // Re-encoding through a canvas strips EXIF metadata, including GPS location.
+  const blob = await imageCompression(file, {
+    maxWidthOrHeight: LIMITS.maxDimension,
+    maxSizeMB: 3,
+    initialQuality: 0.86,
+    fileType: OUTPUT_TYPE,
+    useWebWorker: true,
+    preserveExif: false,
+  });
+  const bitmap = await createImageBitmap(blob);
+  const size = { width: bitmap.width, height: bitmap.height };
+  bitmap.close();
+  if (blob.size > LIMITS.maxUploadBytes) throw new Error("too-large");
+  return { blob, ...size };
+}
+
+/**
+ * Manages the upload queue: validate → preview → compress in the browser →
+ * upload to the user's private storage folder → register with the server.
+ * In demo mode photos stay local to the tab and are labelled as such.
+ */
+export function useUploads({
+  tripId,
+  userId,
+  demo,
+  photoCount,
+  onUploaded,
+}: {
+  tripId: string;
+  userId: string | null;
+  demo: boolean;
+  photoCount: number;
+  onUploaded: (photo: EditorPhoto) => void;
+}) {
+  const [items, setItems] = useState<UploadItem[]>([]);
+  const files = useRef(new Map<string, File>());
+  const active = useRef(0);
+  const started = useRef(new Set<string>());
+  const urls = useRef(new Set<string>());
+  const onUploadedRef = useRef(onUploaded);
+  const queueRef = useRef<UploadItem[]>([]);
+
+  useEffect(() => {
+    onUploadedRef.current = onUploaded;
+  }, [onUploaded]);
+  useEffect(() => {
+    queueRef.current = items;
+  }, [items]);
+
+  const patch = useCallback((localId: string, update: Partial<UploadItem>) => {
+    setItems((list) => list.map((i) => (i.localId === localId ? { ...i, ...update } : i)));
+  }, []);
+
+  const finish = useCallback((localId: string, keepUrl: boolean) => {
+    setItems((list) => {
+      const item = list.find((i) => i.localId === localId);
+      if (item && !keepUrl) {
+        URL.revokeObjectURL(item.previewUrl);
+        urls.current.delete(item.previewUrl);
+      }
+      return list.filter((i) => i.localId !== localId);
+    });
+    files.current.delete(localId);
+  }, []);
+
+  const process = useCallback(
+    async (item: UploadItem) => {
+      const file = files.current.get(item.localId);
+      if (!file) return;
+      active.current += 1;
+      try {
+        patch(item.localId, { status: "processing", error: undefined });
+        let compressed: Awaited<ReturnType<typeof compress>>;
+        try {
+          compressed = await compress(file);
+        } catch (e) {
+          const reason = e instanceof Error && e.message === "too-large" ? "is still over 10 MB after compression" : "couldn't be read as an image";
+          patch(item.localId, { status: "error", error: `This photo ${reason}.` });
+          return;
+        }
+
+        if (demo || !userId) {
+          onUploadedRef.current({
+            id: item.localId,
+            storagePath: "",
+            url: item.previewUrl,
+            width: compressed.width,
+            height: compressed.height,
+            caption: "",
+            location: "",
+            takenOn: null,
+          });
+          finish(item.localId, true);
+          return;
+        }
+
+        const supabase = getBrowserClient();
+        if (!supabase) {
+          patch(item.localId, { status: "error", error: "Uploads are unavailable because Supabase isn't configured." });
+          return;
+        }
+
+        patch(item.localId, { status: "uploading" });
+        const path = photoStoragePath(userId, tripId, item.localId, OUTPUT_TYPE);
+        const { error: uploadError } = await supabase.storage
+          .from("trip-photos")
+          .upload(path, compressed.blob, { contentType: OUTPUT_TYPE, upsert: false, cacheControl: "31536000" });
+        if (uploadError && !/exists|duplicate/i.test(uploadError.message)) {
+          patch(item.localId, { status: "error", error: "The upload failed. Check your connection and try again." });
+          return;
+        }
+
+        patch(item.localId, { status: "saving" });
+        const result = await registerPhoto({
+          photoId: item.localId,
+          tripId,
+          storagePath: path,
+          width: compressed.width,
+          height: compressed.height,
+        });
+        if (!result.ok) {
+          patch(item.localId, { status: "error", error: result.error });
+          return;
+        }
+        onUploadedRef.current(result.data);
+        finish(item.localId, false);
+      } catch {
+        patch(item.localId, { status: "error", error: "Something went wrong with this upload. Try again." });
+      } finally {
+        active.current -= 1;
+      }
+    },
+    [demo, finish, patch, tripId, userId],
+  );
+
+  // Start queued uploads while respecting the concurrency limit.
+  useEffect(() => {
+    const queued = items.filter((i) => i.status === "queued" && !started.current.has(i.localId));
+    const slots = MAX_CONCURRENT - active.current;
+    for (const item of queued.slice(0, Math.max(0, slots))) {
+      started.current.add(item.localId);
+      void process(item);
+    }
+  }, [items, process]);
+
+  const add = useCallback(
+    (selected: File[]): string[] => {
+      const pendingCount = queueRef.current.length;
+      const { accepted, rejected } = partitionFiles(selected, photoCount + pendingCount);
+      const next: UploadItem[] = accepted.map((file) => {
+        const localId = crypto.randomUUID();
+        const previewUrl = URL.createObjectURL(file);
+        urls.current.add(previewUrl);
+        files.current.set(localId, file);
+        return { localId, name: file.name, previewUrl, status: "queued" };
+      });
+      if (next.length > 0) setItems((list) => [...list, ...next]);
+      return rejected;
+    },
+    [photoCount],
+  );
+
+  const retry = useCallback(
+    (localId: string) => {
+      started.current.delete(localId);
+      patch(localId, { status: "queued", error: undefined });
+    },
+    [patch],
+  );
+  const remove = useCallback((localId: string) => finish(localId, false), [finish]);
+
+  // Revoke any object URLs still alive when the editor unmounts.
+  useEffect(() => {
+    const all = urls.current;
+    return () => {
+      for (const url of all) URL.revokeObjectURL(url);
+      all.clear();
+    };
+  }, []);
+
+  const busy = items.some((i) => i.status !== "error");
+  return { items, add, retry, remove, busy };
+}
