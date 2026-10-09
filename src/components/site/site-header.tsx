@@ -42,7 +42,7 @@ function AccountFallback() {
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/90">
       {!isSupabaseConfigured() ? (
         <p className="bg-ink px-4 py-2 text-center text-xs text-paper">
           Supabase isn&apos;t configured, so accounts and saving are off.{" "}

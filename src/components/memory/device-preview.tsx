@@ -28,8 +28,14 @@ export function DevicePreview({
   if (device === "mobile") {
     return (
       <div className={cn("mx-auto w-full max-w-[24.5rem] rounded-[2.25rem] bg-ink p-2.5 shadow-lifted", className)}>
+        {/* On phones the frame is already life-size, so it grows to full height and
+            scrolls with the page instead of trapping swipes in a nested scroller. */}
         <div
-          className={cn("overflow-y-auto overscroll-contain rounded-[1.75rem] bg-white", height)}
+          className={cn(
+            "overflow-y-auto overscroll-contain rounded-[1.75rem] bg-white",
+            height,
+            "max-lg:h-auto! max-lg:overflow-hidden max-lg:overscroll-auto",
+          )}
           tabIndex={0}
           role="region"
           aria-label={label}
