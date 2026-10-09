@@ -71,7 +71,7 @@ async function Memory({ params }: Pick<PageProps<"/memory/[slug]">, "params">) {
   return (
     <>
       <header className="border-b border-border bg-background">
-        <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6">
+        <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6 print:hidden">
           <Logo className="text-base [&_svg]:size-7" />
           {memory.isOwner ? (
             <div className="ml-auto flex items-center gap-2">

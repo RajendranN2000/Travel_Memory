@@ -67,7 +67,7 @@ async function Preview({ params }: Pick<PageProps<"/preview/[tripId]">, "params"
             <Lock aria-hidden className="size-3.5" /> Draft preview, only visible to you
           </p>
           <div className="ml-auto flex items-center gap-2">
-            <PrintButton className="text-paper hover:bg-paper/10 hover:text-paper" />
+            <PrintButton title={trip.title.trim() || "My travel memory"} className="text-paper hover:bg-paper/10 hover:text-paper" />
             <Button asChild size="sm" className="bg-paper text-ink hover:bg-paper/90">
               <Link href={`/editor/${trip.id}?publish=1`}>
                 <Send data-icon="inline-start" /> Publish

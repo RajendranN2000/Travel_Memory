@@ -193,14 +193,54 @@
   }
 }
 
+/*
+ * Print / "Save as PDF".
+ * A zero page margin stops the browser adding its own header and footer
+ * (date, tab title, URL, page numbers); the memory's own padding is the margin.
+ */
+@page {
+  size: A4;
+  margin: 0;
+}
+
 @media print {
   .reveal {
     animation: none !important;
   }
-  /* Keep theme backgrounds and photo treatments when printing or saving as PDF. */
+  /* Keep theme backgrounds and colours. */
   html {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
+  }
+  /*
+   * Blend modes, filters and shadows force Chrome to rasterise whole pages,
+   * which makes the print preview slow to scroll and the PDF very large.
+   */
+  .grain::after {
+    display: none;
+  }
+  .treat-mist,
+  .treat-golden,
+  .treat-cool-fog,
+  .treat-earthy,
+  .treat-alpine {
+    filter: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+  /* Don't cut photos and their captions across pages. */
+  figure,
+  img {
+    break-inside: avoid;
+  }
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
   }
 }
 
