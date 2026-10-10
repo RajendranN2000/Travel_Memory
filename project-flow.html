@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Travel Memory Studio – What We Built &amp; How It Works</title>
+<style>
+  :root { --bg:#f7f5ef; --card:#fff; --ink:#1d2a2a; --muted:#5b6b6b; --accent:#1f7a5c; --line:#e1ddd0; --code:#eef3f0; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#111917; --card:#18221f; --ink:#e8efec; --muted:#9bb0aa; --accent:#4fc19a; --line:#2a3a35; --code:#1f2d29; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  main { max-width:960px; margin:0 auto; padding:32px 16px 64px; }
+  h1 { font-size:2rem; margin:0 0 4px; }
+  h2 { margin-top:40px; padding-bottom:6px; border-bottom:2px solid var(--accent); }
+  h3 { margin-bottom:4px; }
+  p.lead { color:var(--muted); margin-top:0; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 20px; margin:12px 0; }
+  .grid { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); }
+  .flow { display:flex; flex-wrap:wrap; gap:8px; align-items:stretch; }
+  .step { flex:1 1 150px; background:var(--card); border:1px solid var(--line); border-top:4px solid var(--accent); border-radius:10px; padding:10px 12px; font-size:.92rem; }
+  .step b { display:block; color:var(--accent); }
+  code { background:var(--code); padding:1px 5px; border-radius:4px; font-size:.9em; }
+  table { border-collapse:collapse; width:100%; font-size:.93rem; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--accent); }
+  .tag { display:inline-block; background:var(--code); border-radius:999px; padding:2px 10px; margin:2px; font-size:.85rem; }
+  .table-wrap { overflow-x:auto; }
+  footer { margin-top:48px; color:var(--muted); font-size:.85rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Travel Memory Studio</h1>
+  <p class="lead">Turn trip photos into personal, shareable memory pages styled after the place you visited. This page summarises what has been built and how the system works end to end.</p>
+
+  <h2>1. What we built</h2>
+  <div class="grid">
+    <div class="card"><h3>Destination themes</h3>
+      <p>Five themes: <span class="tag">Munnar</span><span class="tag">Goa</span><span class="tag">Ooty</span><span class="tag">Wayanad</span><span class="tag">Manali</span> each with palettes, typography, imagery, decorations and copy.</p></div>
+    <div class="card"><h3>Template families</h3>
+      <p>Four layouts: <span class="tag">Poster</span><span class="tag">Editorial journal</span><span class="tag">Collage</span><span class="tag">Timeline</span> shared by the editor preview and the published page.</p></div>
+    <div class="card"><h3>Memory editor</h3>
+      <p>Step-by-step editor (details, photos, design, publish) with debounced autosave, in-browser photo compression, drag-and-drop reordering and phone/desktop preview.</p></div>
+    <div class="card"><h3>Publishing &amp; sharing</h3>
+      <p>Public, unlisted or private visibility, readable slugs with a random suffix, social-preview metadata, and print/PDF output named after the trip.</p></div>
+    <div class="card"><h3>Accounts</h3>
+      <p>Sign up, log in, password reset, email confirmation links, settings, profile photo and account deletion, all on Supabase Auth.</p></div>
+    <div class="card"><h3>Quality &amp; safety</h3>
+      <p>137 unit/component tests, Playwright end-to-end suites, pgTAP RLS tests, WCAG contrast checks on every palette, security headers and abuse limits.</p></div>
+  </div>
+
+  <h2>2. End-to-end user flow</h2>
+  <div class="flow">
+    <div class="step"><b>1. Discover</b>Landing, destinations, templates and a sample memory, all without login.</div>
+    <div class="step"><b>2. Sign up</b>Email + password; confirmation link hits <code>/auth/confirm</code>.</div>
+    <div class="step"><b>3. Create</b>Pick title, destination and template. A trip row is created.</div>
+    <div class="step"><b>4. Edit</b>Write details, upload photos, choose palette/layout. Autosave runs in the background.</div>
+    <div class="step"><b>5. Preview</b>Private draft preview at <code>/preview/&lt;tripId&gt;</code>.</div>
+    <div class="step"><b>6. Publish</b>A snapshot is written; visibility is chosen; a share link is produced.</div>
+    <div class="step"><b>7. Visit</b>Anyone with access opens <code>/memory/&lt;slug&gt;</code>; print to PDF if wanted.</div>
+  </div>
+
+  <h2>3. How the system works</h2>
+  <h3>Architecture</h3>
+  <div class="card">
+    <p><b>Browser</b> (React client components: editor, uploads, autosave) &rarr; <b>Next.js 16 on Vercel</b> (App Router, server components, server actions, <code>proxy.ts</code> session refresh) &rarr; <b>Supabase</b> (Postgres with RLS, Auth, private Storage buckets).</p>
+  </div>
+
+  <h3>Layers in the code</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Area</th><th>Location</th><th>Role</th></tr>
+    <tr><td>Pages</td><td><code>src/app/(site)</code>, <code>(studio)</code>, <code>memory/[slug]</code></td><td>Marketing/account pages, editor and draft preview, published memories.</td></tr>
+    <tr><td>Theme engine</td><td><code>src/config/themes</code>, <code>src/features/themes</code></td><td>Typed destination configs resolved with fallbacks and exposed as CSS variables, so templates have no destination-specific conditionals.</td></tr>
+    <tr><td>Templates</td><td><code>src/features/templates</code></td><td>Four React template families using container queries so previews match real pages.</td></tr>
+    <tr><td>Trips</td><td><code>src/features/trips</code></td><td>Zod schemas, server queries, server actions (create, save, publish, delete).</td></tr>
+    <tr><td>Editor</td><td><code>src/features/editor</code></td><td>Editor UI, autosave queue, upload pipeline and validation.</td></tr>
+    <tr><td>Auth &amp; account</td><td><code>src/features/auth</code>, <code>account</code></td><td>Session data-access layer, auth and profile actions.</td></tr>
+    <tr><td>Supabase clients</td><td><code>src/lib/supabase</code></td><td>Server, browser, proxy, anonymous and admin clients.</td></tr>
+    <tr><td>Database</td><td><code>supabase/migrations</code></td><td>Schema, RLS policies, storage buckets, reference data, avatars.</td></tr>
+  </table></div>
+
+  <h3>Data flow</h3>
+  <div class="card">
+    <ol>
+      <li><b>Edit &amp; save:</b> fields are saved via validated server actions with debounced autosave per field group; the save indicator shows state.</li>
+      <li><b>Photos:</b> compressed in the browser (EXIF/GPS stripped), uploaded straight to the private <code>trip-photos/&lt;user&gt;/&lt;trip&gt;/&lt;photo&gt;.jpg</code> path; the server then verifies the object's real size and type before recording it.</li>
+      <li><b>Publish:</b> a snapshot is stored in <code>published_memories</code> holding storage paths only, never URLs.</li>
+      <li><b>View:</b> the server checks access, then creates 1-hour signed URLs only for photos listed in that publication.</li>
+    </ol>
+  </div>
+
+  <h3>Security model</h3>
+  <ul>
+    <li>Every protected page and action verifies the user on the server; <code>proxy.ts</code> redirects are convenience only.</li>
+    <li>Row Level Security on every table; triggers and CHECK constraints ensure owners only touch their own trips, photos and storage paths.</li>
+    <li>Public memories are listable; unlisted/private ones are reachable only via the <code>get_published_memory(slug)</code> function (private = owner only). Unlisted pages send <code>noindex</code>.</li>
+    <li>Limits: 100 trips per account, 60 photos per trip, 10 MB per photo, JPEG/PNG/WebP only, 1 MB server-action bodies.</li>
+    <li>The Supabase secret key is used server-side only (signing photo URLs, account deletion).</li>
+    <li>Security headers: <code>X-Frame-Options: DENY</code>, <code>nosniff</code>, strict referrer and permissions policies.</li>
+  </ul>
+
+  <h3>Running without Supabase</h3>
+  <p>If Supabase variables are missing, the site still renders; accounts, saving and uploads are off, a banner links to <code>/setup</code>, and in development only <code>/editor/demo</code> offers a sample editor.</p>
+
+  <h2>4. Testing</h2>
+  <ul>
+    <li><code>pnpm test</code> &ndash; Vitest unit/component tests (themes, validation, autosave, templates, server-action authorisation).</li>
+    <li><code>pnpm test:e2e</code> &ndash; Playwright public, demo-editor and full account-flow suites.</li>
+    <li><code>supabase test db</code> &ndash; pgTAP tests for RLS and visibility.</li>
+    <li><code>pnpm check</code> &ndash; lint, typecheck, tests and build in one go.</li>
+  </ul>
+
+  <h2>5. Deployment flow</h2>
+  <div class="flow">
+    <div class="step"><b>Code</b>Pushed to GitHub (<code>RajendranN2000/Travel_Memory</code>).</div>
+    <div class="step"><b>Vercel</b>Imports the repo, builds Next.js automatically.</div>
+    <div class="step"><b>Env vars</b><code>NEXT_PUBLIC_SITE_URL</code>, Supabase URL, publishable key, secret key (sensitive).</div>
+    <div class="step"><b>Supabase</b>Apply migrations; set Site URL and <code>/auth/confirm</code> redirect.</div>
+    <div class="step"><b>Verify</b>Open <code>/setup</code>, sign up, publish a test memory.</div>
+  </div>
+
+  <h2>6. Known limitations (Phase 1)</h2>
+  <ul>
+    <li>HEIC photos are not converted; users should export JPEG.</li>
+    <li>Upload progress shows stages, not a percentage.</li>
+    <li>Legal pages are drafts needing review before launch.</li>
+    <li>Mobile performance needs another pass (home page Lighthouse perf ~65).</li>
+    <li>Backups, Storage replication and a restore drill must be set up before launch.</li>
+  </ul>
+
+  <footer>Stack: Next.js 16 &middot; TypeScript &middot; Tailwind CSS 4 &middot; shadcn/ui &middot; Motion &middot; React Hook Form + Zod &middot; Supabase &middot; Vitest &middot; Playwright &middot; Vercel.</footer>
+</main>
+</body>
+</html>
