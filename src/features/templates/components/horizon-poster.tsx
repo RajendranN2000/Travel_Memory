@@ -3,6 +3,7 @@ import { headingClass } from "@/features/themes/css";
 import { ThemeDecoration } from "@/features/themes/decorations";
 import {
   Caption,
+  frameStyle,
   imageSizes,
   memoryDates,
   PhotoFill,
@@ -68,6 +69,7 @@ function FullBleedPoster({ memory, resolved, priority, sizesHint }: TemplateProp
                     "relative overflow-hidden rounded-th bg-th-secondary",
                     i % 5 === 0 && rest.length > 2 ? "aspect-[3/2] @4xl:aspect-[16/9]" : "aspect-[4/3]",
                   )}
+                  style={frameStyle(photo)}
                 >
                   <PhotoFill
                     photo={photo}
@@ -140,7 +142,7 @@ function FramedPoster({ memory, resolved, priority, sizesHint }: TemplateProps) 
           <section aria-label="Gallery" className="mx-auto mt-8 grid max-w-6xl grid-cols-2 gap-3 @2xl:gap-5 @4xl:grid-cols-4">
             {rest.map((photo, i) => (
               <figure key={photo.id} className="rounded-th border border-th-line bg-th-surface p-2 @2xl:p-3">
-                <div className="relative aspect-square overflow-hidden rounded-[calc(var(--t-radius)*0.6)] bg-th-secondary">
+                <div className="relative aspect-square overflow-hidden rounded-[calc(var(--t-radius)*0.6)] bg-th-secondary" style={frameStyle(photo)}>
                   <PhotoFill
                     photo={photo}
                     alt={photoAlt(photo, memory, i + 1)}

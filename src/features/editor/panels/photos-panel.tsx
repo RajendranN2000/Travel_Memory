@@ -12,9 +12,10 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { AlertCircle, ArrowDown, ArrowUp, GripVertical, ImagePlus, Loader2, RotateCcw, Trash2, X } from "lucide-react";
+import { AlertCircle, ArrowDown, ArrowUp, Crop, GripVertical, ImagePlus, Loader2, Replace, RotateCcw, Trash2, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useId, useRef, useState, type DragEvent } from "react";
+import type { PhotoFrame } from "@/features/memories/types";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,9 +32,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { imageFrameStyle } from "@/features/templates/components/shared";
 import { ACCEPTED_INPUT_TYPES, LIMITS } from "@/features/trips/schemas";
 import type { EditorPhoto } from "@/features/trips/types";
 import type { UploadItem } from "../use-uploads";
+import { PhotoAdjustDialog } from "./photo-adjust-dialog";
 
 type PhotoField = "caption" | "location" | "takenOn";
 
@@ -47,6 +50,10 @@ export interface PhotosPanelProps {
   onReorder: (from: number, to: number) => void;
   onChangePhoto: (id: string, field: PhotoField, value: string | null) => void;
   onDeletePhoto: (id: string) => void;
+  /** Ids of photos whose image is currently being replaced */
+  replacing: Set<string>;
+  onReplace: (photo: EditorPhoto, file: File) => void;
+  onChangeFrame: (id: string, frame: PhotoFrame) => void;
 }
 
 export function PhotosPanel(props: PhotosPanelProps) {
@@ -237,7 +244,13 @@ function SortablePhoto({
   onReorder,
   onChangePhoto,
   onDeletePhoto,
+  replacing,
+  onReplace,
+  onChangeFrame,
 }: PhotosPanelProps & { photo: EditorPhoto; index: number; count: number }) {
+  const [adjusting, setAdjusting] = useState(false);
+  const replaceInput = useRef<HTMLInputElement>(null);
+  const isReplacing = replacing.has(photo.id);
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id: photo.id });
   const base = `photo-${photo.id}`;
   return (
@@ -266,10 +279,15 @@ function SortablePhoto({
         <div className="relative size-24 shrink-0 overflow-hidden rounded-md bg-muted sm:size-28">
           {photo.url ? (
             // eslint-disable-next-line @next/next/no-img-element -- signed or local preview URL
-            <img src={photo.url} alt={photo.caption || `Photo ${index + 1}`} className="h-full w-full object-cover" loading="lazy" />
+            <img src={photo.url} alt={photo.caption || `Photo ${index + 1}`} style={imageFrameStyle({ ...photo, src: photo.url })} className={cn("h-full w-full", photo.frame.fit === "contain" ? "object-contain" : "object-cover")} loading="lazy" />
           ) : (
             <span className="grid h-full place-items-center p-2 text-center text-xs text-muted-foreground">Preview unavailable</span>
           )}
+          {isReplacing ? (
+            <span role="status" className="absolute inset-0 grid place-items-center bg-black/55 text-white">
+              <Loader2 aria-label="Replacing photo" className="size-6 animate-spin" />
+            </span>
+          ) : null}
           {index === 0 ? (
             <span className="absolute top-1 left-1 rounded bg-black/65 px-1.5 py-0.5 text-[0.65rem] font-semibold tracking-wide text-white uppercase">
               Cover
@@ -313,6 +331,25 @@ function SortablePhoto({
           className="h-10 w-auto text-sm"
           onChange={(e) => onChangePhoto(photo.id, "takenOn", e.target.value || null)}
         />
+        <input
+          ref={replaceInput}
+          type="file"
+          accept={ACCEPTED_INPUT_TYPES.join(",")}
+          className="sr-only"
+          tabIndex={-1}
+          aria-label={`Choose a new image for photo ${index + 1}`}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            e.target.value = "";
+            if (file) onReplace(photo, file);
+          }}
+        />
+        <Button type="button" size="sm" variant="outline" disabled={!photo.url} onClick={() => setAdjusting(true)}>
+          <Crop data-icon="inline-start" /> Crop &amp; size
+        </Button>
+        <Button type="button" size="sm" variant="outline" disabled={isReplacing} onClick={() => replaceInput.current?.click()}>
+          <Replace data-icon="inline-start" /> {isReplacing ? "Replacing…" : "Replace"}
+        </Button>
         <div className="ml-auto flex items-center">
           <Button size="icon-sm" variant="ghost" disabled={index === 0} onClick={() => onReorder(index, index - 1)} aria-label={`Move photo ${index + 1} up`}>
             <ArrowUp />
@@ -349,6 +386,7 @@ function SortablePhoto({
           </AlertDialog>
         </div>
       </div>
+      <PhotoAdjustDialog photo={photo} index={index} open={adjusting} onOpenChange={setAdjusting} onChange={(frame) => onChangeFrame(photo.id, frame)} />
     </li>
   );
 }

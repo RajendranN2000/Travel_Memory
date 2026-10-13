@@ -103,6 +103,13 @@ describe("storage ownership", () => {
     expect(photoStoragePath(OWNER, TRIP, PHOTO, "image/jpeg")).toBe(`${OWNER}/${TRIP}/${PHOTO}.jpg`);
   });
 
+  it("adds a readable name prefix that still validates", () => {
+    const path = photoStoragePath(OWNER, TRIP, PHOTO, "image/jpeg", "Café Eiffel Tower!.HEIC");
+    expect(path).toBe(`${OWNER}/${TRIP}/cafe-eiffel-tower-${PHOTO}.jpg`);
+    expect(isOwnedPhotoPath(path, OWNER, TRIP, PHOTO)).toBe(true);
+    expect(photoStoragePath(OWNER, TRIP, PHOTO, "image/jpeg", "???.jpg")).toBe(`${OWNER}/${TRIP}/${PHOTO}.jpg`);
+  });
+
   it("rejects paths outside the user's own folder or trip", () => {
     const own = photoStoragePath(OWNER, TRIP, PHOTO, "image/jpeg");
     expect(isOwnedPhotoPath(own, OWNER, TRIP, PHOTO)).toBe(true);

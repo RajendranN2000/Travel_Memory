@@ -27,6 +27,7 @@ export function demoTrip(): EditorTrip {
       caption: p.caption,
       location: p.location,
       takenOn: p.takenOn,
+      frame: p.frame ?? {},
     })),
   };
 }

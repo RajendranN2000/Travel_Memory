@@ -101,6 +101,7 @@ export type Database = {
           location: string;
           taken_on: string | null;
           position: number;
+          frame: Json;
         } & Timestamps;
         Insert: {
           id?: string;
@@ -115,8 +116,20 @@ export type Database = {
           location?: string;
           taken_on?: string | null;
           position?: number;
+          frame?: Json;
         };
-        Update: { caption?: string; location?: string; taken_on?: string | null; position?: number };
+        Update: {
+          caption?: string;
+          location?: string;
+          taken_on?: string | null;
+          position?: number;
+          frame?: Json;
+          storage_path?: string;
+          mime_type?: string;
+          size_bytes?: number;
+          width?: number;
+          height?: number;
+        };
         Relationships: [];
       };
       published_memories: {

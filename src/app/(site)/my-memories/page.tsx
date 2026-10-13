@@ -9,7 +9,7 @@ import { requireUser } from "@/features/auth/session";
 import { resolveTheme } from "@/features/themes/registry";
 import { ThemeIllustration } from "@/features/themes/illustration";
 import { listOwnedTrips } from "@/features/trips/queries";
-import { TripCard } from "./trip-card";
+import { TripTabs } from "./trip-tabs";
 
 export const metadata: Metadata = { title: "My memories", robots: { index: false } };
 
@@ -83,21 +83,14 @@ async function TripList() {
     );
   }
 
-  return (
-    <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {trips.map((trip) => {
-        const resolved = resolveTheme(trip.destinationSlug);
-        return (
-          <li key={trip.id}>
-            <TripCard
-              trip={trip}
-              destinationName={resolved.theme.name}
-              swatch={resolved.palette.secondary}
-              fallbackImage={resolved.hero?.src ?? null}
-            />
-          </li>
-        );
-      })}
-    </ul>
-  );
+  const items = trips.map((trip) => {
+    const resolved = resolveTheme(trip.destinationSlug);
+    return {
+      trip,
+      destinationName: resolved.theme.name,
+      swatch: resolved.palette.secondary,
+      fallbackImage: resolved.hero?.src ?? null,
+    };
+  });
+  return <TripTabs items={items} />;
 }

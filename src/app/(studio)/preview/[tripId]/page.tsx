@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireUser } from "@/features/auth/session";
 import type { MemoryContent } from "@/features/memories/types";
+import { checkReadiness } from "@/features/editor/readiness";
 import { MemoryRenderer } from "@/features/templates/render";
 import { getOwnedTrip } from "@/features/trips/queries";
 
@@ -51,8 +52,19 @@ async function Preview({ params }: Pick<PageProps<"/preview/[tripId]">, "params"
       caption: p.caption,
       location: p.location,
       takenOn: p.takenOn,
+      frame: p.frame,
     })),
   };
+
+  const issues = checkReadiness({
+    title: trip.title,
+    description: trip.description,
+    startDate: trip.startDate,
+    photos: trip.photos,
+    uploadsBusy: false,
+    unsaved: false,
+    saveFailed: false,
+  });
 
   return (
     <>
@@ -67,7 +79,7 @@ async function Preview({ params }: Pick<PageProps<"/preview/[tripId]">, "params"
             <Lock aria-hidden className="size-3.5" /> Draft preview, only visible to you
           </p>
           <div className="ml-auto flex items-center gap-2">
-            <PrintButton title={trip.title.trim() || "My travel memory"} className="text-paper hover:bg-paper/10 hover:text-paper" />
+            <PrintButton title={trip.title.trim() || "My travel memory"} issues={issues} className="text-paper hover:bg-paper/10 hover:text-paper" />
             <Button asChild size="sm" className="bg-paper text-ink hover:bg-paper/90">
               <Link href={`/editor/${trip.id}?publish=1`}>
                 <Send data-icon="inline-start" /> Publish

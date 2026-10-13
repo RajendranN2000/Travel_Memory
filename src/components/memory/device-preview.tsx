@@ -1,11 +1,99 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export type PreviewDevice = "mobile" | "desktop";
 
 const DESKTOP_WIDTH = 1280;
+
+/**
+ * A scroll area with a slim overlay scrollbar. The native bar is hidden because
+ * it takes up layout width (so the template no longer matches the real phone
+ * width), clashes with the rounded frame and shows as a white strip beside
+ * themed pages. The overlay thumb floats over the content, fades out when idle
+ * and never changes the layout.
+ */
+function OverlayScroll({
+  children,
+  className,
+  wrapperClassName,
+  label,
+}: {
+  children: ReactNode;
+  className?: string;
+  wrapperClassName?: string;
+  label: string;
+}) {
+  const scroller = useRef<HTMLDivElement>(null);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [thumb, setThumb] = useState<{ top: number; height: number } | null>(null);
+  const [active, setActive] = useState(false);
+
+  const measure = useCallback(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const { scrollHeight, clientHeight, scrollTop } = el;
+    if (scrollHeight <= clientHeight + 1) {
+      setThumb(null);
+      return;
+    }
+    // Keep the thumb clear of the frame's rounded corners.
+    const inset = 14;
+    const track = clientHeight - inset * 2;
+    const height = Math.max(36, (track * clientHeight) / scrollHeight);
+    const top = inset + ((track - height) * scrollTop) / (scrollHeight - clientHeight);
+    setThumb({ top, height });
+  }, []);
+
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    if (el.firstElementChild) observer.observe(el.firstElementChild);
+    return () => observer.disconnect();
+  }, [measure]);
+
+  useEffect(
+    () => () => {
+      if (hideTimer.current) clearTimeout(hideTimer.current);
+    },
+    [],
+  );
+
+  const onScroll = () => {
+    measure();
+    setActive(true);
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    hideTimer.current = setTimeout(() => setActive(false), 900);
+  };
+
+  return (
+    <div className={cn("relative", wrapperClassName)}>
+      <div
+        ref={scroller}
+        onScroll={onScroll}
+        tabIndex={0}
+        role="region"
+        aria-label={label}
+        className={cn("overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", className)}
+      >
+        {children}
+      </div>
+      {thumb ? (
+        <span
+          aria-hidden
+          style={{ top: thumb.top, height: thumb.height }}
+          className={cn(
+            "pointer-events-none absolute right-1 w-1 rounded-full bg-black/40 ring-1 ring-white/50 transition-opacity duration-300",
+            active ? "opacity-100" : "opacity-0",
+          )}
+        />
+      ) : null}
+    </div>
+  );
+}
 
 /**
  * Shows content inside a phone frame (real 390px width) or a desktop browser
@@ -30,18 +118,13 @@ export function DevicePreview({
       <div className={cn("mx-auto w-full max-w-[24.5rem] rounded-[2.25rem] bg-ink p-2.5 shadow-lifted", className)}>
         {/* On phones the frame is already life-size, so it grows to full height and
             scrolls with the page instead of trapping swipes in a nested scroller. */}
-        <div
-          className={cn(
-            "overflow-y-auto overscroll-contain rounded-[1.75rem] bg-white",
-            height,
-            "max-lg:h-auto! max-lg:overflow-hidden max-lg:overscroll-auto",
-          )}
-          tabIndex={0}
-          role="region"
-          aria-label={label}
+        <OverlayScroll
+          label={label}
+          wrapperClassName="overflow-hidden rounded-[1.75rem] bg-white"
+          className={cn("overscroll-contain", height, "max-lg:h-auto! max-lg:overflow-hidden max-lg:overscroll-auto")}
         >
           {children}
-        </div>
+        </OverlayScroll>
       </div>
     );
   }
@@ -81,19 +164,13 @@ function ScaledFrame({ children, label, height }: { children: ReactNode; label: 
   return (
     // contain:inline-size stops the 1280px canvas from widening the page: the
     // frame takes its width from the layout, and the canvas is scaled to it.
-    <div
-      ref={outer}
-      className={cn("w-full overflow-x-hidden overflow-y-auto overscroll-contain [contain:inline-size]", height)}
-      tabIndex={0}
-      role="region"
-      aria-label={label}
-    >
-      <div className="overflow-hidden" style={{ height: contentHeight === null ? undefined : contentHeight * scale }}>
+    <OverlayScroll label={label} className={cn("w-full overflow-x-hidden overscroll-contain [contain:inline-size]", height)}>
+      <div ref={outer} className="overflow-hidden" style={{ height: contentHeight === null ? undefined : contentHeight * scale }}>
         <div ref={inner} style={{ width: DESKTOP_WIDTH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
           {children}
         </div>
       </div>
-    </div>
+    </OverlayScroll>
   );
 }
 

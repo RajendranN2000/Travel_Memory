@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getBrowserClient } from "@/lib/supabase/browser";
-import { deletePhoto, registerPhoto } from "@/features/trips/actions";
+import { deletePhoto, registerPhoto, replacePhoto } from "@/features/trips/actions";
 import { LIMITS, photoStoragePath } from "@/features/trips/schemas";
 import type { EditorPhoto } from "@/features/trips/types";
-import { partitionFiles } from "./upload-validation";
+import { checkFile, partitionFiles } from "./upload-validation";
 
 export type UploadStatus = "queued" | "processing" | "uploading" | "saving" | "error";
 
@@ -59,6 +59,8 @@ export function useUploads({
   onUploaded: (photo: EditorPhoto) => void;
 }) {
   const [items, setItems] = useState<UploadItem[]>([]);
+  /** Ids of photos whose image is being swapped */
+  const [replacing, setReplacing] = useState<Set<string>>(new Set());
   const files = useRef(new Map<string, File>());
   const active = useRef(0);
   const started = useRef(new Set<string>());
@@ -122,6 +124,7 @@ export function useUploads({
             caption: "",
             location: "",
             takenOn: null,
+            frame: {},
           });
           finish(item.localId, true);
           return;
@@ -134,7 +137,7 @@ export function useUploads({
         }
 
         patch(item.localId, { status: "uploading" });
-        const path = photoStoragePath(userId, tripId, item.localId, OUTPUT_TYPE);
+        const path = photoStoragePath(userId, tripId, item.localId, OUTPUT_TYPE, item.name);
         const { error: uploadError } = await supabase.storage
           .from("trip-photos")
           .upload(path, compressed.blob, { contentType: OUTPUT_TYPE, upsert: false, cacheControl: "31536000" });
@@ -236,6 +239,57 @@ export function useUploads({
     };
   }, []);
 
-  const busy = items.some((i) => i.status !== "error");
-  return { items, add, retry, remove, busy };
+  /**
+   * Swaps the image of an existing photo. Resolves with the updated photo, or a
+   * readable error; the caption, place, day and order are kept.
+   */
+  const replace = useCallback(
+    async (photo: EditorPhoto, file: File): Promise<{ ok: true; photo: EditorPhoto } | { ok: false; error: string }> => {
+      const check = checkFile(file);
+      if (!check.ok) return { ok: false, error: check.reason };
+      setReplacing((ids) => new Set(ids).add(photo.id));
+      try {
+        let compressed: Awaited<ReturnType<typeof compress>>;
+        try {
+          compressed = await compress(file, new AbortController().signal);
+        } catch (e) {
+          const reason = e instanceof Error && e.message === "too-large" ? "is still over 10 MB after compression" : "couldn't be read as an image";
+          return { ok: false, error: `This photo ${reason}.` };
+        }
+
+        if (demo || !userId) {
+          const url = URL.createObjectURL(compressed.blob);
+          urls.current.add(url);
+          return { ok: true, photo: { ...photo, url, width: compressed.width, height: compressed.height, frame: {} } };
+        }
+
+        const supabase = getBrowserClient();
+        if (!supabase) return { ok: false, error: "Uploads are unavailable because Supabase isn't configured." };
+        const path = photoStoragePath(userId, tripId, crypto.randomUUID(), OUTPUT_TYPE, file.name);
+        const { error: uploadError } = await supabase.storage
+          .from("trip-photos")
+          .upload(path, compressed.blob, { contentType: OUTPUT_TYPE, upsert: false, cacheControl: "31536000" });
+        if (uploadError) return { ok: false, error: "The upload failed. Check your connection and try again." };
+
+        const result = await replacePhoto({ photoId: photo.id, storagePath: path, width: compressed.width, height: compressed.height });
+        if (!result.ok) {
+          await supabase.storage.from("trip-photos").remove([path]);
+          return { ok: false, error: result.error };
+        }
+        return { ok: true, photo: result.data };
+      } catch {
+        return { ok: false, error: "Something went wrong replacing this photo. Try again." };
+      } finally {
+        setReplacing((ids) => {
+          const next = new Set(ids);
+          next.delete(photo.id);
+          return next;
+        });
+      }
+    },
+    [demo, tripId, userId],
+  );
+
+  const busy = items.some((i) => i.status !== "error") || replacing.size > 0;
+  return { items, add, retry, remove, replace, replacing, busy };
 }

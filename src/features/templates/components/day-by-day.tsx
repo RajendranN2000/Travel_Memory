@@ -5,6 +5,7 @@ import type { MemoryContent, MemoryPhoto } from "@/features/memories/types";
 import { headingClass } from "@/features/themes/css";
 import { ThemeDecoration } from "@/features/themes/decorations";
 import {
+  frameStyle,
   imageSizes,
   memoryDates,
   PhotoFill,
@@ -132,7 +133,7 @@ export function DayByDay(props: TemplateProps) {
                         )}
                       >
                         <figure className="overflow-hidden rounded-th border border-th-line bg-th-surface">
-                          <div className="relative aspect-[3/2] bg-th-secondary">
+                          <div className="relative aspect-[3/2] overflow-hidden bg-th-secondary" style={frameStyle(photo)}>
                             <PhotoFill
                               photo={photo}
                               alt={photoAlt(photo, memory, index)}

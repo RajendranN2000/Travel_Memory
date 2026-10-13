@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Loader2, MoreHorizontal, PencilLine, Trash2 } from "lucide-react";
+import { Copy, ExternalLink, Loader2, MoreHorizontal, PencilLine, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { formatDateRange } from "@/lib/dates";
 import { deleteTrip } from "@/features/trips/actions";
+import { DuplicateTripDialog } from "@/features/trips/duplicate-dialog";
 import type { TripSummary } from "@/features/trips/types";
 
 const VISIBILITY_LABEL = { public: "Public", unlisted: "Unlisted", private: "Private" } as const;
@@ -42,6 +43,7 @@ export function TripCard({
 }) {
   const router = useRouter();
   const [confirm, setConfirm] = useState(false);
+  const [duplicating, setDuplicating] = useState(false);
   const [pending, startTransition] = useTransition();
   const dates = formatDateRange(trip.startDate, trip.endDate);
 
@@ -113,6 +115,9 @@ export function TripCard({
               <DropdownMenuItem asChild className="min-h-10">
                 <Link href={`/preview/${trip.id}`}>Preview draft</Link>
               </DropdownMenuItem>
+              <DropdownMenuItem className="min-h-10" onSelect={() => setDuplicating(true)}>
+                <Copy /> Duplicate with another template
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="min-h-10 text-destructive focus:text-destructive" onSelect={() => setConfirm(true)}>
                 <Trash2 /> Delete trip
@@ -121,6 +126,16 @@ export function TripCard({
           </DropdownMenu>
         </div>
       </div>
+
+      {duplicating ? (
+        <DuplicateTripDialog
+          tripId={trip.id}
+          title={trip.title}
+          templateSlug={trip.templateSlug}
+          open={duplicating}
+          onOpenChange={setDuplicating}
+        />
+      ) : null}
 
       <AlertDialog open={confirm} onOpenChange={setConfirm}>
         <AlertDialogContent>

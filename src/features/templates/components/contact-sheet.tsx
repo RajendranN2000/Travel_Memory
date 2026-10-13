@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { headingClass } from "@/features/themes/css";
 import { ThemeDecoration } from "@/features/themes/decorations";
 import {
+  frameStyle,
   imageSizes,
   memoryDates,
   PhotoFill,
@@ -115,7 +116,7 @@ function Scrapbook(props: TemplateProps) {
                   />
                   <div
                     className="relative overflow-hidden bg-th-secondary"
-                    style={{ aspectRatio: `${photo.width} / ${photo.height}` }}
+                    style={frameStyle(photo) ?? { aspectRatio: `${photo.width} / ${photo.height}` }}
                   >
                     <PhotoFill
                       photo={photo}

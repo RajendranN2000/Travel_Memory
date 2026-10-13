@@ -8,13 +8,19 @@ import type { Json } from "@/lib/supabase/database.types";
 import { PHOTO_BUCKET, signOwnPaths } from "./queries";
 import {
   createTripSchema,
+  duplicateTripSchema,
   isOwnedPhotoPath,
+  isOwnedStoragePath,
   LIMITS,
   normaliseTripDesign,
+  parseFrame,
+  photoLabelFromPath,
   photoPatchSchema,
+  photoStoragePath,
   publishSchema,
   registerPhotoSchema,
   reorderSchema,
+  replacePhotoSchema,
   STORED_TYPES,
   tripPatchSchema,
   uuidSchema,
@@ -138,6 +144,91 @@ export async function updateTrip(tripId: string, patch: TripPatch): Promise<Acti
   return { ok: true, data: { updatedAt: data.updated_at } };
 }
 
+/**
+ * Copies a trip with all its photos (files, captions, places, days, order and
+ * framing) into a new draft that uses a different template. The copy is never
+ * published, so the original and its shared link are untouched.
+ */
+export async function duplicateTrip(input: z.input<typeof duplicateTripSchema>): Promise<ActionResult<{ id: string }>> {
+  const parsed = duplicateTripSchema.safeParse(input);
+  if (!parsed.success) return fail("Choose a template and give the copy a title.", fieldErrorsFrom(parsed.error) as Record<string, string>);
+  const auth = await authed();
+  if ("error" in auth) return fail(auth.error);
+  const { tripId, templateSlug, title } = parsed.data;
+
+  const { data: trip } = await auth.supabase.from("trips").select("*").eq("id", tripId).eq("owner_id", auth.userId).maybeSingle();
+  if (!trip) return fail("Trip not found.");
+  const { data: photos, error: photoError } = await auth.supabase
+    .from("trip_photos")
+    .select("*")
+    .eq("trip_id", tripId)
+    .eq("owner_id", auth.userId)
+    .order("position", { ascending: true })
+    .order("created_at", { ascending: true });
+  if (photoError) return fail("We couldn't copy this trip. Please try again.");
+
+  const design = normaliseTripDesign({
+    destinationSlug: trip.destination_slug,
+    templateSlug,
+    layout: templateSlug === trip.template_slug ? trip.layout : undefined,
+    palette: trip.palette,
+  });
+  const { data: created, error } = await auth.supabase
+    .from("trips")
+    .insert({
+      owner_id: auth.userId,
+      title,
+      description: trip.description,
+      destination_slug: design.destinationSlug,
+      template_slug: design.templateSlug,
+      layout: design.layout,
+      palette: design.palette,
+      start_date: trip.start_date,
+      end_date: trip.end_date,
+    })
+    .select("id")
+    .single();
+  if (error || !created) return fail(dbMessage(error, "We couldn't copy this trip. Please try again."));
+
+  const bucket = auth.supabase.storage.from(PHOTO_BUCKET);
+  const copies = (photos ?? []).map((p) => {
+    const id = crypto.randomUUID();
+    return { id, source: p, path: photoStoragePath(auth.userId, created.id, id, p.mime_type, photoLabelFromPath(p.storage_path)) };
+  });
+  const rollback = async (message: string) => {
+    await bucket.remove(copies.map((c) => c.path));
+    await auth.supabase.from("trips").delete().eq("id", created.id).eq("owner_id", auth.userId);
+    return fail<{ id: string }>(message);
+  };
+
+  for (let i = 0; i < copies.length; i += 5) {
+    const results = await Promise.all(copies.slice(i, i + 5).map((c) => bucket.copy(c.source.storage_path, c.path)));
+    if (results.some((r) => r.error)) return rollback("We couldn't copy the photos. Please try again.");
+  }
+
+  if (copies.length > 0) {
+    const { error: insertError } = await auth.supabase.from("trip_photos").insert(
+      copies.map((c) => ({
+        id: c.id,
+        trip_id: created.id,
+        owner_id: auth.userId,
+        storage_path: c.path,
+        mime_type: c.source.mime_type,
+        size_bytes: c.source.size_bytes,
+        width: c.source.width,
+        height: c.source.height,
+        caption: c.source.caption,
+        location: c.source.location,
+        taken_on: c.source.taken_on,
+        position: c.source.position,
+        frame: c.source.frame,
+      })),
+    );
+    if (insertError) return rollback(dbMessage(insertError, "We couldn't copy the photos. Please try again."));
+  }
+  return { ok: true, data: { id: created.id } };
+}
+
 export async function deleteTrip(tripId: string): Promise<ActionResult> {
   if (!uuidSchema.safeParse(tripId).success) return fail("Trip not found.");
   const auth = await authed();
@@ -237,6 +328,77 @@ export async function registerPhoto(input: z.input<typeof registerPhotoSchema>):
       caption: row.caption,
       location: row.location,
       takenOn: row.taken_on,
+      frame: {},
+    },
+  };
+}
+
+/**
+ * Swaps the image of an existing photo for a newly uploaded file, keeping its
+ * caption, place, day and position. The new file has its own storage path; the
+ * old file is deleted unless the published page still shows it (publishing
+ * again cleans that one up).
+ */
+export async function replacePhoto(input: z.input<typeof replacePhotoSchema>): Promise<ActionResult<EditorPhoto>> {
+  const parsed = replacePhotoSchema.safeParse(input);
+  if (!parsed.success) return fail("That upload wasn't valid.");
+  const auth = await authed();
+  if ("error" in auth) return fail(auth.error);
+  const { photoId, storagePath, width, height } = parsed.data;
+  const bucket = auth.supabase.storage.from(PHOTO_BUCKET);
+
+  const { data: photo } = await auth.supabase
+    .from("trip_photos")
+    .select("id, trip_id, storage_path, caption, location, taken_on")
+    .eq("id", photoId)
+    .eq("owner_id", auth.userId)
+    .maybeSingle();
+  if (!photo) return fail("Photo not found.");
+  if (!isOwnedStoragePath(storagePath, auth.userId, photo.trip_id) || storagePath === photo.storage_path) {
+    return fail("That upload wasn't valid.");
+  }
+
+  const cleanup = async (message: string) => {
+    await bucket.remove([storagePath]);
+    return fail<EditorPhoto>(message);
+  };
+
+  const { data: info, error: infoError } = await bucket.info(storagePath);
+  if (infoError || !info) return fail("We couldn't find the uploaded file. Please try again.");
+  const size = info.size ?? (info.metadata as { size?: number } | undefined)?.size ?? 0;
+  const mime = info.contentType ?? (info.metadata as { mimetype?: string } | undefined)?.mimetype ?? "";
+  if (!(STORED_TYPES as readonly string[]).includes(mime)) return cleanup("Only JPEG, PNG and WebP images are supported.");
+  if (size <= 0 || size > LIMITS.maxUploadBytes) return cleanup("That photo is larger than 10 MB after compression.");
+
+  const { error } = await auth.supabase
+    .from("trip_photos")
+    .update({ storage_path: storagePath, mime_type: mime, size_bytes: size, width, height, frame: {} })
+    .eq("id", photoId)
+    .eq("owner_id", auth.userId);
+  if (error) return cleanup("We couldn't replace that photo. Please try again.");
+
+  const { data: pub } = await auth.supabase
+    .from("published_memories")
+    .select("id")
+    .eq("trip_id", photo.trip_id)
+    .eq("owner_id", auth.userId)
+    .contains("photo_paths", [photo.storage_path])
+    .maybeSingle();
+  if (!pub) await bucket.remove([photo.storage_path]);
+
+  const urls = await signOwnPaths(auth.supabase, [storagePath]);
+  return {
+    ok: true,
+    data: {
+      id: photoId,
+      storagePath,
+      url: urls.get(storagePath) ?? null,
+      width,
+      height,
+      caption: photo.caption,
+      location: photo.location,
+      takenOn: photo.taken_on,
+      frame: {},
     },
   };
 }
@@ -255,12 +417,13 @@ export async function updatePhoto(photoId: string, patch: PhotoPatch): Promise<A
       ...(p.caption !== undefined && { caption: p.caption }),
       ...(p.location !== undefined && { location: p.location }),
       ...(p.takenOn !== undefined && { taken_on: p.takenOn }),
+      ...(p.frame !== undefined && { frame: p.frame as Json }),
     })
     .eq("id", photoId)
     .eq("owner_id", auth.userId)
     .select("updated_at")
     .maybeSingle();
-  if (error) return fail("We couldn't save that caption. Please try again.");
+  if (error) return fail("We couldn't save your changes to that photo. Please try again.");
   if (!data) return fail("Photo not found.");
   return { ok: true, data: { updatedAt: data.updated_at } };
 }
@@ -351,7 +514,7 @@ export async function publishTrip(input: z.input<typeof publishSchema>): Promise
 
   const { data: photos, error: photoError } = await auth.supabase
     .from("trip_photos")
-    .select("id, storage_path, width, height, caption, location, taken_on")
+    .select("id, storage_path, width, height, caption, location, taken_on, frame")
     .eq("trip_id", tripId)
     .eq("owner_id", auth.userId)
     .order("position", { ascending: true });
@@ -382,12 +545,13 @@ export async function publishTrip(input: z.input<typeof publishSchema>): Promise
       caption: p.caption,
       location: p.location,
       takenOn: p.taken_on,
+      ...(Object.keys(parseFrame(p.frame)).length > 0 && { frame: parseFrame(p.frame) }),
     })),
   };
 
   const { data: existing } = await auth.supabase
     .from("published_memories")
-    .select("id, slug")
+    .select("id, slug, photo_paths")
     .eq("trip_id", tripId)
     .eq("owner_id", auth.userId)
     .maybeSingle();
@@ -405,6 +569,11 @@ export async function publishTrip(input: z.input<typeof publishSchema>): Promise
 
   const { data, error } = await query.select("slug, visibility, allow_indexing, published_at, updated_at").single();
   if (error || !data) return fail("We couldn't publish right now. Please try again.");
+
+  // Files from replaced photos stay in storage until the published page stops using them.
+  const stale = (existing?.photo_paths ?? []).filter((path) => !payload.photo_paths.includes(path));
+  if (stale.length > 0) await auth.supabase.storage.from(PHOTO_BUCKET).remove(stale);
+
   return {
     ok: true,
     data: {

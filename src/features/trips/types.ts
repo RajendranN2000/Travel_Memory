@@ -1,4 +1,4 @@
-import type { Visibility } from "@/features/memories/types";
+import type { PhotoFrame, Visibility } from "@/features/memories/types";
 import type { TemplateSlug } from "@/features/templates/types";
 
 export interface EditorPhoto {
@@ -11,6 +11,7 @@ export interface EditorPhoto {
   caption: string;
   location: string;
   takenOn: string | null;
+  frame: PhotoFrame;
 }
 
 export interface Publication {
@@ -61,6 +62,7 @@ export interface PublishedPhoto {
   caption: string;
   location: string;
   takenOn: string | null;
+  frame?: PhotoFrame;
 }
 
 export interface PublishedContent {

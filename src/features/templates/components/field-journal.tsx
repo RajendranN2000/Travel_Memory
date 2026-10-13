@@ -4,6 +4,7 @@ import { headingClass } from "@/features/themes/css";
 import { ThemeDecoration } from "@/features/themes/decorations";
 import {
   Caption,
+  frameStyle,
   imageSizes,
   memoryDates,
   PhotoFill,
@@ -111,7 +112,7 @@ function ClassicJournal(props: TemplateProps) {
                 <div key={block.start} className="grid gap-8 @xl:grid-cols-2 @xl:gap-6">
                   {block.photos.map((photo, j) => (
                     <figure key={photo.id} className={cn(j === 1 && "@xl:mt-16")}>
-                      <div className="relative aspect-[4/5] overflow-hidden rounded-th bg-th-secondary">
+                      <div className="relative aspect-[4/5] overflow-hidden rounded-th bg-th-secondary" style={frameStyle(photo)}>
                         <PhotoFill
                           photo={photo}
                           alt={photoAlt(photo, memory, block.start + j)}
@@ -129,7 +130,7 @@ function ClassicJournal(props: TemplateProps) {
               const [photo] = block.photos;
               return (
                 <figure key={block.start} className="grid items-center gap-6 @3xl:grid-cols-[1.4fr_1fr] @3xl:gap-12">
-                  <div className="relative aspect-[3/2] overflow-hidden rounded-th bg-th-secondary">
+                  <div className="relative aspect-[3/2] overflow-hidden rounded-th bg-th-secondary" style={frameStyle(photo)}>
                     <PhotoFill
                       photo={photo}
                       alt={photoAlt(photo, memory, block.start)}
@@ -150,7 +151,7 @@ function ClassicJournal(props: TemplateProps) {
             const [photo] = block.photos;
             return (
               <figure key={block.start}>
-                <div className="relative aspect-[4/3] overflow-hidden rounded-th bg-th-secondary @2xl:aspect-[16/9]">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-th bg-th-secondary @2xl:aspect-[16/9]" style={frameStyle(photo)}>
                   <PhotoFill
                     photo={photo}
                     alt={photoAlt(photo, memory, block.start)}
@@ -190,7 +191,7 @@ function WideJournal(props: TemplateProps) {
         {memory.photos.map((photo, i) => (
           <section key={photo.id} aria-label={photo.caption || `Photo ${i + 1}`}>
             <figure>
-              <div className="relative aspect-[4/5] overflow-hidden bg-th-secondary @xl:aspect-[3/2] @5xl:aspect-[21/9]">
+              <div className="relative aspect-[4/5] overflow-hidden bg-th-secondary @xl:aspect-[3/2] @5xl:aspect-[21/9]" style={frameStyle(photo)}>
                 <PhotoFill
                   photo={photo}
                   alt={photoAlt(photo, memory, i)}
@@ -199,15 +200,19 @@ function WideJournal(props: TemplateProps) {
                   priority={priority && i === 0}
                 />
               </div>
+              {/* The caption sits right under its photo; the larger gap below separates it from the next one. */}
               {photo.caption || photo.location ? (
-                <figcaption className="mx-auto max-w-2xl px-6 py-10 text-center @2xl:py-14">
+                <figcaption className="mx-auto max-w-2xl px-6 pt-5 pb-14 text-center @2xl:pt-6 @2xl:pb-24">
+                  <p aria-hidden className="eyebrow text-th-accent tabular-nums">
+                    {String(i + 1).padStart(2, "0")} / {String(memory.photos.length).padStart(2, "0")}
+                  </p>
                   {photo.caption ? (
-                    <p className={cn(heading, "text-[clamp(1.25rem,3cqi,1.9rem)] leading-snug text-th-ink")}>{photo.caption}</p>
+                    <p className={cn(heading, "mt-2 text-[clamp(1.25rem,3cqi,1.9rem)] leading-snug text-th-ink")}>{photo.caption}</p>
                   ) : null}
                   {photo.location ? <p className="eyebrow mt-3 text-th-muted">{photo.location}</p> : null}
                 </figcaption>
               ) : (
-                <div className="h-6" />
+                <div className="h-14 @2xl:h-24" />
               )}
             </figure>
           </section>

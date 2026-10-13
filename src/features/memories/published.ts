@@ -3,6 +3,7 @@ import { cache } from "react";
 import { z } from "zod";
 import { isTemplateSlug } from "@/features/templates/registry";
 import { PHOTO_BUCKET, signOwnPaths } from "@/features/trips/queries";
+import { photoFrameSchema } from "@/features/trips/schemas";
 import type { PublishedContent } from "@/features/trips/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -32,6 +33,7 @@ const contentSchema = z.object({
         caption: z.string(),
         location: z.string(),
         takenOn: z.string().nullable(),
+        frame: photoFrameSchema.optional(),
       }),
     )
     .max(100),
@@ -67,6 +69,7 @@ function toMemoryContent(content: PublishedContent, urls: Map<string, string>): 
       caption: p.caption,
       location: p.location,
       takenOn: p.takenOn,
+      frame: p.frame,
     })),
   };
 }

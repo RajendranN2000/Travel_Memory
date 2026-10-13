@@ -1,7 +1,7 @@
 "use client";
 
 import { arrayMove } from "@dnd-kit/sortable";
-import { ArrowLeft, ArrowRight, Check, Eye, Images, NotebookPen, Palette, Send, type LucideIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Copy, Eye, Images, NotebookPen, Palette, Send, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { MemoryContent } from "@/features/memories/types";
+import type { MemoryContent, PhotoFrame } from "@/features/memories/types";
 import { getTemplate, templates } from "@/features/templates/registry";
 import { getDestinationTheme } from "@/features/themes/registry";
 import { LIMITS } from "@/features/trips/schemas";
@@ -32,7 +32,9 @@ import type { EditorPhoto, EditorTrip, Publication } from "@/features/trips/type
 import { DesignPanel } from "./panels/design-panel";
 import { DetailsPanel } from "./panels/details-panel";
 import { PhotosPanel } from "./panels/photos-panel";
+import { DuplicateTripDialog } from "@/features/trips/duplicate-dialog";
 import { PublishDialog } from "./publish-dialog";
+import { checkReadiness } from "./readiness";
 import { SaveIndicator } from "./save-indicator";
 import type { DraftFields, SetField } from "./types";
 import { useAutosave, type SaveHandler } from "./use-autosave";
@@ -71,6 +73,7 @@ export function Editor({
   const [tab, setTab] = useState(openPublish ? "design" : "details");
   const [leaveTo, setLeaveTo] = useState<string | null>(null);
   const [publishOpen, setPublishOpen] = useState(openPublish);
+  const [duplicateOpen, setDuplicateOpen] = useState(false);
 
   const save = useCallback<SaveHandler>(
     async (key, patch) => {
@@ -124,6 +127,26 @@ export function Editor({
     setPhotos((list) => list.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
     autosave.schedule(`photo:${id}`, { [field]: value });
     markEdited();
+  };
+
+  const onChangeFrame = (id: string, frame: PhotoFrame) => {
+    setPhotos((list) => list.map((p) => (p.id === id ? { ...p, frame } : p)));
+    autosave.schedule(`photo:${id}`, { frame });
+    markEdited();
+  };
+
+  const onReplace = async (photo: EditorPhoto, file: File) => {
+    const result = await uploads.replace(photo, file);
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+    // Keep any caption edits that were still waiting to save; the crop starts fresh.
+    setPhotos((list) =>
+      list.map((p) => (p.id === photo.id ? { ...result.photo, caption: p.caption, location: p.location, takenOn: p.takenOn, frame: {} } : p)),
+    );
+    markEdited();
+    toast.success("Photo replaced");
   };
 
   const onReorder = async (from: number, to: number) => {
@@ -185,19 +208,26 @@ export function Editor({
     else setLeaveTo(href);
   };
 
-  const blockers = useMemo(() => {
-    const list: string[] = [];
-    if (!draft.title.trim()) list.push("Add a title in Details.");
-    if (photos.length === 0) list.push("Add at least one photo.");
-    if (uploads.busy) list.push("Wait for uploads to finish.");
-    return list;
-  }, [draft.title, photos.length, uploads.busy]);
+  const readiness = useMemo(
+    () =>
+      checkReadiness({
+        title: draft.title,
+        description: draft.description,
+        startDate: draft.startDate,
+        photos,
+        uploadsBusy: uploads.busy,
+        unsaved: autosave.status === "pending" || autosave.status === "saving",
+        saveFailed: autosave.status === "error",
+      }),
+    [autosave.status, draft.description, draft.startDate, draft.title, photos, uploads.busy],
+  );
+  const photoUrls = useMemo(() => photos.flatMap((p) => (p.url ? [p.url] : [])), [photos]);
 
   const memory: MemoryContent = useMemo(
     () => ({
       ...draft,
       photos: [
-        ...photos.map((p) => ({ id: p.id, src: p.url, width: p.width, height: p.height, caption: p.caption, location: p.location, takenOn: p.takenOn })),
+        ...photos.map((p) => ({ id: p.id, src: p.url, width: p.width, height: p.height, caption: p.caption, location: p.location, takenOn: p.takenOn, frame: p.frame })),
         ...uploads.items.map((u) => ({ id: u.localId, src: u.previewUrl, width: 4, height: 3, caption: "", location: "", takenOn: null })),
       ],
     }),
@@ -279,10 +309,16 @@ export function Editor({
               </Link>
             </Button>
           ) : null}
+          {!demo ? (
+            <Button variant="outline" size="sm" className="hidden sm:inline-flex sm:h-11 sm:px-4" onClick={() => setDuplicateOpen(true)}>
+              <Copy data-icon="inline-start" /> Duplicate
+            </Button>
+          ) : null}
           <PublishDialog
             tripId={trip.id}
             publication={publication}
-            blockers={blockers}
+            readiness={readiness}
+            photoUrls={photoUrls}
             hasChangesSincePublish={editedSincePublish}
             demo={demo}
             flush={autosave.flush}
@@ -336,6 +372,9 @@ export function Editor({
                       onReorder={onReorder}
                       onChangePhoto={onChangePhoto}
                       onDeletePhoto={onDeletePhoto}
+                      replacing={uploads.replacing}
+                      onReplace={onReplace}
+                      onChangeFrame={onChangeFrame}
                     />
                   ) : (
                     <DesignPanel draft={draft} setField={setField} />
@@ -389,6 +428,17 @@ export function Editor({
 
         <div className="hidden min-w-0 lg:block lg:sticky lg:top-24">{preview}</div>
       </div>
+
+      {duplicateOpen ? (
+        <DuplicateTripDialog
+          tripId={trip.id}
+          title={draft.title}
+          templateSlug={draft.templateSlug}
+          open={duplicateOpen}
+          onOpenChange={setDuplicateOpen}
+          beforeCopy={autosave.flush}
+        />
+      ) : null}
 
       <AlertDialog open={leaveTo !== null} onOpenChange={(open) => !open && setLeaveTo(null)}>
         <AlertDialogContent>

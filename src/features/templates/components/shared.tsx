@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { formatDateRange } from "@/lib/dates";
 import type { MemoryContent, MemoryPhoto } from "@/features/memories/types";
@@ -57,6 +57,28 @@ export function imageSizes(hint: TemplateProps["sizesHint"], kind: "cover" | "ti
   return sizesFor[hint ?? "full"][kind];
 }
 
+const SHAPE_RATIO = { landscape: "3 / 2", square: "1 / 1", portrait: "4 / 5" } as const;
+
+/**
+ * Inline style for a photo's frame when the user picked a shape for it. Returns
+ * undefined for "auto" so the template's own aspect-ratio classes apply.
+ */
+export function frameStyle(photo: MemoryPhoto | null | undefined): CSSProperties | undefined {
+  const shape = photo?.frame?.shape;
+  if (!photo || !shape || shape === "auto") return undefined;
+  return { aspectRatio: shape === "original" ? `${photo.width} / ${photo.height}` : SHAPE_RATIO[shape] };
+}
+
+/** Crop position and zoom chosen for a photo, as inline styles for the <img>. */
+export function imageFrameStyle(photo: MemoryPhoto): CSSProperties | undefined {
+  const { x = 50, y = 50, zoom = 1 } = photo.frame ?? {};
+  if (x === 50 && y === 50 && zoom === 1) return undefined;
+  return {
+    objectPosition: `${x}% ${y}%`,
+    ...(zoom > 1 && { transform: `scale(${zoom})`, transformOrigin: `${x}% ${y}%` }),
+  };
+}
+
 /**
  * Renders a photo that fills its positioned parent. Local images go through
  * next/image; remote (signed) URLs and blob previews render as plain <img>.
@@ -89,7 +111,8 @@ export function PhotoFill({
       />
     );
   }
-  const fitClass = fit === "cover" ? "object-cover" : "object-contain";
+  const fitClass = (photo.frame?.fit ?? fit) === "cover" ? "object-cover" : "object-contain";
+  const style = imageFrameStyle(photo);
   if (photo.src.startsWith("/")) {
     return (
       <Image
@@ -98,6 +121,7 @@ export function PhotoFill({
         fill
         sizes={sizes}
         priority={priority}
+        style={style}
         className={cn(fitClass, treatment, className)}
       />
     );
@@ -111,6 +135,7 @@ export function PhotoFill({
       height={photo.height}
       loading={priority ? "eager" : "lazy"}
       decoding="async"
+      style={style}
       className={cn("absolute inset-0 h-full w-full", fitClass, treatment, className)}
     />
   );

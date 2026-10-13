@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { VISIBILITIES } from "@/features/memories/types";
+import { FRAME_SHAPES, VISIBILITIES, type PhotoFrame } from "@/features/memories/types";
 import { getTemplate, isTemplateSlug } from "@/features/templates/registry";
 import { getDestinationTheme, isKnownDestination } from "@/features/themes/registry";
 import { parseIsoDate } from "@/lib/dates";
@@ -80,8 +80,26 @@ export function normaliseTripDesign<T extends { destinationSlug: string; templat
   return { ...trip, layout, palette };
 }
 
+export const photoFrameSchema = z
+  .object({
+    zoom: z.number().min(1).max(3),
+    x: z.number().min(0).max(100),
+    y: z.number().min(0).max(100),
+    shape: z.enum(FRAME_SHAPES),
+    fit: z.enum(["cover", "contain"]),
+  })
+  .partial()
+  .strict();
+
+/** Reads a stored frame defensively: drops anything invalid rather than failing. */
+export function parseFrame(value: unknown): PhotoFrame {
+  const parsed = photoFrameSchema.safeParse(value);
+  return parsed.success ? parsed.data : {};
+}
+
 export const photoPatchSchema = z
   .object({
+    frame: photoFrameSchema,
     caption: z.string().trim().max(LIMITS.caption, `Keep captions under ${LIMITS.caption} characters.`),
     location: z.string().trim().max(LIMITS.location, `Keep places under ${LIMITS.location} characters.`),
     takenOn: optionalIsoDate,
@@ -99,6 +117,19 @@ export const registerPhotoSchema = z.object({
   height: z.number().int().min(1).max(12000),
 });
 
+export const replacePhotoSchema = z.object({
+  photoId: uuidSchema,
+  storagePath: z.string().max(200),
+  width: z.number().int().min(1).max(12000),
+  height: z.number().int().min(1).max(12000),
+});
+
+export const duplicateTripSchema = z.object({
+  tripId: uuidSchema,
+  templateSlug: templateSlugSchema,
+  title: z.string().trim().min(1, "Give the copy a title.").max(LIMITS.title, `Keep the title under ${LIMITS.title} characters.`),
+});
+
 export const reorderSchema = z.object({
   tripId: uuidSchema,
   photoIds: z.array(uuidSchema).max(LIMITS.photosPerTrip),
@@ -113,12 +144,36 @@ export const publishSchema = z
   .transform((v) => ({ ...v, allowIndexing: v.visibility === "public" ? v.allowIndexing : false }));
 
 /** Expected storage location for a photo: <owner>/<trip>/<photo>.<ext> */
-export function photoStoragePath(ownerId: string, tripId: string, photoId: string, mime: string): string {
+export function photoStoragePath(ownerId: string, tripId: string, photoId: string, mime: string, label?: string): string {
   const ext = mime === "image/png" ? "png" : mime === "image/webp" ? "webp" : "jpg";
-  return `${ownerId}/${tripId}/${photoId}.${ext}`;
+  // A readable prefix (from the original file name) makes objects easy to spot in
+  // the Supabase dashboard. The photo id stays in the name so it is still unique.
+  const slug = (label ?? "")
+    .replace(/\.[^.]+$/, "")
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40)
+    .replace(/-+$/, "");
+  return `${ownerId}/${tripId}/${slug ? `${slug}-` : ""}${photoId}.${ext}`;
 }
 
-const PATH_RE = /^([0-9a-f-]{36})\/([0-9a-f-]{36})\/([0-9a-f-]{36})\.(jpg|png|webp)$/;
+const UUID_PART = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+const PATH_RE = new RegExp(`^(${UUID_PART})/(${UUID_PART})/(?:[a-z0-9-]{1,40}-)?(${UUID_PART})\\.(jpg|png|webp)$`);
+
+/** True when a storage path sits inside the given owner's and trip's folders. */
+export function isOwnedStoragePath(path: string, ownerId: string, tripId: string): boolean {
+  const match = PATH_RE.exec(path);
+  return Boolean(match && match[1] === ownerId && match[2] === tripId);
+}
+
+/** The readable name prefix of a stored photo, e.g. "eiffel-tower" (or ""). */
+export function photoLabelFromPath(path: string): string {
+  const name = path.split("/").pop() ?? "";
+  return name.replace(new RegExp(`-?${UUID_PART}\\.(jpg|png|webp)$`), "");
+}
 
 /** True when a storage path belongs to the given owner, trip and photo. */
 export function isOwnedPhotoPath(path: string, ownerId: string, tripId: string, photoId: string): boolean {

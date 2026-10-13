@@ -2,7 +2,7 @@ import "server-only";
 import type { Visibility } from "@/features/memories/types";
 import { isTemplateSlug } from "@/features/templates/registry";
 import type { ServerSupabase } from "@/lib/supabase/server";
-import { uuidSchema } from "./schemas";
+import { parseFrame, uuidSchema } from "./schemas";
 import type { EditorPhoto, EditorTrip, Publication, TripSummary } from "./types";
 
 export const PHOTO_BUCKET = "trip-photos";
@@ -59,7 +59,7 @@ export async function getOwnedTrip(supabase: ServerSupabase, userId: string, tri
   const [{ data: photos, error: photoError }, { data: publication }] = await Promise.all([
     supabase
       .from("trip_photos")
-      .select("id, storage_path, width, height, caption, location, taken_on, position")
+      .select("id, storage_path, width, height, caption, location, taken_on, position, frame")
       .eq("trip_id", tripId)
       .eq("owner_id", userId)
       .order("position", { ascending: true })
@@ -83,6 +83,7 @@ export async function getOwnedTrip(supabase: ServerSupabase, userId: string, tri
     caption: p.caption,
     location: p.location,
     takenOn: p.taken_on,
+    frame: parseFrame(p.frame),
   }));
 
   return {
