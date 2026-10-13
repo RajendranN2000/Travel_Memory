@@ -1,14 +1,17 @@
-import { Globe, Link2, Lock, PencilLine } from "lucide-react";
+import { Globe, Link2, Lock, PencilLine, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { MemoryReviews } from "@/components/memory/memory-reviews";
 import { Logo } from "@/components/site/logo";
+import { WhatsAppIcon } from "@/components/site/whatsapp-link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { loadPublishedMemory } from "@/features/memories/published";
 import { MemoryRenderer } from "@/features/templates/render";
 import { resolveTheme } from "@/features/themes/registry";
+import { whatsappLink } from "@/lib/whatsapp";
 
 export async function generateMetadata({ params }: PageProps<"/memory/[slug]">): Promise<Metadata> {
   const { slug } = await params;
@@ -67,12 +70,13 @@ async function Memory({ params }: Pick<PageProps<"/memory/[slug]">, "params">) {
   const memory = await loadPublishedMemory(slug);
   if (!memory) notFound();
   const vis = VIS[memory.visibility];
+  const enquiry = whatsappLink(`Hi! I saw the travel memory “${memory.content.title || "Untitled trip"}” on My Travel Memory and I'd like to know more.`);
 
   return (
     <>
       <header className="border-b border-border bg-background">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6 print:hidden">
-          <Logo className="text-base" markClassName="h-8" />
+          <Logo markClassName="h-9" />
           {memory.isOwner ? (
             <div className="ml-auto flex items-center gap-2">
               <span className="hidden items-center gap-1.5 text-sm text-muted-foreground sm:flex">
@@ -85,19 +89,13 @@ async function Memory({ params }: Pick<PageProps<"/memory/[slug]">, "params">) {
               </Button>
             </div>
           ) : (
-            <Button asChild size="sm" variant="ghost" className="ml-auto">
-              <Link href="/create">Make your own</Link>
+            <Button asChild className="ml-auto h-10 rounded-full px-5 shadow-soft">
+              <Link href="/create">
+                <Sparkles data-icon="inline-start" aria-hidden /> Make your own
+              </Link>
             </Button>
           )}
         </div>
-        {memory.isSample ? (
-          <p className="bg-secondary px-4 py-2 text-center text-xs text-secondary-foreground">
-            Sample memory made with licensed destination photography.{" "}
-            <Link href="/credits" className="underline underline-offset-2">
-              Photo credits
-            </Link>
-          </p>
-        ) : null}
         {memory.isOwner && memory.visibility === "private" ? (
           <p className="bg-secondary px-4 py-2 text-center text-xs">This memory is private. Only you can see it while signed in.</p>
         ) : null}
@@ -110,12 +108,24 @@ async function Memory({ params }: Pick<PageProps<"/memory/[slug]">, "params">) {
       <main id="main" className="flex-1">
         <MemoryRenderer memory={memory.content} priority />
       </main>
+      {memory.visibility === "public" && !memory.isSample ? (
+        <Suspense fallback={null}>
+          <MemoryReviews slug={memory.slug} isOwner={memory.isOwner} />
+        </Suspense>
+      ) : null}
       <footer className="border-t border-border bg-background">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:px-6">
-          <p>Made with Travel Memory Studio</p>
-          <Link href="/create" className="inline-flex min-h-11 items-center font-medium text-brand hover:underline">
-            Turn your own trip into a memory →
-          </Link>
+          <p>Made with My Travel Memory</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 print:hidden">
+            {enquiry ? (
+              <a href={enquiry} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 font-medium text-[#128C7E] hover:underline">
+                <WhatsAppIcon className="size-5" /> Enquire on WhatsApp
+              </a>
+            ) : null}
+            <Link href="/create" className="inline-flex min-h-11 items-center font-medium text-brand hover:underline">
+              Turn your own trip into a memory →
+            </Link>
+          </div>
         </div>
       </footer>
     </>

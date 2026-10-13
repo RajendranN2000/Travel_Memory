@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,15 +9,15 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "Travel Memory Studio — turn trip photos into beautiful memories",
-    template: "%s · Travel Memory Studio",
+    default: "My Travel Memory — turn trip photos into beautiful memories",
+    template: "%s · My Travel Memory",
   },
   description:
     "Turn your travel photos into personal, shareable memory pages, designed around the places you visited.",
-  applicationName: "Travel Memory Studio",
+  applicationName: "My Travel Memory",
   openGraph: {
     type: "website",
-    siteName: "Travel Memory Studio",
+    siteName: "My Travel Memory",
     images: [{ url: "/images/destinations/munnar/hero.webp", width: 2400, height: 1600 }],
   },
 };
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </a>
         <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
         <Toaster position="bottom-center" />
+        <Analytics />
       </body>
     </html>
   );

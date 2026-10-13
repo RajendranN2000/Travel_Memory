@@ -5,7 +5,7 @@ import { getAllImageCredits } from "@/features/themes/images";
 
 export const metadata: Metadata = {
   title: "Photo credits",
-  description: "Attribution and licences for the destination photography used in Travel Memory Studio.",
+  description: "Attribution and licences for the destination photography used in My Travel Memory.",
 };
 
 export default function CreditsPage() {

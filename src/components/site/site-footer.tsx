@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { listDestinationThemes } from "@/features/themes/registry";
-import { LogoFull } from "./logo";
+import { Logo } from "./logo";
+import { WhatsAppLink } from "./whatsapp-link";
 
 export function SiteFooter() {
   const destinations = listDestinationThemes();
@@ -8,12 +9,13 @@ export function SiteFooter() {
     <footer className="mt-auto border-t border-border bg-secondary/50">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr] lg:px-8">
         <div className="max-w-xs">
-          <Link href="/" className="inline-block rounded-md" aria-label="Travel Memory Studio home">
-            <LogoFull className="w-36" />
-          </Link>
+          <Logo markClassName="h-14" />
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
             Turn trip photos into personal, shareable memory pages, styled after the places you visited.
           </p>
+          <div className="mt-5 flex items-center gap-3">
+            <WhatsAppLink message="Hi! I have a question about My Travel Memory." />
+          </div>
         </div>
         <nav aria-label="Destinations">
           <h2 className="eyebrow text-muted-foreground">Destinations</h2>
@@ -51,6 +53,7 @@ export function SiteFooter() {
               ["/privacy", "Privacy"],
               ["/terms", "Terms"],
               ["/credits", "Photo credits"],
+              ["/feedback", "Send feedback"],
             ].map(([href, label]) => (
               <li key={href}>
                 <Link href={href} className="inline-flex min-h-9 items-center text-sm hover:text-brand">

@@ -1,4 +1,4 @@
--- Travel Memory Studio: initial schema
+-- My Travel Memory: initial schema
 -- Tables, constraints, Row Level Security, storage bucket and policies.
 --
 -- Ownership model

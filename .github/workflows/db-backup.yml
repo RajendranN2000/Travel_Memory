@@ -1,0 +1,65 @@
+name: Database backup
+
+# Twice a week, dump the Supabase database, encrypt it and keep it as a workflow
+# artifact for 30 days. The connection also counts as activity, which stops the
+# free Supabase project from pausing. Setup and restore steps: docs/backups.md
+
+on:
+  schedule:
+    - cron: "0 3 * * 1,4" # Monday and Thursday, 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check secrets are set
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::error::Add the SUPABASE_DB_URL and BACKUP_PASSPHRASE repository secrets (see docs/backups.md)."
+            exit 1
+          fi
+
+      - name: Install PostgreSQL 17 client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y postgresql-client-17
+
+      - name: Dump the database
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          # The app's own tables, plus the sign-in accounts they point to.
+          /usr/lib/postgresql/17/bin/pg_dump "$SUPABASE_DB_URL" \
+            --format=custom --no-owner --no-privileges \
+            --schema=public --table=auth.users --table=auth.identities \
+            --file="backup-$(date -u +%Y%m%d-%H%M).dump"
+
+      # The dump contains personal data, so it is encrypted before it is stored.
+      - name: Encrypt
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          for f in backup-*.dump; do
+            gpg --batch --yes --pinentry-mode loopback --passphrase "$BACKUP_PASSPHRASE" \
+              --symmetric --cipher-algo AES256 --output "$f.gpg" "$f"
+            rm "$f"
+          done
+          ls -lh backup-*.gpg
+
+      - name: Upload encrypted backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-backup
+          path: backup-*.dump.gpg
+          retention-days: 30
+          if-no-files-found: error

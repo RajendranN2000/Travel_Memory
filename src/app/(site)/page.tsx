@@ -46,7 +46,7 @@ function Hero() {
 
       <div className="mx-auto grid min-h-[calc(100svh-4rem)] max-h-[60rem] max-w-7xl items-end gap-10 px-4 pt-28 pb-12 sm:px-6 sm:pb-16 lg:grid-cols-[1.25fr_1fr] lg:items-center lg:px-8">
         <div className="max-w-2xl animate-in fade-in slide-in-from-bottom-3 duration-700">
-          <p className="eyebrow text-paper/80">Travel Memory Studio</p>
+          <p className="eyebrow text-paper/80">My Travel Memory</p>
           <h1 className="mt-4 font-display text-[clamp(2.5rem,7.5vw,5.25rem)] leading-[0.98] font-medium tracking-tight">
             Your trips deserve more than a camera roll.
           </h1>

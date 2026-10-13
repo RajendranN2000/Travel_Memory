@@ -3,7 +3,7 @@
 @import "shadcn/tailwind.css";
 
 /*
- * Travel Memory Studio design tokens
+ * My Travel Memory design tokens
  * ----------------------------------
  * App chrome uses a warm paper palette. Destination themes set the --t-*
  * variables on a wrapper element (see src/features/themes/css.ts) and

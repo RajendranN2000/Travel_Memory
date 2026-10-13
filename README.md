@@ -1,4 +1,4 @@
-# Travel Memory Studio
+# My Travel Memory
 
 Turn trip photos into personal, shareable memory pages styled after the place you visited.
 
@@ -37,7 +37,7 @@ pnpm dev                     # http://localhost:3000
 | `pnpm test:e2e` | Playwright end-to-end tests (starts a dev server on port 3300) |
 | `pnpm check` | Lint, type-check, unit tests and build in one go |
 | `pnpm images:fetch` | Re-downloads destination photos listed in `scripts/image-sources.json` |
-| `node scripts/build-brand-assets.mjs assets/brand/travel-memory-logo-master.png` | Rebuilds the logo emblem, footer logo, favicon and app icons from the master logo |
+| `node scripts/build-brand-assets.mjs public/brand/Logo.png public/brand/Favicon.png` | Rebuilds the site logo, emblem, favicon and app icons from the two master images |
 | `pnpm db:types` | Regenerates database types from a local Supabase stack |
 
 ## Setting up Supabase
@@ -188,8 +188,8 @@ Destination photos come from Wikimedia Commons under CC0, public-domain or CC BY
 
 ## Known limitations of Phase 1
 
-- **HEIC photos** aren't converted. Users are told to export JPEG; iOS Safari usually does this automatically.
-- **Upload progress** shows the current stage, not a percentage. Supabase's standard upload doesn't report progress.
+- **HEIC photos** are converted to JPEG in the browser (heic2any, loaded only when an iPhone photo is chosen).
+- **Upload progress** shows a percentage for preparing and uploading each photo. If the progress-reporting request fails, the upload falls back to the standard Supabase upload (no percentage).
 - **Legal pages** are drafts and must be reviewed before launch.
 - **Performance needs another pass before launch.** These Lighthouse 12 mobile numbers come from a local `next start` on 9 Oct 2026, with no CDN and DevTools throttling (slow 4G, 4× CPU):
 

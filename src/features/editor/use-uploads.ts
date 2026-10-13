@@ -5,7 +5,8 @@ import { getBrowserClient } from "@/lib/supabase/browser";
 import { deletePhoto, registerPhoto, replacePhoto } from "@/features/trips/actions";
 import { LIMITS, photoStoragePath } from "@/features/trips/schemas";
 import type { EditorPhoto } from "@/features/trips/types";
-import { checkFile, partitionFiles } from "./upload-validation";
+import { checkFile, isHeic, partitionFiles } from "./upload-validation";
+import { uploadPhoto } from "./upload-with-progress";
 
 export type UploadStatus = "queued" | "processing" | "uploading" | "saving" | "error";
 
@@ -15,13 +16,28 @@ export interface UploadItem {
   /** Temporary object URL for the preview only. Never persisted. */
   previewUrl: string;
   status: UploadStatus;
+  /** 0-100 for the current stage (preparing, then uploading) */
+  progress?: number;
   error?: string;
 }
 
 const MAX_CONCURRENT = 2;
 const OUTPUT_TYPE = "image/jpeg";
 
-async function compress(file: File, signal: AbortSignal): Promise<{ blob: Blob; width: number; height: number }> {
+/** Converts an iPhone HEIC/HEIF photo to JPEG in the browser (the library is only loaded when needed). */
+async function heicToJpeg(file: File): Promise<File> {
+  const { default: heic2any } = await import("heic2any");
+  const converted = await heic2any({ blob: file, toType: OUTPUT_TYPE, quality: 0.92 });
+  const blob = Array.isArray(converted) ? converted[0] : converted;
+  return new File([blob], file.name.replace(/\.(heic|heif)$/i, "") + ".jpg", { type: OUTPUT_TYPE });
+}
+
+async function compress(
+  input: File,
+  signal: AbortSignal,
+  onProgress?: (percent: number) => void,
+): Promise<{ blob: Blob; width: number; height: number }> {
+  const file = isHeic(input) ? await heicToJpeg(input) : input;
   const { default: imageCompression } = await import("browser-image-compression");
   // Re-encoding through a canvas strips EXIF metadata, including GPS location.
   const blob = await imageCompression(file, {
@@ -32,6 +48,7 @@ async function compress(file: File, signal: AbortSignal): Promise<{ blob: Blob; 
     useWebWorker: true,
     preserveExif: false,
     signal,
+    onProgress: onProgress && ((percent: number) => onProgress(Math.round(percent))),
   });
   const bitmap = await createImageBitmap(blob);
   const size = { width: bitmap.width, height: bitmap.height };
@@ -102,10 +119,10 @@ export function useUploads({
       const cancelled = () => controller.signal.aborted;
       active.current += 1;
       try {
-        patch(item.localId, { status: "processing", error: undefined });
+        patch(item.localId, { status: "processing", progress: 0, error: undefined });
         let compressed: Awaited<ReturnType<typeof compress>>;
         try {
-          compressed = await compress(file, controller.signal);
+          compressed = await compress(file, controller.signal, (progress) => patch(item.localId, { progress }));
         } catch (e) {
           if (cancelled()) return;
           const reason = e instanceof Error && e.message === "too-large" ? "is still over 10 MB after compression" : "couldn't be read as an image";
@@ -136,12 +153,13 @@ export function useUploads({
           return;
         }
 
-        patch(item.localId, { status: "uploading" });
+        patch(item.localId, { status: "uploading", progress: 0 });
         const path = photoStoragePath(userId, tripId, item.localId, OUTPUT_TYPE, item.name);
-        const { error: uploadError } = await supabase.storage
-          .from("trip-photos")
-          .upload(path, compressed.blob, { contentType: OUTPUT_TYPE, upsert: false, cacheControl: "31536000" });
-        if (uploadError && !/exists|duplicate/i.test(uploadError.message)) {
+        const uploaded = await uploadPhoto(supabase, path, compressed.blob, OUTPUT_TYPE, {
+          signal: controller.signal,
+          onProgress: (fraction) => patch(item.localId, { progress: Math.round(fraction * 100) }),
+        });
+        if (!uploaded.ok) {
           if (cancelled()) return;
           patch(item.localId, { status: "error", error: "The upload failed. Check your connection and try again." });
           return;
@@ -266,10 +284,8 @@ export function useUploads({
         const supabase = getBrowserClient();
         if (!supabase) return { ok: false, error: "Uploads are unavailable because Supabase isn't configured." };
         const path = photoStoragePath(userId, tripId, crypto.randomUUID(), OUTPUT_TYPE, file.name);
-        const { error: uploadError } = await supabase.storage
-          .from("trip-photos")
-          .upload(path, compressed.blob, { contentType: OUTPUT_TYPE, upsert: false, cacheControl: "31536000" });
-        if (uploadError) return { ok: false, error: "The upload failed. Check your connection and try again." };
+        const uploaded = await uploadPhoto(supabase, path, compressed.blob, OUTPUT_TYPE);
+        if (!uploaded.ok) return { ok: false, error: "The upload failed. Check your connection and try again." };
 
         const result = await replacePhoto({ photoId: photo.id, storagePath: path, width: compressed.width, height: compressed.height });
         if (!result.ok) {

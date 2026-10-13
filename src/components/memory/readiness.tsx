@@ -74,7 +74,7 @@ export function ReadinessChecklist({
           ) : (
             <AlertTriangle aria-hidden className="mt-0.5 size-4 shrink-0 text-warning" />
           )}
-          <span>{item.message}</span>
+          <span className="min-w-0 [overflow-wrap:anywhere]">{item.message}</span>
         </p>
       ))}
     </div>

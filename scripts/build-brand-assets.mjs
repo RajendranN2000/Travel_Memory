@@ -1,24 +1,26 @@
 /**
- * Builds the logo and app icons from the master logo PNG (transparent background).
+ * Builds the site logo and the app icons from two master PNGs (transparent background).
  *
- *   node scripts/build-brand-assets.mjs <path-to-master.png>
+ *   node scripts/build-brand-assets.mjs public/brand/Logo.png public/brand/Favicon.png
+ *
+ * Masters (kept as supplied, never edited):
+ *   Logo.png     full logo: emblem and the "My Travel Memory" wordmark
+ *   Favicon.png  emblem only
  *
  * Writes:
- *   public/brand/logo-mark.png  emblem only (mountains, sun, river), used in the header
- *   public/brand/logo.png       full stacked logo with the TRAVEL MEMORY wordmark
+ *   public/brand/logo-full.png  Logo.png trimmed of its empty margin, used in the headers and footer
+ *   public/brand/logo-mark.png  Favicon.png trimmed, used where only the emblem fits (editor header)
  *   src/app/icon.png            512×512 favicon / PWA icon
  *   src/app/apple-icon.png      180×180 home-screen icon on the paper background
  *   src/app/favicon.ico         16/32/48 px browser tab icon
- *
- * The master file is kept at assets/brand/travel-memory-logo-master.png.
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 
-const master = process.argv[2];
-if (!master) {
-  console.error("Usage: node scripts/build-brand-assets.mjs <master.png>");
+const [logoMaster, faviconMaster] = process.argv.slice(2);
+if (!logoMaster || !faviconMaster) {
+  console.error("Usage: node scripts/build-brand-assets.mjs <Logo.png> <Favicon.png>");
   process.exit(1);
 }
 
@@ -26,17 +28,12 @@ const root = path.resolve(import.meta.dirname, "..");
 const out = (p) => path.join(root, p);
 await mkdir(out("public/brand"), { recursive: true });
 
-const meta = await sharp(master).metadata();
-// The emblem sits above the wordmark; the wordmark starts at roughly 62% of the height.
-const emblemBottom = Math.round(meta.height * 0.62);
+const png = { compressionLevel: 9, palette: true, quality: 90 };
+const logoFull = await sharp(logoMaster).trim({ threshold: 10 }).png().toBuffer();
+const emblem = await sharp(faviconMaster).trim({ threshold: 10 }).png().toBuffer();
 
-// sharp applies trim before extract within one pipeline, so do them in two steps.
-const emblemArea = await sharp(master).extract({ left: 0, top: 0, width: meta.width, height: emblemBottom }).png().toBuffer();
-const emblem = await sharp(emblemArea).trim({ threshold: 10 }).png().toBuffer();
-const full = await sharp(master).trim({ threshold: 10 }).png().toBuffer();
-
-await sharp(emblem).resize({ height: 192 }).png({ compressionLevel: 9, palette: true, quality: 90 }).toFile(out("public/brand/logo-mark.png"));
-await sharp(full).resize({ width: 720 }).png({ compressionLevel: 9, palette: true, quality: 90 }).toFile(out("public/brand/logo.png"));
+await sharp(logoFull).resize({ width: 720 }).png(png).toFile(out("public/brand/logo-full.png"));
+await sharp(emblem).resize({ height: 192 }).png(png).toFile(out("public/brand/logo-mark.png"));
 
 async function square(size, padding, background) {
   const inner = size - padding * 2;
@@ -70,7 +67,7 @@ const entries = icoSizes.map((s, i) => {
 });
 await writeFile(out("src/app/favicon.ico"), Buffer.concat([header, ...entries, ...pngs]));
 
-for (const f of ["public/brand/logo-mark.png", "public/brand/logo.png", "src/app/icon.png", "src/app/apple-icon.png"]) {
+for (const f of ["public/brand/logo-full.png", "public/brand/logo-mark.png", "src/app/icon.png", "src/app/apple-icon.png"]) {
   const m = await sharp(out(f)).metadata();
   console.log(`${f}: ${m.width}×${m.height}`);
 }

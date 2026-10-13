@@ -128,14 +128,17 @@ describe("upload validation", () => {
     expect(checkFile({ name: "a.webp", type: "image/webp", size: 10 }).ok).toBe(true);
   });
 
-  it("rejects unsupported, empty, oversized and HEIC files with helpful messages", () => {
+  it("accepts iPhone HEIC photos (they are converted in the browser)", () => {
+    expect(checkFile({ name: "IMG_0001.HEIC", type: "", size: 10 }).ok).toBe(true);
+    expect(checkFile({ name: "IMG_0002.heif", type: "image/heif", size: 10 }).ok).toBe(true);
+    expect(checkFile({ name: "IMG_0003.heic", type: "image/heic", size: 0 })).toMatchObject({ ok: false });
+  });
+
+  it("rejects unsupported, empty and oversized files with helpful messages", () => {
     expect(checkFile({ name: "a.gif", type: "image/gif", size: 10 })).toMatchObject({ ok: false });
     expect(checkFile({ name: "a.svg", type: "image/svg+xml", size: 10 })).toMatchObject({ ok: false });
     expect(checkFile(jpeg("a.jpg", 0))).toMatchObject({ ok: false });
     expect(checkFile(jpeg("a.jpg", LIMITS.maxInputBytes + 1))).toMatchObject({ ok: false });
-    const heic = checkFile({ name: "IMG_0001.HEIC", type: "", size: 10 });
-    expect(heic.ok).toBe(false);
-    if (!heic.ok) expect(heic.reason).toMatch(/HEIC/);
   });
 
   it("respects the per-trip photo limit", () => {

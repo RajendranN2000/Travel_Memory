@@ -132,6 +132,29 @@ export type Database = {
         };
         Relationships: [];
       };
+      feedback: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          kind: "bug" | "suggestion" | "other";
+          message: string;
+          contact_email: string | null;
+          page: string | null;
+          user_agent: string | null;
+          status: "new" | "seen" | "done";
+          created_at: string;
+        };
+        Insert: {
+          user_id?: string | null;
+          kind: "bug" | "suggestion" | "other";
+          message: string;
+          contact_email?: string | null;
+          page?: string | null;
+          user_agent?: string | null;
+        };
+        Update: { status?: "new" | "seen" | "done" };
+        Relationships: [];
+      };
       published_memories: {
         Row: {
           id: string;
@@ -169,6 +192,12 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      get_memory_reviews: {
+        Args: { p_slug: string };
+        Returns: Array<{ rating: number; comment: string; created_at: string; reviewer: string; is_mine: boolean }>;
+      };
+      submit_memory_review: { Args: { p_slug: string; p_rating: number; p_comment: string }; Returns: undefined };
+      delete_my_memory_review: { Args: { p_slug: string }; Returns: undefined };
       get_published_memory: {
         Args: { p_slug: string };
         Returns: Array<{

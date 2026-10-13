@@ -33,7 +33,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { imageFrameStyle } from "@/features/templates/components/shared";
-import { ACCEPTED_INPUT_TYPES, LIMITS } from "@/features/trips/schemas";
+import { LIMITS } from "@/features/trips/schemas";
+import { PICKER_ACCEPT } from "../upload-validation";
 import type { EditorPhoto } from "@/features/trips/types";
 import type { UploadItem } from "../use-uploads";
 import { PhotoAdjustDialog } from "./photo-adjust-dialog";
@@ -172,7 +173,7 @@ function Dropzone({ onFiles, demo, photos, uploads }: PhotosPanelProps) {
       <ImagePlus aria-hidden className="mx-auto size-7 text-brand" />
       <p className="mt-3 font-medium">Add photos</p>
       <p className="mt-1 text-sm text-muted-foreground">
-        JPEG, PNG or WebP, up to {Math.round(LIMITS.maxInputBytes / 1024 / 1024)} MB each. Photos are resized and location data
+        JPEG, PNG, WebP or iPhone HEIC, up to {Math.round(LIMITS.maxInputBytes / 1024 / 1024)} MB each. Photos are resized and location data
         is removed before upload.
       </p>
       {demo ? <p className="mt-2 text-sm font-medium text-warning">Demo mode: photos stay in this tab and aren&apos;t uploaded.</p> : null}
@@ -181,7 +182,7 @@ function Dropzone({ onFiles, demo, photos, uploads }: PhotosPanelProps) {
         id={inputId}
         type="file"
         multiple
-        accept={ACCEPTED_INPUT_TYPES.join(",")}
+        accept={PICKER_ACCEPT}
         className="sr-only"
         disabled={full}
         onChange={(e) => {
@@ -208,6 +209,7 @@ const STATUS_TEXT: Record<UploadItem["status"], string> = {
 
 function UploadRow({ item, onRetry, onRemove }: { item: UploadItem; onRetry: (id: string) => void; onRemove: (id: string) => void }) {
   const failed = item.status === "error";
+  const showProgress = (item.status === "processing" || item.status === "uploading") && item.progress !== undefined;
   return (
     <li className={cn("flex items-center gap-3 rounded-md border bg-card p-2 pr-1", failed ? "border-destructive/40" : "border-border")}>
       {/* eslint-disable-next-line @next/next/no-img-element -- temporary local preview */}
@@ -216,8 +218,23 @@ function UploadRow({ item, onRetry, onRemove }: { item: UploadItem; onRetry: (id
         <p className="truncate text-sm font-medium">{item.name}</p>
         <p className={cn("flex items-center gap-1.5 text-xs", failed ? "text-destructive" : "text-muted-foreground")} role={failed ? "alert" : "status"}>
           {failed ? <AlertCircle aria-hidden className="size-3.5 shrink-0" /> : <Loader2 aria-hidden className="size-3.5 shrink-0 animate-spin" />}
-          <span className="line-clamp-2">{failed ? (item.error ?? STATUS_TEXT.error) : STATUS_TEXT[item.status]}</span>
+          <span className="line-clamp-2">
+            {failed ? (item.error ?? STATUS_TEXT.error) : STATUS_TEXT[item.status]}
+            {showProgress ? ` ${item.progress}%` : ""}
+          </span>
         </p>
+        {showProgress ? (
+          <div
+            role="progressbar"
+            aria-label={`${STATUS_TEXT[item.status]} ${item.name}`}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={item.progress}
+            className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted"
+          >
+            <div className="h-full rounded-full bg-brand transition-[width] duration-200 ease-out" style={{ width: `${item.progress}%` }} />
+          </div>
+        ) : null}
       </div>
       {failed ? (
         <Button size="icon-sm" variant="ghost" onClick={() => onRetry(item.localId)} aria-label={`Retry ${item.name}`}>
@@ -334,7 +351,7 @@ function SortablePhoto({
         <input
           ref={replaceInput}
           type="file"
-          accept={ACCEPTED_INPUT_TYPES.join(",")}
+          accept={PICKER_ACCEPT}
           className="sr-only"
           tabIndex={-1}
           aria-label={`Choose a new image for photo ${index + 1}`}

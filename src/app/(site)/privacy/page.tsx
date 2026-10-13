@@ -14,6 +14,11 @@ export default function PrivacyPage() {
           <li>Technical data needed to keep the service running, such as request logs kept by our hosting providers.</li>
         </ul>
         <p>We do not ask for your location, and we do not read GPS or camera data from your photos.</p>
+        <p>
+          We use Vercel Web Analytics to count page views and see which pages and templates are used. It doesn&apos;t use
+          cookies or track you across sites. If you send feedback or review a public memory, we store what you write,
+          your account if you were signed in, and the email address you choose to add.
+        </p>
       </section>
       <section>
         <h2>How photos are handled</h2>

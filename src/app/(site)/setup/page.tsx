@@ -15,7 +15,7 @@ export default function SetupPage() {
       <PageIntro eyebrow="Setup" title={configured ? "Supabase is connected" : "Connect Supabase to enable accounts"}>
         {configured
           ? "Accounts, saving, uploads and publishing are available."
-          : "Travel Memory Studio stores accounts, drafts and photos in Supabase. Until it is configured, nothing can be saved, and the app never pretends otherwise."}
+          : "My Travel Memory stores accounts, drafts and photos in Supabase. Until it is configured, nothing can be saved, and the app never pretends otherwise."}
       </PageIntro>
 
       <ol className="space-y-6">

@@ -7,9 +7,9 @@ export default function TermsPage() {
   return (
     <LegalPage title="Terms of use" updated="9 October 2026">
       <section>
-        <h2>Using Travel Memory Studio</h2>
+        <h2>Using My Travel Memory</h2>
         <p>
-          Travel Memory Studio lets you create and share pages made from your own travel photos and words. You need an
+          My Travel Memory lets you create and share pages made from your own travel photos and words. You need an
           account to save drafts and publish memories. Keep your login details secure.
         </p>
       </section>

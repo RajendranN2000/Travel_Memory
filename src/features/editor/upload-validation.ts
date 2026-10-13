@@ -4,19 +4,21 @@ export type FileCheck = { ok: true } | { ok: false; reason: string };
 
 const HEIC = /\.(heic|heif)$/i;
 
+/** `accept` value for photo pickers: the stored formats plus iPhone HEIC, converted in the browser. */
+export const PICKER_ACCEPT = [...ACCEPTED_INPUT_TYPES, "image/heic", "image/heif", ".heic", ".heif"].join(",");
+
+/** iPhone photos (HEIC/HEIF). They are converted to JPEG in the browser before upload. */
+export function isHeic(file: { name: string; type: string }): boolean {
+  return HEIC.test(file.name) || /hei[cf]/i.test(file.type);
+}
+
 function formatMB(bytes: number) {
   return `${Math.round(bytes / (1024 * 1024))} MB`;
 }
 
 /** Checks a selected file before any processing happens in the browser. */
 export function checkFile(file: { name: string; type: string; size: number }): FileCheck {
-  if (HEIC.test(file.name) || /hei[cf]/i.test(file.type)) {
-    return {
-      ok: false,
-      reason: `${file.name}: HEIC photos aren't supported yet. Export it as JPEG (on iPhone: Settings → Camera → Formats → Most Compatible).`,
-    };
-  }
-  if (!(ACCEPTED_INPUT_TYPES as readonly string[]).includes(file.type)) {
+  if (!isHeic(file) && !(ACCEPTED_INPUT_TYPES as readonly string[]).includes(file.type)) {
     return { ok: false, reason: `${file.name}: only JPEG, PNG and WebP images can be uploaded.` };
   }
   if (file.size <= 0) return { ok: false, reason: `${file.name}: the file is empty.` };

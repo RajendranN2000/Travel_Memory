@@ -135,7 +135,7 @@ export function PublishDialog({
           {publication ? (hasChangesSincePublish ? "Update" : "Published") : "Publish"}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[92svh] grid-cols-[minmax(0,1fr)] overflow-x-hidden overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">{publication ? "Your published memory" : "Publish your memory"}</DialogTitle>
           <DialogDescription>
@@ -182,7 +182,7 @@ export function PublishDialog({
           </div>
         ) : null}
 
-        <fieldset className="space-y-3">
+        <fieldset className="min-w-0 space-y-3">
           <legend className="mb-2 text-sm font-semibold">Who can see it?</legend>
           <RadioGroup value={visibility} onValueChange={(v) => setVisibility(v as Visibility)} className="gap-2">
             {OPTIONS.map(({ value, label, description, icon: Icon }) => (
@@ -214,26 +214,28 @@ export function PublishDialog({
           ) : null}
         </fieldset>
 
-        <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-between">
+        {/* Stacked, full-width buttons: three actions never fit side by side in the dialog. */}
+        <DialogFooter className="flex-col gap-2 sm:flex-col sm:justify-start">
+          <Button className="h-auto min-h-11 w-full py-2 whitespace-normal" onClick={publish} disabled={pending || demo || probe.checking || blockers.length > 0}>
+            {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
+            {publication ? "Publish latest draft" : "Publish"}
+            {hasWarnings ? " anyway" : ""}
+          </Button>
+          {publication && settingsChanged ? (
+            <Button variant="outline" className="h-auto min-h-11 w-full py-2 whitespace-normal" onClick={saveSettings} disabled={pending || demo}>
+              Save sharing settings
+            </Button>
+          ) : null}
           {publication ? (
-            <Button variant="ghost" className="text-destructive hover:text-destructive" onClick={unpublish} disabled={pending || demo}>
+            <Button
+              variant="ghost"
+              className="h-auto min-h-11 w-full py-2 whitespace-normal text-destructive hover:text-destructive"
+              onClick={unpublish}
+              disabled={pending || demo}
+            >
               Unpublish
             </Button>
-          ) : (
-            <span />
-          )}
-          <div className="flex flex-col gap-2 sm:flex-row">
-            {publication && settingsChanged ? (
-              <Button variant="outline" onClick={saveSettings} disabled={pending || demo}>
-                Save sharing settings
-              </Button>
-            ) : null}
-            <Button onClick={publish} disabled={pending || demo || probe.checking || blockers.length > 0}>
-              {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
-              {publication ? "Publish latest draft" : "Publish"}
-              {hasWarnings ? " anyway" : ""}
-            </Button>
-          </div>
+          ) : null}
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -25,8 +25,9 @@ export async function generateMetadata({ params }: PageProps<"/destinations/[slu
   if (!theme) return { title: "Destination not found" };
   const hero = resolveTheme(slug).hero;
   return {
-    title: `${theme.name} theme`,
-    description: theme.copy.summary,
+    title: `${theme.name} trip photo memory ideas`,
+    description: `Turn your ${theme.name} trip photos into a shareable memory page. ${theme.copy.summary}`.slice(0, 160),
+    alternates: { canonical: `/destinations/${slug}` },
     openGraph: hero ? { images: [{ url: hero.src, width: hero.width, height: hero.height, alt: hero.alt }] } : undefined,
   };
 }
