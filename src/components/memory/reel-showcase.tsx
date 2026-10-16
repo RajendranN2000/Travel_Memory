@@ -11,14 +11,17 @@ const SLIDES = [
 
 /** A phone showing what a finished reel feels like. Pure CSS, so it costs no JavaScript. */
 export function ReelShowcase({ className }: { className?: string }) {
+  const firstImage = getDestinationImage(SLIDES[0].image);
   return (
     <div className={cn("relative mx-auto w-[15.5rem] sm:w-[17rem]", className)} role="img" aria-label="A sample reel: travel photos drifting and fading with titles over each one">
       <div className="rounded-[2.25rem] border border-white/15 bg-black p-2 shadow-lifted">
         <div className="relative aspect-[9/16] overflow-hidden rounded-[1.75rem] bg-ink">
-          {SLIDES.map((s, i) => {
+          {/* A still frame always sits underneath, so the phone is never empty while the others load. */}
+          {firstImage ? <Image src={firstImage.src} alt="" fill sizes="272px" priority className={cn("object-cover", SLIDES[0].treatment)} /> : null}
+          {SLIDES.map((s) => {
             const img = getDestinationImage(s.image);
             return img ? (
-              <Image key={s.image} src={img.src} alt="" fill sizes="272px" priority={i === 0} className={cn("reel-slide object-cover", s.treatment)} />
+              <Image key={s.image} src={img.src} alt="" fill sizes="272px" loading="eager" fetchPriority="low" className={cn("reel-slide object-cover", s.treatment)} />
             ) : null;
           })}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
