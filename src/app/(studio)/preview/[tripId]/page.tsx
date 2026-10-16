@@ -1,4 +1,4 @@
-import { ArrowLeft, Lock, Send } from "lucide-react";
+import { ArrowLeft, Clapperboard, Lock, Send } from "lucide-react";
 import { PrintButton } from "@/components/memory/print-button";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -80,6 +80,13 @@ async function Preview({ params }: Pick<PageProps<"/preview/[tripId]">, "params"
           </p>
           <div className="ml-auto flex items-center gap-2">
             <PrintButton title={trip.title.trim() || "My travel memory"} issues={issues} className="text-paper hover:bg-paper/10 hover:text-paper" />
+            {trip.photos.length > 0 ? (
+              <Button asChild size="sm" variant="ghost" className="text-paper hover:bg-paper/10 hover:text-paper">
+                <Link href={`/reel/${trip.id}`}>
+                  <Clapperboard data-icon="inline-start" /> Create Reel
+                </Link>
+              </Button>
+            ) : null}
             <Button asChild size="sm" className="bg-paper text-ink hover:bg-paper/90">
               <Link href={`/editor/${trip.id}?publish=1`}>
                 <Send data-icon="inline-start" /> Publish

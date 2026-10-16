@@ -29,7 +29,7 @@ export function WhatsAppLink({ message, className }: { message: string; classNam
         className,
       )}
     >
-      <WhatsAppIcon className="size-6" />
+      <WhatsAppIcon className="size-5" />
     </a>
   );
 }

@@ -1,3 +1,4 @@
+import { SupportEmail } from "@/components/site/social-links";
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/site/legal-page";
 
@@ -39,7 +40,7 @@ export default function TermsPage() {
         <h2>Availability and liability</h2>
         <p>
           The service is provided as is during this first release. Keep your own copies of important photos.
-          Liability terms, governing law and contact details must be completed before launch.
+          Liability terms and governing law must be completed before launch. Questions about these terms: <SupportEmail />.
         </p>
       </section>
     </LegalPage>

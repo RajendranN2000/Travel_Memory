@@ -1,8 +1,10 @@
-import { ArrowRight, Link2, Lock, MapPinOff, Trash2 } from "lucide-react";
+import { ArrowRight, Clapperboard, Link2, Lock, MapPinOff, Music2, Smartphone, Sparkles, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Reveal } from "@/components/motion/reveal";
 import { DestinationCard } from "@/components/memory/destination-card";
+import { ReelShowcase } from "@/components/memory/reel-showcase";
+import { SampleDevices } from "@/components/memory/sample-devices";
 import { TemplateThumbnail } from "@/components/memory/template-thumbnail";
 import { Button } from "@/components/ui/button";
 import { getSampleMemory, sampleMemories } from "@/features/memories/samples";
@@ -17,6 +19,7 @@ export default function HomePage() {
       <Hero />
       <Destinations />
       <TemplateGallery />
+      <Reels />
       <HowItWorks />
       <SampleMemory />
       <Privacy />
@@ -26,7 +29,7 @@ export default function HomePage() {
 }
 
 function Hero() {
-  const hero = getDestinationImage("munnar/hero");
+  const hero = getDestinationImage("manali/hero");
   const card = getDestinationImage("goa/hero");
   return (
     <section className="relative isolate overflow-hidden bg-ink text-paper">
@@ -39,20 +42,22 @@ function Hero() {
           sizes="100vw"
           placeholder={hero.blurDataURL ? "blur" : "empty"}
           blurDataURL={hero.blurDataURL}
-          className="-z-10 object-cover treat-mist"
+          className="-z-10 scale-105 object-cover treat-alpine"
         />
       ) : null}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/80 via-black/35 to-black/10 lg:bg-gradient-to-r lg:from-black/75 lg:via-black/35 lg:to-transparent" />
+      <div className="absolute inset-0 -z-10 bg-black/45" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/85 via-black/50 to-black/30 lg:bg-gradient-to-r lg:from-black/85 lg:via-black/55 lg:to-black/25" />
 
-      <div className="mx-auto grid min-h-[calc(100svh-4rem)] max-h-[60rem] max-w-7xl items-end gap-10 px-4 pt-28 pb-12 sm:px-6 sm:pb-16 lg:grid-cols-[1.25fr_1fr] lg:items-center lg:px-8">
+      <div className="mx-auto grid min-h-[calc(100svh-4rem)] max-w-7xl items-center gap-10 px-4 pt-24 pb-14 sm:px-6 sm:pb-16 lg:grid-cols-[1.15fr_1fr] lg:px-8">
         <div className="max-w-2xl animate-in fade-in slide-in-from-bottom-3 duration-700">
-          <p className="eyebrow text-paper/80">My Travel Memory</p>
-          <h1 className="mt-4 font-display text-[clamp(2.5rem,7.5vw,5.25rem)] leading-[0.98] font-medium tracking-tight">
-            Your trips deserve more than a camera roll.
+          <p className="inline-flex items-center gap-2 rounded-full border border-paper/25 bg-paper/10 px-3.5 py-1.5 text-xs font-semibold tracking-[0.16em] text-paper/90 uppercase backdrop-blur-md">
+            <span aria-hidden className="size-1.5 rounded-full bg-brand" /> Memory pages · Reels
+          </p>
+          <h1 className="mt-6 font-display text-[clamp(2.5rem,6.2vw,4.75rem)] leading-[1] font-medium tracking-tight text-balance">
+            Your trips deserve more than a <span className="italic text-paper/95 underline decoration-brand decoration-[0.06em] underline-offset-[0.12em]">camera roll.</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-paper/85 sm:text-xl">
-            Turn your travel photos into a personal memory page, styled after the place you visited. Add your words,
-            arrange your favourite shots and share it with the people who were there.
+            Turn your travel photos into a memory page styled after the place you visited, or a cinematic reel with music, ready for Instagram. Your words, your favourite shots, shared with the people who were there.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg" className="bg-paper text-ink hover:bg-paper/90">
@@ -60,33 +65,35 @@ function Hero() {
                 Create your memory <ArrowRight data-icon="inline-end" />
               </Link>
             </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="border-paper/40 bg-transparent text-paper hover:bg-paper/10 hover:text-paper"
-            >
-              <Link href="/destinations">Explore destinations</Link>
+            <Button asChild size="lg" variant="outline" className="border-paper/40 bg-paper/5 text-paper backdrop-blur-sm hover:bg-paper/15 hover:text-paper">
+              <Link href="/create?intent=reel">
+                <Clapperboard data-icon="inline-start" /> Make a reel
+              </Link>
             </Button>
           </div>
-          {hero?.source ? (
-            <p className="mt-10 text-xs text-paper/60">
-              Munnar tea estates · photo by {hero.source.author}, {hero.source.license}
-            </p>
-          ) : null}
+          <ul className="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm text-paper/80">
+            {["5 destination themes", "4 templates", "Reels made in your browser"].map((item) => (
+              <li key={item} className="flex items-center gap-2">
+                <span aria-hidden className="size-1.5 rounded-full bg-brand" /> {item}
+              </li>
+            ))}
+          </ul>
         </div>
 
-        {card ? (
-          <div className="relative hidden justify-self-end lg:block" aria-hidden>
-            <div className="w-[21rem] rotate-[2.5deg] rounded-sm bg-[#fff8f0] p-3 pb-6 text-[#2a1a14] shadow-print transition-transform duration-500 hover:rotate-0">
+        <div className="relative hidden h-[34rem] lg:block" aria-hidden>
+          {card ? (
+            <div className="absolute top-14 left-0 w-[15.5rem] -rotate-[6deg] rounded-sm bg-[#fff8f0] p-2.5 pb-5 text-[#2a1a14] shadow-print transition-transform duration-500 hover:rotate-0">
               <div className="relative aspect-[4/5] overflow-hidden">
-                <Image src={card.src} alt="" fill sizes="336px" className="object-cover treat-golden" />
+                <Image src={card.src} alt="" fill sizes="248px" className="object-cover treat-golden" />
               </div>
-              <p className="mt-4 font-[family-name:var(--font-dm-serif)] text-2xl leading-tight">Salt, sun and the slowest week of the year</p>
-              <p className="mt-2 text-xs font-semibold tracking-[0.16em] text-[#6a4a3a] uppercase">Goa · 27 Dec – 2 Jan</p>
+              <p className="mt-3 font-[family-name:var(--font-dm-serif)] text-lg leading-tight">Salt, sun and the slowest week of the year</p>
+              <p className="mt-1.5 text-[0.65rem] font-semibold tracking-[0.16em] text-[#6a4a3a] uppercase">Goa · 27 Dec – 2 Jan</p>
             </div>
+          ) : null}
+          <div className="absolute top-0 right-2 rotate-[3deg]">
+            <ReelShowcase className="mx-0 w-[15rem]" />
           </div>
-        ) : null}
+        </div>
       </div>
     </section>
   );
@@ -198,6 +205,88 @@ function TemplateGallery() {
   );
 }
 
+function Reels() {
+  const points = [
+    { icon: Sparkles, title: "One click to a polished draft", body: "Your photos, title and captions become a cinematic reel with motion, transitions and a film look." },
+    { icon: Music2, title: "Your music, your timing", body: "Import a song, trim it, fade it, and cut the photos on the beat." },
+    { icon: Smartphone, title: "Made for every screen", body: "9:16 for Reels and Shorts, 4:5 for the feed, plus square and landscape, up to 1080p." },
+    { icon: Lock, title: "Made in your browser", body: "Photos, music and the finished video never leave your device. Nothing is uploaded." },
+  ];
+  const strip = ["munnar/valley", "goa/shore", "manali/alpenglow", "wayanad/falls", "ooty/fog-road"]
+    .map((key) => getDestinationImage(key))
+    .filter((img): img is NonNullable<typeof img> => Boolean(img));
+  const chip = "absolute hidden items-center gap-2 rounded-full border border-paper/15 bg-ink/80 px-3.5 py-2 text-sm font-medium text-paper shadow-lifted backdrop-blur sm:flex";
+  return (
+    <section className="relative isolate overflow-hidden bg-ink text-paper">
+      <div aria-hidden className="pointer-events-none absolute -right-32 -bottom-40 -z-10 size-[30rem] rounded-full bg-primary/40 blur-3xl" />
+      <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1fr_1.1fr] lg:gap-20 lg:px-8">
+        <Reveal className="order-2 lg:order-1">
+          <div className="relative mx-auto max-w-md rounded-[2rem] border border-paper/10 bg-gradient-to-br from-paper/10 via-paper/5 to-transparent px-6 pt-12 pb-8 sm:px-10">
+            <ReelShowcase />
+            <span className={`${chip} top-10 -left-4 lg:-left-8`}>
+              <Smartphone aria-hidden className="size-4 text-paper" /> 9:16 · 1080p
+            </span>
+            <span className={`${chip} top-1/3 -right-4 lg:-right-8`}>
+              <Music2 aria-hidden className="size-4 text-paper" /> Your music
+            </span>
+            <span className={`${chip} bottom-32 -left-4 lg:-left-8`}>
+              <Sparkles aria-hidden className="size-4 text-paper" /> Cinematic Travel
+            </span>
+            <div className="mt-8 rounded-xl border border-paper/10 bg-paper/5 p-2.5" aria-hidden>
+              <div className="relative flex gap-1">
+                {strip.map((img, i) => (
+                  <div key={img.src} className="relative h-10 flex-1 overflow-hidden rounded-md">
+                    <Image src={img.src} alt="" fill sizes="80px" className={i % 2 ? "object-cover treat-golden" : "object-cover treat-mist"} />
+                  </div>
+                ))}
+                <span className="absolute -top-1 -bottom-1 left-[38%] w-0.5 rounded bg-brand" />
+              </div>
+              <p className="mt-2 flex items-center justify-between px-1 text-[0.7rem] text-paper/60">
+                <span>Drag to reorder, trim and time every photo</span>
+                <span className="tabular-nums">0:15</span>
+              </p>
+            </div>
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.08} className="order-1 lg:order-2">
+          <p className="eyebrow flex items-center gap-2 text-paper/70">
+            Reels
+            <span className="rounded-full bg-brand px-2 py-0.5 text-[0.62rem] tracking-wider text-white">New</span>
+          </p>
+          <h2 className="mt-3 font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.05] tracking-tight">Turn your trip into a reel</h2>
+          <p className="mt-4 max-w-xl text-lg leading-relaxed text-paper/75">
+            Pick a template, add your photos and a few words, and press Create Reel. Fine-tune the timing, text, music and look, then download a video ready for Instagram, TikTok or YouTube Shorts.
+          </p>
+          <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+            {points.map(({ icon: Icon, title, body }) => (
+              <li key={title} className="rounded-lg border border-paper/10 bg-paper/5 p-5 transition-colors hover:bg-paper/10">
+                <span className="grid size-10 place-items-center rounded-md bg-paper/10 text-paper">
+                  <Icon aria-hidden className="size-5" />
+                </span>
+                <h3 className="mt-4 font-semibold">{title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-paper/70">{body}</p>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <Button asChild size="lg" className="bg-paper text-ink hover:bg-paper/90">
+              <Link href="/create?intent=reel">
+                <Clapperboard data-icon="inline-start" /> Create a reel
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="border-paper/40 bg-transparent text-paper hover:bg-paper/10 hover:text-paper">
+              <Link href="/reels">
+                See how reels work <ArrowRight data-icon="inline-end" />
+              </Link>
+            </Button>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 function HowItWorks() {
   const steps = [
     {
@@ -216,13 +305,17 @@ function HowItWorks() {
       title: "Publish and share",
       body: "Get a link of your own. Keep it private, share it quietly with an unlisted link, or make it public.",
     },
+    {
+      title: "Make a reel",
+      body: "Turn the same photos and words into a cinematic video with music, then download it for Instagram or Shorts.",
+    },
   ];
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
       <Reveal>
-        <SectionHeading eyebrow="How it works" title="From camera roll to keepsake in four steps" />
+        <SectionHeading eyebrow="How it works" title="From camera roll to keepsake in five steps" />
       </Reveal>
-      <ol className="mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+      <ol className="mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-5">
         {steps.map((step, i) => (
           <Reveal as="li" key={step.title} delay={i * 0.08} className="border-t border-foreground/15 pt-6">
             <span className="font-display text-5xl text-brand/90 italic" aria-hidden>
@@ -244,7 +337,7 @@ function SampleMemory() {
   const sample = getSampleMemory("sample-goa") ?? sampleMemories[0];
   return (
     <section className="bg-ink py-20 text-paper sm:py-28">
-      <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1.6fr] lg:items-center lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1.5fr] lg:items-center lg:px-8">
         <Reveal>
           <p className="eyebrow text-paper/70">A sample memory</p>
           <h2 className="mt-3 font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.05] tracking-tight">
@@ -264,22 +357,11 @@ function SampleMemory() {
           </Button>
         </Reveal>
         <Reveal delay={0.1}>
-          <div className="overflow-hidden rounded-lg border border-paper/15 bg-paper/5 shadow-lifted">
-            <div className="flex items-center gap-1.5 border-b border-paper/10 px-4 py-3" aria-hidden>
-              <span className="size-2.5 rounded-full bg-paper/25" />
-              <span className="size-2.5 rounded-full bg-paper/25" />
-              <span className="size-2.5 rounded-full bg-paper/25" />
-              <span className="ml-3 truncate rounded bg-paper/10 px-3 py-1 text-xs text-paper/60">
-                /memory/{sample.slug}
-              </span>
-            </div>
-            <div className="relative h-[30rem] overflow-hidden sm:h-[34rem]" aria-hidden inert>
-              <div className="pointer-events-none">
-                <MemoryRenderer memory={sample.content} sizesHint="preview" />
-              </div>
-              <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-ink to-transparent" />
-            </div>
-          </div>
+          <SampleDevices
+            slug={sample.slug}
+            desktop={<MemoryRenderer memory={sample.content} sizesHint="preview" />}
+            mobile={<MemoryRenderer memory={sample.content} sizesHint="preview" />}
+          />
         </Reveal>
       </div>
     </section>
@@ -291,7 +373,7 @@ function Privacy() {
     {
       icon: Lock,
       title: "Drafts are yours alone",
-      body: "Unpublished trips and photos are stored privately and are only visible to you while signed in.",
+      body: "Unpublished trips and photos are stored privately and are only visible to you while signed in. Reels and music are made in your browser and never uploaded.",
     },
     {
       icon: Link2,
@@ -350,11 +432,18 @@ function FinalCta() {
         <p className="mt-4 max-w-xl text-lg text-paper/85">
           Start a draft in a minute. Nothing is shared until you choose to publish.
         </p>
-        <Button asChild size="lg" className="mt-8 bg-paper text-ink hover:bg-paper/90">
-          <Link href="/create">
-            Create your memory <ArrowRight data-icon="inline-end" />
-          </Link>
-        </Button>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <Button asChild size="lg" className="bg-paper text-ink hover:bg-paper/90">
+            <Link href="/create">
+              Create your memory <ArrowRight data-icon="inline-end" />
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="outline" className="border-paper/40 bg-transparent text-paper hover:bg-paper/10 hover:text-paper">
+            <Link href="/create?intent=reel">
+              <Clapperboard data-icon="inline-start" /> Make a reel
+            </Link>
+          </Button>
+        </div>
       </div>
     </section>
   );

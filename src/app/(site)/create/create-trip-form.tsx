@@ -1,9 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Clapperboard, FileText, Loader2 } from "lucide-react";
 import Image from "next/image";
-import { startTransition, useActionState } from "react";
+import { startTransition, useActionState, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import type { z } from "zod";
 import { FormMessage, TextAreaField, TextField } from "@/components/forms/field";
@@ -32,9 +32,10 @@ export function CreateTripForm({
   defaults,
 }: {
   destinations: DestinationChoice[];
-  defaults: { destinationSlug: string; templateSlug: string; layout?: string };
+  defaults: { destinationSlug: string; templateSlug: string; layout?: string; goal?: "page" | "reel" };
 }) {
   const [serverState, action, pending] = useActionState(createTrip, idleState);
+  const [goal, setGoal] = useState<"page" | "reel">(defaults.goal ?? "page");
   const form = useForm<Input, unknown, Output>({
     resolver: zodResolver(createTripSchema),
     defaultValues: {
@@ -156,11 +157,43 @@ export function CreateTripForm({
         />
       </fieldset>
 
+      <fieldset>
+        <legend className="font-display text-2xl">4. What would you like to make?</legend>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Either way you&apos;ll add your photos and words next. You can make the other one later from the same memory.
+        </p>
+        <div role="radiogroup" aria-label="What to make" className="mt-5 grid gap-3 sm:grid-cols-2">
+          {(
+            [
+              { value: "page", icon: FileText, title: "A memory page", body: "A shareable page in your chosen template, with a link of your own." },
+              { value: "reel", icon: Clapperboard, title: "Page and a reel video", body: "Also turn the same photos and words into a cinematic video with music, ready for Instagram or Shorts." },
+            ] as const
+          ).map(({ value, icon: Icon, title, body }) => (
+            <label
+              key={value}
+              className={cn(
+                "relative flex cursor-pointer gap-3 rounded-lg border bg-card p-4 transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
+                goal === value ? "border-primary ring-1 ring-primary" : "border-border hover:border-foreground/30",
+              )}
+            >
+              <input type="radio" name="goalChoice" value={value} checked={goal === value} onChange={() => setGoal(value)} className="sr-only" />
+              <Icon aria-hidden className="mt-0.5 size-5 shrink-0 text-brand" />
+              <span>
+                <span className="block font-semibold">{title}</span>
+                <span className="mt-0.5 block text-sm text-muted-foreground">{body}</span>
+              </span>
+              {goal === value ? <Check className="ml-auto size-4 shrink-0 text-primary" aria-hidden /> : null}
+            </label>
+          ))}
+        </div>
+        <input type="hidden" name="goal" value={goal} />
+      </fieldset>
+
       <div className="flex flex-col-reverse gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">Your draft is private until you publish it.</p>
         <Button type="submit" size="lg" disabled={pending}>
           {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
-          {pending ? "Creating draft…" : "Create draft and add photos"}
+          {pending ? "Creating draft…" : goal === "reel" ? "Create draft and add photos for your reel" : "Create draft and add photos"}
         </Button>
       </div>
     </form>

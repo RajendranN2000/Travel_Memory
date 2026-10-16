@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { PageIntro } from "@/components/site/page-intro";
+import { SupportEmail } from "@/components/site/social-links";
 import { FeedbackForm } from "./feedback-form";
 
 export const metadata: Metadata = {
@@ -12,7 +13,7 @@ export default function FeedbackPage({ searchParams }: PageProps<"/feedback">) {
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pb-24 sm:px-6 lg:px-8">
       <PageIntro eyebrow="Help us improve" title="Send feedback">
-        Found a bug or have an idea? Tell us what happened or what you&apos;d like to see. We read every message.
+        Found a bug or have an idea? Tell us what happened or what you&apos;d like to see. We read every message. You can also email <SupportEmail />.
       </PageIntro>
       <div className="max-w-xl">
         <Suspense fallback={<FeedbackForm page="" />}>

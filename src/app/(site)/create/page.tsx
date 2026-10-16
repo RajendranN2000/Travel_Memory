@@ -14,7 +14,7 @@ export default function CreatePage({ searchParams }: PageProps<"/create">) {
   return (
     <div className="mx-auto w-full max-w-5xl px-4 pb-24 sm:px-6 lg:px-8">
       <PageIntro eyebrow="New memory" title="Start with the basics">
-        Choose a destination and template, give the trip a name, then add photos in the editor.
+        Choose a destination and template, give the trip a name, then add photos and words in the editor. Turn them into a memory page, a reel video, or both.
       </PageIntro>
       <Suspense
         fallback={
@@ -45,6 +45,7 @@ async function CreateContent({ searchParams }: Pick<PageProps<"/create">, "searc
   const requestedTemplate = typeof params.template === "string" && isTemplateSlug(params.template) ? params.template : null;
   const templateSlug = requestedTemplate ?? destination.templates[0];
   const template = getTemplate(templateSlug);
+  const goal = params.intent === 'reel' ? 'reel' : 'page';
   const layout = typeof params.layout === "string" && template?.layouts.some((l) => l.key === params.layout) ? params.layout : undefined;
 
   return (
@@ -60,7 +61,7 @@ async function CreateContent({ searchParams }: Pick<PageProps<"/create">, "searc
           recommendedTemplate: t.templates[0],
         };
       })}
-      defaults={{ destinationSlug: destination.slug, templateSlug, layout }}
+      defaults={{ destinationSlug: destination.slug, templateSlug, layout, goal }}
     />
   );
 }

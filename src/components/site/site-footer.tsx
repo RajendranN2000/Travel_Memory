@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { listDestinationThemes } from "@/features/themes/registry";
 import { Logo } from "./logo";
-import { WhatsAppLink } from "./whatsapp-link";
+import { SocialLinks, SupportEmail } from "./social-links";
 
 export function SiteFooter() {
   const destinations = listDestinationThemes();
@@ -11,11 +11,12 @@ export function SiteFooter() {
         <div className="max-w-xs">
           <Logo markClassName="h-14" />
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            Turn trip photos into personal, shareable memory pages, styled after the places you visited.
+            Turn trip photos into personal, shareable memory pages and reel videos, styled after the places you visited.
           </p>
-          <div className="mt-5 flex items-center gap-3">
-            <WhatsAppLink message="Hi! I have a question about My Travel Memory." />
-          </div>
+          <SocialLinks className="mt-5" whatsappMessage="Hi! I have a question about My Travel Memory." />
+          <p className="mt-4 text-sm text-muted-foreground">
+            Questions? Email <SupportEmail />
+          </p>
         </div>
         <nav aria-label="Destinations">
           <h2 className="eyebrow text-muted-foreground">Destinations</h2>
@@ -35,6 +36,7 @@ export function SiteFooter() {
             {[
               ["/templates", "Templates"],
               ["/create", "Create a memory"],
+              ["/reels", "Make a reel"],
               ["/my-memories", "My memories"],
               ["/memory/sample-goa", "See a sample"],
             ].map(([href, label]) => (

@@ -27,7 +27,7 @@ export default function MyMemoriesPage() {
           </Button>
         }
       >
-        Drafts are private to you. Published memories show who can see them.
+        Drafts are private to you. Published memories show who can see them, and the Reels tab holds the videos you have made.
       </PageIntro>
       <Suspense fallback={<ListSkeleton />}>
         <TripList />

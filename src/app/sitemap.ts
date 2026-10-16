@@ -26,7 +26,7 @@ async function indexableMemories(): Promise<Array<{ slug: string; updated_at: st
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getSiteUrl();
-  const staticPaths = ["", "/destinations", "/templates", "/credits"];
+  const staticPaths = ["", "/destinations", "/templates", "/reels", "/credits"];
   const memories = await indexableMemories();
   return [
     ...staticPaths.map((path) => ({ url: `${base}${path}` })),

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, ImageOff } from "lucide-react";
+import { ArrowRight, Clapperboard, ImageOff } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -79,6 +79,19 @@ export function TemplatePreviewer({
             Use this template <ArrowRight data-icon="inline-end" />
           </Link>
         </Button>
+        <div className="rounded-md border border-border bg-card p-4">
+          <p className="flex items-center gap-2 text-sm font-semibold">
+            <Clapperboard aria-hidden className="size-4 text-brand" /> Prefer a video?
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Give us your photos and a few words and we&apos;ll turn them into a cinematic reel with this template&apos;s colours and type, plus music and text.
+          </p>
+          <Button asChild variant="outline" className="mt-3 w-full">
+            <Link href={`/create?template=${template.slug}&destination=${destination}&layout=${layout}&intent=reel`}>
+              Make a video with this template <ArrowRight data-icon="inline-end" />
+            </Link>
+          </Button>
+        </div>
       </aside>
 
       <section aria-label="Template preview" className="min-w-0">

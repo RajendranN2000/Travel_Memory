@@ -254,3 +254,135 @@
     scroll-behavior: auto !important;
   }
 }
+
+/*
+ * Reel studio: a dark, cinematic surface. The class is applied to <html> while the
+ * studio is open so dialogs, menus and toasts that render in portals match.
+ */
+.reel-dark {
+  color-scheme: dark;
+  --background: #0c0c0f;
+  --foreground: #f2efe8;
+  --card: #15151a;
+  --card-foreground: #f2efe8;
+  --popover: #1a1a20;
+  --popover-foreground: #f2efe8;
+  --primary: #e6b06a;
+  --primary-foreground: #1b1206;
+  --secondary: #23232a;
+  --secondary-foreground: #f2efe8;
+  --muted: #1d1d23;
+  --muted-foreground: #a09da8;
+  --accent: #2a2a33;
+  --accent-foreground: #f2efe8;
+  --border: #2c2c35;
+  --input: #34343e;
+  --ring: #e6b06a;
+  --destructive: #ff8a7a;
+  --success: #7fd29a;
+  --warning: #f0b45a;
+}
+
+.reel-range {
+  appearance: none;
+  height: 1.5rem;
+  width: 100%;
+  background: transparent;
+  cursor: pointer;
+}
+.reel-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--primary) var(--fill, 0%), var(--input) var(--fill, 0%));
+}
+.reel-range::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--input);
+}
+.reel-range::-moz-range-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--primary);
+}
+.reel-range::-webkit-slider-thumb {
+  appearance: none;
+  margin-top: -6px;
+  height: 16px;
+  width: 16px;
+  border-radius: 999px;
+  background: var(--foreground);
+  box-shadow: 0 0 0 3px rgb(0 0 0 / 0.35);
+}
+.reel-range::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--foreground);
+}
+.reel-range:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Landing-page reel showcase: four photos drifting and cross-fading like a finished reel. */
+.reel-slide {
+  opacity: 0;
+  animation: reel-cycle 16s infinite;
+}
+.reel-slide:nth-child(2) {
+  animation-delay: 4s;
+}
+.reel-slide:nth-child(3) {
+  animation-delay: 8s;
+}
+.reel-slide:nth-child(4) {
+  animation-delay: 12s;
+}
+.reel-caption {
+  opacity: 0;
+  animation: reel-caption 16s infinite;
+}
+.reel-caption:nth-child(2) {
+  animation-delay: 4s;
+}
+.reel-caption:nth-child(3) {
+  animation-delay: 8s;
+}
+.reel-caption:nth-child(4) {
+  animation-delay: 12s;
+}
+.reel-progress > span {
+  transform-origin: left;
+  animation: reel-progress 16s linear infinite;
+}
+@keyframes reel-cycle {
+  0% { opacity: 0; transform: scale(1.02); }
+  4% { opacity: 1; }
+  25% { opacity: 1; transform: scale(1.14) translateX(-2%); }
+  29% { opacity: 0; transform: scale(1.14) translateX(-2%); }
+  100% { opacity: 0; transform: scale(1.14) translateX(-2%); }
+}
+@keyframes reel-caption {
+  0%, 3% { opacity: 0; transform: translateY(10px); }
+  8%, 21% { opacity: 1; transform: translateY(0); }
+  26%, 100% { opacity: 0; transform: translateY(0); }
+}
+@keyframes reel-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reel-slide, .reel-caption, .reel-progress > span {
+    animation: none;
+  }
+  .reel-slide:first-child, .reel-caption:first-child {
+    opacity: 1;
+  }
+  .reel-progress > span {
+    transform: scaleX(0.4);
+  }
+}
+

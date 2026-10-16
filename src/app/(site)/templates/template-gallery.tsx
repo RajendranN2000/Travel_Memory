@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clapperboard } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useState } from "react";
@@ -54,6 +54,12 @@ export function TemplateGallery({
               className="mt-3 inline-flex min-h-11 items-center gap-1.5 font-medium text-brand hover:underline"
             >
               Preview {template.name} <ArrowRight aria-hidden className="size-4" />
+            </Link>
+            <Link
+              href={`/create?template=${template.slug}&destination=${destination}&intent=reel`}
+              className="ml-5 mt-3 inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground hover:underline"
+            >
+              <Clapperboard aria-hidden className="size-4" /> Make a video
             </Link>
           </li>
         ))}

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 export const primaryNav = [
   { href: "/destinations", label: "Destinations" },
   { href: "/templates", label: "Templates" },
+  { href: "/reels", label: "Reels" },
   { href: "/my-memories", label: "My memories" },
 ] as const;
 

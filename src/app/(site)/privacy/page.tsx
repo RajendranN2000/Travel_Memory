@@ -1,3 +1,4 @@
+import { SupportEmail } from "@/components/site/social-links";
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/site/legal-page";
 
@@ -55,8 +56,7 @@ export default function PrivacyPage() {
       <section>
         <h2>Your rights and contact</h2>
         <p>
-          Depending on where you live, you may have rights to access, correct, export or delete your data. A contact
-          address for privacy requests must be added here before launch.
+          Depending on where you live, you may have rights to access, correct, export or delete your data. To make a privacy request or ask a question, email <SupportEmail />.
         </p>
       </section>
     </LegalPage>

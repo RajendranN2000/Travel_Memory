@@ -17,7 +17,7 @@ export default function TemplatesPage() {
     <div className="mx-auto w-full max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
       <PageIntro eyebrow="Templates" title="Four ways to tell the story of a trip">
         Every template is responsive and takes its colours, type and photo treatment from your destination. Previews
-        use sample photos; yours will take their place.
+        use sample photos; yours will take their place. Every template can also become a reel video with music and motion.
       </PageIntro>
       <TemplateGallery templates={templates} samples={samples} destinations={destinations} />
     </div>

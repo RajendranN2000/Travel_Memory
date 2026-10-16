@@ -1,7 +1,7 @@
 "use client";
 
 import { arrayMove } from "@dnd-kit/sortable";
-import { ArrowLeft, ArrowRight, Check, Copy, Eye, Images, NotebookPen, Palette, Send, type LucideIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Clapperboard, Copy, Eye, Images, NotebookPen, Palette, Send, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
@@ -45,12 +45,15 @@ export function Editor({
   userId,
   demo,
   openPublish = false,
+  reelGoal = false,
 }: {
   trip: EditorTrip;
   userId: string | null;
   demo: boolean;
   /** Open the publish dialog straight away (arriving from the full preview). */
   openPublish?: boolean;
+  /** Started from "make a reel": guide the visitor from photos and words to the reel studio. */
+  reelGoal?: boolean;
 }) {
   const router = useRouter();
   const [draft, setDraft] = useState<DraftFields>({
@@ -74,6 +77,7 @@ export function Editor({
   const [leaveTo, setLeaveTo] = useState<string | null>(null);
   const [publishOpen, setPublishOpen] = useState(openPublish);
   const [duplicateOpen, setDuplicateOpen] = useState(false);
+  const [reelBannerOpen, setReelBannerOpen] = useState(reelGoal);
 
   const save = useCallback<SaveHandler>(
     async (key, patch) => {
@@ -309,6 +313,14 @@ export function Editor({
               </Link>
             </Button>
           ) : null}
+          {photos.length > 0 ? (
+            <Button asChild variant="secondary" size="sm" className="sm:h-11 sm:px-4">
+              <Link href={`/reel/${demo ? "demo" : trip.id}`} onClick={(e) => guardedNavigate(e, `/reel/${demo ? "demo" : trip.id}`)}>
+                <Clapperboard data-icon="inline-start" /> <span className="hidden sm:inline">Create Reel</span>
+                <span className="sm:hidden">Reel</span>
+              </Link>
+            </Button>
+          ) : null}
           {!demo ? (
             <Button variant="outline" size="sm" className="hidden sm:inline-flex sm:h-11 sm:px-4" onClick={() => setDuplicateOpen(true)}>
               <Copy data-icon="inline-start" /> Duplicate
@@ -331,6 +343,43 @@ export function Editor({
           />
         </div>
       </header>
+
+      {reelBannerOpen ? (
+        <div role="region" aria-label="Making a reel" className="border-b border-border bg-secondary/60">
+          <div className="mx-auto flex w-full max-w-[96rem] flex-wrap items-center gap-x-6 gap-y-3 px-3 py-3 sm:px-6 lg:px-8">
+            <div className="flex min-w-0 flex-1 basis-80 items-start gap-3">
+              <Clapperboard aria-hidden className="mt-0.5 size-5 shrink-0 text-brand" />
+              <div className="min-w-0">
+                <p className="font-semibold">You&apos;re making a reel</p>
+                <p className="text-sm text-muted-foreground">
+                  Add your photos and a few details here: the title, dates and the words for each photo. Then press Create Reel and we&apos;ll turn them into a video. Your photos stay in your browser.
+                </p>
+              </div>
+            </div>
+            <ol className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+              <li className={cn(photos.length > 0 && "text-success")}>{photos.length > 0 ? "✓" : "1."} Add photos</li>
+              <li className={cn(draft.title.trim() && "text-success")}>{draft.title.trim() ? "✓" : "2."} Title and details</li>
+              <li>3. Create Reel</li>
+            </ol>
+            <div className="flex items-center gap-2">
+              {photos.length > 0 ? (
+                <Button asChild>
+                  <Link href={`/reel/${demo ? "demo" : trip.id}`} onClick={(e) => guardedNavigate(e, `/reel/${demo ? "demo" : trip.id}`)}>
+                    <Clapperboard data-icon="inline-start" /> Create Reel
+                  </Link>
+                </Button>
+              ) : (
+                <Button onClick={() => goTo("photos")}>
+                  <Images data-icon="inline-start" /> Add photos first
+                </Button>
+              )}
+              <Button variant="ghost" size="sm" onClick={() => setReelBannerOpen(false)}>
+                Dismiss
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <div className="mx-auto grid w-full max-w-[96rem] flex-1 items-start gap-6 px-3 py-5 sm:px-6 sm:py-8 lg:grid-cols-[minmax(0,32rem)_minmax(0,1fr)] lg:gap-8 lg:px-8 xl:grid-cols-[minmax(0,36rem)_minmax(0,1fr)] xl:gap-10">
         <Tabs value={tab} onValueChange={setTab} className="min-w-0 gap-4">

@@ -93,7 +93,8 @@ export async function createTrip(_prev: FormState, formData: FormData): Promise<
   if (error || !data) {
     return { status: "error", message: dbMessage(error, "We couldn't create the trip. Please try again."), values };
   }
-  redirect(`/editor/${data.id}`);
+  // "goal=reel" asks the editor to guide the visitor towards making a video once photos and details are in.
+  redirect(formData.get("goal") === "reel" ? `/editor/${data.id}?goal=reel` : `/editor/${data.id}`);
 }
 
 export async function updateTrip(tripId: string, patch: TripPatch): Promise<ActionResult<{ updatedAt: string }>> {

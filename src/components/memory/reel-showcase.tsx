@@ -1,0 +1,48 @@
+import Image from "next/image";
+import { getDestinationImage } from "@/features/themes/images";
+import { cn } from "@/lib/utils";
+
+const SLIDES = [
+  { image: "munnar/valley", place: "Munnar", line: "Three slow days above the clouds", treatment: "treat-mist" },
+  { image: "goa/shore", place: "Goa", line: "Salt, sun and the slowest week", treatment: "treat-golden" },
+  { image: "manali/alpenglow", place: "Manali", line: "Where the mountains turn gold", treatment: "treat-alpine" },
+  { image: "wayanad/falls", place: "Wayanad", line: "Monsoon, all the way down", treatment: "treat-earthy" },
+] as const;
+
+/** A phone showing what a finished reel feels like. Pure CSS, so it costs no JavaScript. */
+export function ReelShowcase({ className }: { className?: string }) {
+  return (
+    <div className={cn("relative mx-auto w-[15.5rem] sm:w-[17rem]", className)} role="img" aria-label="A sample reel: travel photos drifting and fading with titles over each one">
+      <div className="rounded-[2.25rem] border border-white/15 bg-black p-2 shadow-lifted">
+        <div className="relative aspect-[9/16] overflow-hidden rounded-[1.75rem] bg-ink">
+          {SLIDES.map((s, i) => {
+            const img = getDestinationImage(s.image);
+            return img ? (
+              <Image key={s.image} src={img.src} alt="" fill sizes="272px" priority={i === 0} className={cn("reel-slide object-cover", s.treatment)} />
+            ) : null;
+          })}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
+          <div className="absolute inset-x-3 top-3 flex gap-1" aria-hidden>
+            {SLIDES.map((s) => (
+              <span key={s.image} className="h-0.5 flex-1 rounded bg-white/30" />
+            ))}
+          </div>
+          <div className="reel-progress absolute inset-x-3 top-3 h-0.5 overflow-hidden rounded bg-transparent" aria-hidden>
+            <span className="block h-full w-full rounded bg-white" />
+          </div>
+          <div className="absolute inset-x-4 bottom-12 text-center text-white" aria-hidden>
+            {SLIDES.map((s) => (
+              <div key={s.image} className="reel-caption absolute inset-x-0 bottom-0">
+                <p className="text-[0.6rem] font-semibold tracking-[0.2em] uppercase opacity-80">{s.place}</p>
+                <p className="mt-1 font-display text-xl leading-tight">{s.line}</p>
+              </div>
+            ))}
+          </div>
+          <p className="absolute inset-x-0 bottom-4 text-center text-[0.6rem] tracking-[0.18em] text-white/70 uppercase" aria-hidden>
+            ♪ Made in your browser
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

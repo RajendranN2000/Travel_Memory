@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, ExternalLink, Loader2, MoreHorizontal, PencilLine, Trash2 } from "lucide-react";
+import { Clapperboard, Copy, ExternalLink, Loader2, MoreHorizontal, PencilLine, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -98,6 +98,13 @@ export function TripCard({
               <PencilLine data-icon="inline-start" /> Edit
             </Link>
           </Button>
+          {trip.photoCount > 0 ? (
+            <Button asChild size="sm" variant="secondary">
+              <Link href={`/reel/${trip.id}`}>
+                <Clapperboard data-icon="inline-start" /> Create Reel
+              </Link>
+            </Button>
+          ) : null}
           {trip.publication ? (
             <Button asChild size="sm" variant="ghost">
               <Link href={`/memory/${trip.publication.slug}`}>
