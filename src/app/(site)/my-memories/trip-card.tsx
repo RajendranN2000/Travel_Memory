@@ -1,6 +1,6 @@
 "use client";
 
-import { Clapperboard, Copy, ExternalLink, Loader2, MoreHorizontal, PencilLine, Trash2 } from "lucide-react";
+import { BookOpen, Clapperboard, Copy, ExternalLink, Loader2, MoreHorizontal, PencilLine, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -122,6 +122,13 @@ export function TripCard({
               <DropdownMenuItem asChild className="min-h-10">
                 <Link href={`/preview/${trip.id}`}>Preview draft</Link>
               </DropdownMenuItem>
+              {trip.photoCount > 0 ? (
+                <DropdownMenuItem asChild className="min-h-10">
+                  <Link href={`/book/${trip.id}`}>
+                    <BookOpen /> Create photo book
+                  </Link>
+                </DropdownMenuItem>
+              ) : null}
               <DropdownMenuItem className="min-h-10" onSelect={() => setDuplicating(true)}>
                 <Copy /> Duplicate with another template
               </DropdownMenuItem>

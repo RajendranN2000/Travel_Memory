@@ -44,6 +44,15 @@ export default function CreditsPage() {
           </li>
         ))}
       </ul>
+      <section className="mt-12" aria-labelledby="fonts">
+        <h2 id="fonts" className="font-display text-2xl">
+          Fonts in photo books
+        </h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          The photo book designer embeds these open-source fonts in your PDF: Playfair Display, Cormorant Garamond, Fraunces, Lora, DM Serif Display, DM Sans, Source Sans 3, Josefin Sans, Outfit and Caveat. They are
+          distributed through Fontsource and used under the SIL Open Font License 1.1.
+        </p>
+      </section>
     </div>
   );
 }

@@ -1,12 +1,13 @@
 "use client";
 
-import { ArrowRight, Clapperboard } from "lucide-react";
+import { ArrowRight, BookOpen, Clapperboard } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useState } from "react";
 import { MotionProvider } from "@/components/motion/motion-provider";
 import { TemplateThumbnail } from "@/components/memory/template-thumbnail";
 import { DestinationChips, type DestinationOption } from "@/components/memory/destination-picker";
+import { bookTemplateFor } from "@/features/book/templates";
 import type { MemoryContent } from "@/features/memories/types";
 import type { TemplateDefinition } from "@/features/templates/types";
 
@@ -60,6 +61,12 @@ export function TemplateGallery({
               className="ml-5 mt-3 inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground hover:underline"
             >
               <Clapperboard aria-hidden className="size-4" /> Make a video
+            </Link>
+            <Link
+              href={`/photo-books/start?template=${bookTemplateFor(template.slug)}`}
+              className="ml-5 mt-3 inline-flex min-h-11 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground hover:underline"
+            >
+              <BookOpen aria-hidden className="size-4" /> Create photo book
             </Link>
           </li>
         ))}

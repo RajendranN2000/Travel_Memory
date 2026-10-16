@@ -45,7 +45,7 @@ async function CreateContent({ searchParams }: Pick<PageProps<"/create">, "searc
   const requestedTemplate = typeof params.template === "string" && isTemplateSlug(params.template) ? params.template : null;
   const templateSlug = requestedTemplate ?? destination.templates[0];
   const template = getTemplate(templateSlug);
-  const goal = params.intent === 'reel' ? 'reel' : 'page';
+  const goal = params.intent === "reel" ? "reel" : params.intent === "book" ? "book" : "page";
   const layout = typeof params.layout === "string" && template?.layouts.some((l) => l.key === params.layout) ? params.layout : undefined;
 
   return (

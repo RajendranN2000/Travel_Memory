@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, Clapperboard, FileText, Loader2 } from "lucide-react";
+import { BookOpen, Check, Clapperboard, FileText, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { startTransition, useActionState, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -32,10 +32,10 @@ export function CreateTripForm({
   defaults,
 }: {
   destinations: DestinationChoice[];
-  defaults: { destinationSlug: string; templateSlug: string; layout?: string; goal?: "page" | "reel" };
+  defaults: { destinationSlug: string; templateSlug: string; layout?: string; goal?: "page" | "reel" | "book" };
 }) {
   const [serverState, action, pending] = useActionState(createTrip, idleState);
-  const [goal, setGoal] = useState<"page" | "reel">(defaults.goal ?? "page");
+  const [goal, setGoal] = useState<"page" | "reel" | "book">(defaults.goal ?? "page");
   const form = useForm<Input, unknown, Output>({
     resolver: zodResolver(createTripSchema),
     defaultValues: {
@@ -162,11 +162,12 @@ export function CreateTripForm({
         <p className="mt-1 text-sm text-muted-foreground">
           Either way you&apos;ll add your photos and words next. You can make the other one later from the same memory.
         </p>
-        <div role="radiogroup" aria-label="What to make" className="mt-5 grid gap-3 sm:grid-cols-2">
+        <div role="radiogroup" aria-label="What to make" className="mt-5 grid gap-3 sm:grid-cols-3">
           {(
             [
               { value: "page", icon: FileText, title: "A memory page", body: "A shareable page in your chosen template, with a link of your own." },
               { value: "reel", icon: Clapperboard, title: "Page and a reel video", body: "Also turn the same photos and words into a cinematic video with music, ready for Instagram or Shorts." },
+              { value: "book", icon: BookOpen, title: "Page and a photo book", body: "Also design a photo book or travel magazine from the same photos and words, and download a print-ready PDF." },
             ] as const
           ).map(({ value, icon: Icon, title, body }) => (
             <label
@@ -193,7 +194,7 @@ export function CreateTripForm({
         <p className="text-sm text-muted-foreground">Your draft is private until you publish it.</p>
         <Button type="submit" size="lg" disabled={pending}>
           {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}
-          {pending ? "Creating draft…" : goal === "reel" ? "Create draft and add photos for your reel" : "Create draft and add photos"}
+          {pending ? "Creating draft…" : goal === "reel" ? "Create draft and add photos for your reel" : goal === "book" ? "Create draft and add photos for your book" : "Create draft and add photos"}
         </Button>
       </div>
     </form>

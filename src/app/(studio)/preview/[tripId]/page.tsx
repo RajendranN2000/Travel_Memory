@@ -1,4 +1,4 @@
-import { ArrowLeft, Clapperboard, Lock, Send } from "lucide-react";
+import { ArrowLeft, BookOpen, Clapperboard, Lock, Send } from "lucide-react";
 import { PrintButton } from "@/components/memory/print-button";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -84,6 +84,13 @@ async function Preview({ params }: Pick<PageProps<"/preview/[tripId]">, "params"
               <Button asChild size="sm" variant="ghost" className="text-paper hover:bg-paper/10 hover:text-paper">
                 <Link href={`/reel/${trip.id}`}>
                   <Clapperboard data-icon="inline-start" /> Create Reel
+                </Link>
+              </Button>
+            ) : null}
+            {trip.photos.length > 0 ? (
+              <Button asChild size="sm" variant="ghost" className="text-paper hover:bg-paper/10 hover:text-paper">
+                <Link href={`/book/${trip.id}`}>
+                  <BookOpen data-icon="inline-start" /> Photo Book
                 </Link>
               </Button>
             ) : null}

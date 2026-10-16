@@ -25,16 +25,16 @@ async function EditorLoader({ params, searchParams }: PageProps<"/editor/[tripId
   // Set by the full preview's "Publish" button.
   const query = await searchParams;
   const openPublish = query.publish === "1";
-  // Set when the memory was started with "make a reel" in mind.
-  const reelGoal = query.goal === "reel";
+  // Set when the memory was started with "make a reel" or "make a photo book" in mind.
+  const goal = query.goal === "reel" || query.goal === "book" ? query.goal : null;
   if (tripId === "demo") {
     if (!isDemoMode()) notFound();
-    return <Editor trip={demoTrip()} userId={null} demo openPublish={openPublish} reelGoal={reelGoal} />;
+    return <Editor trip={demoTrip()} userId={null} demo openPublish={openPublish} goal={goal} />;
   }
   const { user, supabase } = await requireUser(`/editor/${tripId}`);
   const trip = await getOwnedTrip(supabase, user.id, tripId);
   if (!trip) notFound();
-  return <Editor key={trip.id} trip={trip} userId={user.id} demo={false} openPublish={openPublish} reelGoal={reelGoal} />;
+  return <Editor key={trip.id} trip={trip} userId={user.id} demo={false} openPublish={openPublish} goal={goal} />;
 }
 
 function EditorSkeleton() {

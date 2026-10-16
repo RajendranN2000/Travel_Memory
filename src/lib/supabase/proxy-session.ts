@@ -4,7 +4,7 @@ import type { Database } from "./database.types";
 import { getSupabaseConfig } from "./env";
 
 /** Routes that require a signed-in user. Pages also verify on the server. */
-export const PROTECTED_PREFIXES = ["/create", "/editor", "/preview", "/my-memories", "/settings"];
+export const PROTECTED_PREFIXES = ["/create", "/editor", "/preview", "/reel", "/book", "/photo-books/start", "/my-memories", "/settings"];
 
 export function isProtectedPath(pathname: string): boolean {
   return PROTECTED_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));

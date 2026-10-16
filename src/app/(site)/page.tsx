@@ -1,9 +1,12 @@
-import { ArrowRight, Clapperboard, Link2, Lock, MapPinOff, Music2, Smartphone, Sparkles, Trash2 } from "lucide-react";
+import { ArrowRight, BookOpen, Clapperboard, Crop, Link2, Lock, MapPinOff, Music2, Printer, Smartphone, Sparkles, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Reveal } from "@/components/motion/reveal";
 import { DestinationCard } from "@/components/memory/destination-card";
 import { ReelShowcase } from "@/components/memory/reel-showcase";
+import { sampleBookBrief } from "@/features/book/brief";
+import { getTemplate } from "@/features/book/templates";
+import { TemplatePreview } from "@/features/book/ui/template-preview";
 import { SampleDevices } from "@/components/memory/sample-devices";
 import { TemplateThumbnail } from "@/components/memory/template-thumbnail";
 import { Button } from "@/components/ui/button";
@@ -20,6 +23,7 @@ export default function HomePage() {
       <Destinations />
       <TemplateGallery />
       <Reels />
+      <PhotoBooks />
       <HowItWorks />
       <SampleMemory />
       <Privacy />
@@ -278,6 +282,64 @@ function Reels() {
             <Button asChild size="lg" variant="outline" className="border-paper/40 bg-transparent text-paper hover:bg-paper/10 hover:text-paper">
               <Link href="/reels">
                 See how reels work <ArrowRight data-icon="inline-end" />
+              </Link>
+            </Button>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function PhotoBooks() {
+  const brief = sampleBookBrief("sample-goa");
+  const picks = ["travel-memories", "editorial-magazine", "minimalist-album"].map((k) => getTemplate(k)!);
+  const points = [
+    { icon: Crop, title: "Photos are never cut by accident", body: "Every photo stays whole inside its frame, and cropping only happens when you choose it." },
+    { icon: Printer, title: "A real print-ready PDF", body: "Exact page sizes, bleed and crop marks, with real text and photos at up to 300 DPI." },
+  ];
+  return (
+    <section className="border-y border-border bg-secondary/40">
+      <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1.1fr_1fr] lg:gap-20 lg:px-8">
+        <Reveal>
+          <div className="space-y-6">
+            {picks.map((t, i) => (
+              <div key={t.key} className={i === 1 ? "lg:ml-10" : i === 2 ? "lg:ml-4" : ""}>
+                <TemplatePreview template={t} brief={brief} height={150} className="rounded-lg bg-card px-4 pt-5 pb-3 shadow-soft ring-1 ring-border" />
+                <p className="mt-2 px-1 text-sm font-medium">{t.name}</p>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+        <Reveal delay={0.08}>
+          <p className="eyebrow flex items-center gap-2 text-brand">
+            Photo books
+            <span className="rounded-full bg-brand px-2 py-0.5 text-[0.62rem] tracking-wider text-white">New</span>
+          </p>
+          <h2 className="mt-3 font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.05] tracking-tight">Print your trip as a book or magazine</h2>
+          <p className="mt-4 max-w-xl text-lg leading-relaxed text-muted-foreground">
+            Choose a design, drop in your photos and memories, adjust every page, and download a print-ready PDF. Photo books, travel magazines and simple print layouts, all made in your browser.
+          </p>
+          <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+            {points.map(({ icon: Icon, title, body }) => (
+              <li key={title} className="rounded-lg border border-border bg-card p-5">
+                <span className="grid size-10 place-items-center rounded-md bg-brand/10 text-brand">
+                  <Icon aria-hidden className="size-5" />
+                </span>
+                <h3 className="mt-4 font-semibold">{title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{body}</p>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <Button asChild size="lg">
+              <Link href="/photo-books/start">
+                <BookOpen data-icon="inline-start" /> Create a photo book
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link href="/photo-books">
+                Browse designs <ArrowRight data-icon="inline-end" />
               </Link>
             </Button>
           </div>

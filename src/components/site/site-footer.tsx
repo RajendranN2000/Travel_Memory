@@ -37,6 +37,7 @@ export function SiteFooter() {
               ["/templates", "Templates"],
               ["/create", "Create a memory"],
               ["/reels", "Make a reel"],
+              ["/photo-books", "Photo books"],
               ["/my-memories", "My memories"],
               ["/memory/sample-goa", "See a sample"],
             ].map(([href, label]) => (

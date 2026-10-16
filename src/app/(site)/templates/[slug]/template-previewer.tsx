@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Clapperboard, ImageOff } from "lucide-react";
+import { ArrowRight, BookOpen, Clapperboard, ImageOff } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import type { MemoryContent } from "@/features/memories/types";
+import { bookTemplateFor } from "@/features/book/templates";
 import { MemoryRenderer } from "@/features/templates/render";
 import type { TemplateDefinition } from "@/features/templates/types";
 
@@ -89,6 +90,19 @@ export function TemplatePreviewer({
           <Button asChild variant="outline" className="mt-3 w-full">
             <Link href={`/create?template=${template.slug}&destination=${destination}&layout=${layout}&intent=reel`}>
               Make a video with this template <ArrowRight data-icon="inline-end" />
+            </Link>
+          </Button>
+        </div>
+        <div className="rounded-md border border-border bg-card p-4">
+          <p className="flex items-center gap-2 text-sm font-semibold">
+            <BookOpen aria-hidden className="size-4 text-brand" /> Want it on paper?
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Turn your photos and words into a photo book or travel magazine in this template&apos;s spirit, then download a print-ready PDF.
+          </p>
+          <Button asChild variant="outline" className="mt-3 w-full">
+            <Link href={`/photo-books/start?template=${bookTemplateFor(template.slug)}`}>
+              Create Photo Book <ArrowRight data-icon="inline-end" />
             </Link>
           </Button>
         </div>
