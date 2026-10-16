@@ -56,7 +56,7 @@ export default function PhotoBooksPage() {
           <p className="mt-1 text-muted-foreground">{CATEGORY_LABELS[category].blurb} Previews use sample photos.</p>
           <ul className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {TEMPLATES.filter((t) => t.category === category).map((t) => (
-              <li key={t.key} className="flex flex-col rounded-lg border border-border bg-card p-4 shadow-soft">
+              <li key={t.key} className="flex min-w-0 flex-col rounded-lg border border-border bg-card p-4 shadow-soft">
                 <div className="rounded-md bg-secondary/50 px-3 pt-6 pb-4">
                   <TemplatePreview template={t} brief={brief} height={190} />
                 </div>

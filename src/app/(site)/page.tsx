@@ -301,17 +301,17 @@ function PhotoBooks() {
   return (
     <section className="border-y border-border bg-secondary/40">
       <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1.1fr_1fr] lg:gap-20 lg:px-8">
-        <Reveal>
-          <div className="space-y-6">
+        <Reveal className="min-w-0">
+          <div className="min-w-0 space-y-6">
             {picks.map((t, i) => (
-              <div key={t.key} className={i === 1 ? "lg:ml-10" : i === 2 ? "lg:ml-4" : ""}>
+              <div key={t.key} className={i === 1 ? "min-w-0 lg:ml-10" : i === 2 ? "min-w-0 lg:ml-4" : "min-w-0"}>
                 <TemplatePreview template={t} brief={brief} height={150} className="rounded-lg bg-card px-4 pt-5 pb-3 shadow-soft ring-1 ring-border" />
                 <p className="mt-2 px-1 text-sm font-medium">{t.name}</p>
               </div>
             ))}
           </div>
         </Reveal>
-        <Reveal delay={0.08}>
+        <Reveal delay={0.08} className="min-w-0">
           <p className="eyebrow flex items-center gap-2 text-brand">
             Photo books
             <span className="rounded-full bg-brand px-2 py-0.5 text-[0.62rem] tracking-wider text-white">New</span>
@@ -400,7 +400,7 @@ function SampleMemory() {
   return (
     <section className="bg-ink py-20 text-paper sm:py-28">
       <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1.5fr] lg:items-center lg:px-8">
-        <Reveal>
+        <Reveal className="min-w-0">
           <p className="eyebrow text-paper/70">A sample memory</p>
           <h2 className="mt-3 font-display text-[clamp(2rem,4.5vw,3.25rem)] leading-[1.05] tracking-tight">
             What a published memory looks like
@@ -418,7 +418,7 @@ function SampleMemory() {
             </Link>
           </Button>
         </Reveal>
-        <Reveal delay={0.1}>
+        <Reveal delay={0.1} className="min-w-0">
           <SampleDevices
             slug={sample.slug}
             desktop={<MemoryRenderer memory={sample.content} sizesHint="preview" />}

@@ -32,7 +32,7 @@ function ScaledBox({ width, children, className }: { width: number; children: Re
  */
 export function SampleDevices({ slug, desktop, mobile, className }: { slug: string; desktop: ReactNode; mobile: ReactNode; className?: string }) {
   return (
-    <div className={cn("relative pr-6 pb-14 sm:pr-10", className)}>
+    <div className={cn("relative min-w-0 pr-6 pb-14 sm:pr-10", className)}>
       <div className="overflow-hidden rounded-xl border border-paper/15 bg-paper/5 shadow-[0_30px_70px_-25px_rgba(0,0,0,0.8)]">
         <div className="flex items-center gap-3 border-b border-paper/10 bg-paper/5 px-4 py-2.5" aria-hidden>
           <span className="flex gap-1.5">

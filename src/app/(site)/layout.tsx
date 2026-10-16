@@ -1,4 +1,5 @@
 import { SiteFooter } from "@/components/site/site-footer";
+import { ScrollToTop } from "@/components/site/scroll-to-top";
 import { SiteHeader } from "@/components/site/site-header";
 
 export default function SiteLayout({ children }: LayoutProps<"/">) {
@@ -9,6 +10,7 @@ export default function SiteLayout({ children }: LayoutProps<"/">) {
         {children}
       </main>
       <SiteFooter />
+      <ScrollToTop />
     </>
   );
 }

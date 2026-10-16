@@ -76,7 +76,7 @@ export function TemplatePreview({ template, brief, height = 168, className }: { 
   const px = h / s.heightMm;
 
   return (
-    <div ref={holder} className={cn("flex items-end justify-center overflow-hidden", className)} aria-hidden data-v={version}>
+    <div ref={holder} className={cn("flex w-full min-w-0 max-w-full items-end justify-center overflow-hidden", className)} aria-hidden data-v={version}>
       {shown.map((page, i) => {
         const render = renderPage(project, page, { measurer: previewFonts, sources: sizes, pageNumber: i + 1 });
         const first = i === 0;
