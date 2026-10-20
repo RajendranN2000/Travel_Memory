@@ -6,6 +6,7 @@ import { listDestinationThemes } from "@/features/themes/registry";
 import { TemplateGallery } from "./template-gallery";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/templates" },
   title: "Templates",
   description: "Poster, journal, collage and timeline templates for your travel memories, each styled by your destination.",
 };

@@ -2,8 +2,10 @@ import type { ThemeFontKey } from "@/config/fonts";
 import type { ReelProject } from "./types";
 
 const CSS_VAR: Record<ThemeFontKey, string> = {
-  fraunces: "--font-app-display",
-  "dm-sans": "--font-app-body",
+  bricolage: "--font-app-display",
+  jakarta: "--font-app-body",
+  fraunces: "--font-fraunces",
+  "dm-sans": "--font-dm-sans",
   cormorant: "--font-cormorant",
   "nunito-sans": "--font-nunito-sans",
   "dm-serif": "--font-dm-serif",
@@ -18,6 +20,8 @@ const CSS_VAR: Record<ThemeFontKey, string> = {
 };
 
 const FALLBACK: Record<ThemeFontKey, string> = {
+  bricolage: "system-ui, sans-serif",
+  jakarta: "system-ui, sans-serif",
   fraunces: "Georgia, serif",
   "dm-sans": "system-ui, sans-serif",
   cormorant: "Georgia, serif",
@@ -34,11 +38,13 @@ const FALLBACK: Record<ThemeFontKey, string> = {
 };
 
 export const FONT_CHOICES: { key: ThemeFontKey; label: string }[] = [
+  { key: "bricolage", label: "Bricolage Grotesque" },
   { key: "fraunces", label: "Fraunces (display)" },
   { key: "playfair", label: "Playfair Display" },
   { key: "cormorant", label: "Cormorant Garamond" },
   { key: "dm-serif", label: "DM Serif Display" },
   { key: "young-serif", label: "Young Serif" },
+  { key: "jakarta", label: "Plus Jakarta Sans" },
   { key: "dm-sans", label: "DM Sans" },
   { key: "outfit", label: "Outfit" },
   { key: "josefin", label: "Josefin Sans" },

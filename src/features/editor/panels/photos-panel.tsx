@@ -337,17 +337,19 @@ function SortablePhoto({
           />
         </div>
       </div>
-      <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-border pt-2">
-        <Label htmlFor={`${base}-date`} className="text-xs font-normal text-muted-foreground">
-          Day
-        </Label>
-        <Input
-          id={`${base}-date`}
-          type="date"
-          value={photo.takenOn ?? ""}
-          className="h-10 w-auto text-sm"
-          onChange={(e) => onChangePhoto(photo.id, "takenOn", e.target.value || null)}
-        />
+      <div className="mt-2 grid grid-cols-2 items-center gap-2 border-t border-border pt-3 sm:flex sm:flex-wrap">
+        <div className="col-span-2 flex items-center gap-2 sm:col-span-1">
+          <Label htmlFor={`${base}-date`} className="shrink-0 text-xs font-normal text-muted-foreground">
+            Day
+          </Label>
+          <Input
+            id={`${base}-date`}
+            type="date"
+            value={photo.takenOn ?? ""}
+            className="h-11 min-w-0 flex-1 text-sm sm:h-10 sm:w-auto sm:flex-none"
+            onChange={(e) => onChangePhoto(photo.id, "takenOn", e.target.value || null)}
+          />
+        </div>
         <input
           ref={replaceInput}
           type="file"
@@ -361,13 +363,13 @@ function SortablePhoto({
             if (file) onReplace(photo, file);
           }}
         />
-        <Button type="button" size="sm" variant="outline" disabled={!photo.url} onClick={() => setAdjusting(true)}>
+        <Button type="button" size="sm" variant="outline" className="h-10 sm:h-8" disabled={!photo.url} onClick={() => setAdjusting(true)}>
           <Crop data-icon="inline-start" /> Crop &amp; size
         </Button>
-        <Button type="button" size="sm" variant="outline" disabled={isReplacing} onClick={() => replaceInput.current?.click()}>
+        <Button type="button" size="sm" variant="outline" className="h-10 sm:h-8" disabled={isReplacing} onClick={() => replaceInput.current?.click()}>
           <Replace data-icon="inline-start" /> {isReplacing ? "Replacing…" : "Replace"}
         </Button>
-        <div className="ml-auto flex items-center">
+        <div className="col-span-2 flex items-center justify-end sm:col-span-1 sm:ml-auto">
           <Button size="icon-sm" variant="ghost" disabled={index === 0} onClick={() => onReorder(index, index - 1)} aria-label={`Move photo ${index + 1} up`}>
             <ArrowUp />
           </Button>

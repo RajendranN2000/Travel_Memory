@@ -46,6 +46,7 @@ import { Section } from "./controls";
 import { TextEditor } from "./text-editor";
 import { Timeline } from "./timeline";
 import { useMounted, useReelStudio, type PanelKey, type ReelStudioApi } from "./use-reel-studio";
+import { syncReelProjects } from "../storage";
 
 const PANELS: { key: PanelKey; label: string; icon: LucideIcon }[] = [
   { key: "media", label: "Media", icon: Images },
@@ -77,7 +78,19 @@ export function StudioSkeleton() {
 
 export function ReelStudio({ brief, demo }: { brief: ReelTripBrief; demo: boolean }) {
   const mounted = useMounted();
-  if (!mounted) return <StudioSkeleton />;
+  // Pull the account's copy of the reel settings first, so a reel started on another device opens here.
+  const [synced, setSynced] = useState(demo);
+  useEffect(() => {
+    if (demo) return;
+    let cancelled = false;
+    void syncReelProjects().finally(() => {
+      if (!cancelled) setSynced(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [demo]);
+  if (!mounted || !synced) return <StudioSkeleton />;
   return <StudioInner brief={brief} demo={demo} />;
 }
 
@@ -142,6 +155,7 @@ function StudioInner({ brief, demo }: { brief: ReelTripBrief; demo: boolean }) {
   const [exportOpen, setExportOpen] = useState(false);
   const [leave, setLeave] = useState<"export" | "unsaved" | null>(null);
   const [dropping, setDropping] = useState(false);
+  const [presenting, setPresenting] = useState(false);
   const backHref = `/editor/${demo ? "demo" : brief.tripId}`;
 
   // The dark studio theme also applies to dialogs and toasts, which render in portals.
@@ -162,11 +176,53 @@ function StudioInner({ brief, demo }: { brief: ReelTripBrief; demo: boolean }) {
 
   const exporting = studio.exportUi.status === "running";
 
-  const requestLeave = () => {
-    if (exporting) setLeave("export");
-    else if (studio.dirty) setLeave("unsaved");
-    else router.push(backHref);
+  /** Navigates, and falls back to a full page load if the client router doesn't move. */
+  const goBack = () => {
+    router.push(backHref);
+    window.setTimeout(() => {
+      // Deliberate fallback: the client router did not move, so do a full page load.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      if (window.location.pathname !== backHref) window.location.href = backHref;
+    }, 1200);
   };
+
+  const requestLeave = () => {
+    if (exporting) {
+      setLeave("export");
+      return;
+    }
+    // Settings are already auto-saved to the account; flush them so nothing is lost, then leave.
+    if (studio.dirty) studio.saveProject({ quiet: true });
+    goBack();
+  };
+
+  /** Full-screen preview: only the reel, no editing tools. */
+  const startPresenting = () => {
+    studio.player.pause();
+    setPresenting(true);
+    document.documentElement.requestFullscreen?.().catch(() => {});
+    // Let the stage resize to the full screen before playing from the start.
+    window.setTimeout(() => {
+      studio.player.seek(0);
+      void studio.player.play();
+    }, 250);
+  };
+  const stopPresenting = () => {
+    studio.player.pause();
+    setPresenting(false);
+    if (document.fullscreenElement) void document.exitFullscreen().catch(() => {});
+  };
+  useEffect(() => {
+    if (!presenting) return;
+    const onFs = () => {
+      if (!document.fullscreenElement) {
+        studio.player.pause();
+        setPresenting(false);
+      }
+    };
+    document.addEventListener("fullscreenchange", onFs);
+    return () => document.removeEventListener("fullscreenchange", onFs);
+  }, [presenting, studio.player]);
 
   const openPanel = (key: PanelKey) => {
     setPanel(key);
@@ -177,6 +233,10 @@ function StudioInner({ brief, demo }: { brief: ReelTripBrief; demo: boolean }) {
   const { player } = studio;
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (presenting && e.key === "Escape") {
+        stopPresenting();
+        return;
+      }
       if (exporting || e.defaultPrevented) return;
       const mod = e.metaKey || e.ctrlKey;
       const key = e.key.toLowerCase();
@@ -215,7 +275,8 @@ function StudioInner({ brief, demo }: { brief: ReelTripBrief; demo: boolean }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [studio, player, exporting]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studio, player, exporting, presenting]);
 
   const onDragOver = (e: DragEvent) => {
     if (Array.from(e.dataTransfer.types).includes("Files")) {
@@ -241,11 +302,11 @@ function StudioInner({ brief, demo }: { brief: ReelTripBrief; demo: boolean }) {
         onDrop={onDrop}
       >
         {/* Top toolbar */}
-        <header className="flex h-14 shrink-0 items-center gap-1.5 border-b border-border bg-card/80 px-2 backdrop-blur sm:gap-2 sm:px-3">
+        <header className={cn("flex h-14 shrink-0 items-center gap-1.5 border-b border-border bg-card/80 px-2 backdrop-blur sm:gap-2 sm:px-3", presenting && "hidden")}>
           <Button variant="ghost" size="icon-sm" aria-label="Back to the editor" onClick={requestLeave}>
             <ArrowLeft />
           </Button>
-          <LogoMark className="hidden h-7 shrink-0 md:block" />
+          <LogoMark alwaysDark className="hidden h-7 shrink-0 md:block" />
           <div className="min-w-0 flex-1 sm:ml-2 sm:flex-none sm:basis-72">
             <label className="sr-only" htmlFor="reel-title">
               Project title
@@ -258,7 +319,7 @@ function StudioInner({ brief, demo }: { brief: ReelTripBrief; demo: boolean }) {
               className="h-9 w-full truncate rounded-lg border border-transparent bg-transparent px-2 font-display text-base outline-none hover:border-input focus-visible:border-ring focus-visible:bg-muted focus-visible:ring-3 focus-visible:ring-ring/40"
             />
           </div>
-          <p className="hidden text-xs text-muted-foreground lg:block">{studio.dirty ? "Unsaved changes" : studio.savedAt ? "Saved" : "Auto-saved in this browser"}</p>
+          <p className="hidden text-xs text-muted-foreground lg:block">{studio.dirty ? "Unsaved changes" : studio.savedAt ? "Saved" : "Auto-saved to your account"}</p>
           <div className="ml-auto flex items-center gap-0.5 sm:gap-1">
             <Button variant="ghost" size="icon-sm" aria-label="Undo (Ctrl or ⌘ Z)" onClick={studio.undo} disabled={!studio.canUndo}>
               <Undo2 />
@@ -269,14 +330,11 @@ function StudioInner({ brief, demo }: { brief: ReelTripBrief; demo: boolean }) {
             <Button
               variant="secondary"
               size="sm"
-              className="hidden sm:inline-flex"
               disabled={project.clips.length === 0}
-              onClick={() => {
-                player.seek(0);
-                player.play();
-              }}
+              aria-label="Preview the reel"
+              onClick={startPresenting}
             >
-              <Play data-icon="inline-start" /> Preview
+              <Play data-icon="inline-start" /> <span className="hidden sm:inline">Preview</span>
             </Button>
             <Button size="sm" onClick={() => setExportOpen(true)} disabled={project.clips.length === 0}>
               <Download data-icon="inline-start" /> <span className="hidden sm:inline">Export video</span>
@@ -288,7 +346,7 @@ function StudioInner({ brief, demo }: { brief: ReelTripBrief; demo: boolean }) {
         {/* Workspace */}
         <div className="flex min-h-0 flex-1">
           {/* Left rail + panel (desktop) */}
-          <nav aria-label="Editing tools" className="hidden w-[4.5rem] shrink-0 flex-col gap-1 border-r border-border bg-card/60 p-1.5 lg:flex">
+          <nav aria-label="Editing tools" className={cn("hidden w-[4.5rem] shrink-0 flex-col gap-1 border-r border-border bg-card/60 p-1.5 lg:flex", presenting && "lg:hidden")}>
             {PANELS.map(({ key, label, icon: Icon }) => (
               <button
                 key={key}
@@ -305,25 +363,25 @@ function StudioInner({ brief, demo }: { brief: ReelTripBrief; demo: boolean }) {
               </button>
             ))}
           </nav>
-          <aside aria-label={PANELS.find((p) => p.key === panel)?.label} className="hidden w-80 shrink-0 overflow-y-auto border-r border-border bg-card/40 lg:block">
+          <aside aria-label={PANELS.find((p) => p.key === panel)?.label} className={cn("hidden w-80 shrink-0 overflow-y-auto border-r border-border bg-card/40 lg:block", presenting && "lg:hidden")}>
             <PanelBody panel={panel} studio={studio} />
           </aside>
 
           <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-            <PreviewStage studio={studio} onOpenMedia={() => (window.matchMedia("(min-width: 1024px)").matches ? setPanel("media") : openPanel("media"))} />
-            <div className="h-[13.5rem] shrink-0 sm:h-60 lg:h-72">
+            <PreviewStage presenting={presenting} onClose={stopPresenting} studio={studio} onOpenMedia={() => (window.matchMedia("(min-width: 1024px)").matches ? setPanel("media") : openPanel("media"))} />
+            <div className={cn("h-[13.5rem] shrink-0 sm:h-60 lg:h-72", presenting && "hidden")}>
               <Timeline studio={studio} onAddMusic={() => openPanel("music")} />
             </div>
           </div>
 
           {/* Right inspector (desktop) */}
-          <aside aria-label="Properties" className="hidden w-80 shrink-0 overflow-y-auto border-l border-border bg-card/40 xl:block">
+          <aside aria-label="Properties" className={cn("hidden w-80 shrink-0 overflow-y-auto border-l border-border bg-card/40 xl:block", presenting && "xl:hidden")}>
             <Inspector studio={studio} onExport={() => setExportOpen(true)} />
           </aside>
         </div>
 
         {/* Tool bar for narrower screens */}
-        <nav aria-label="Editing tools" className="flex shrink-0 gap-0.5 overflow-x-auto border-t border-border bg-card/90 px-1.5 py-1 pb-[max(0.25rem,env(safe-area-inset-bottom))] xl:hidden">
+        <nav aria-label="Editing tools" className={cn("flex shrink-0 gap-0.5 overflow-x-auto border-t border-border bg-card/90 px-1.5 py-1 pb-[max(0.25rem,env(safe-area-inset-bottom))] xl:hidden", presenting && "hidden")}>
           {PANELS.map(({ key, label, icon: Icon }) => (
             <button
               key={key}
@@ -350,12 +408,17 @@ function StudioInner({ brief, demo }: { brief: ReelTripBrief; demo: boolean }) {
 
         {/* Sheets for small screens */}
         <Sheet open={sheet !== null} onOpenChange={(o) => !o && setSheet(null)}>
-          <SheetContent side="bottom" className="reel-dark max-h-[78svh] gap-0 overflow-y-auto rounded-t-2xl border-border bg-card p-0 text-foreground">
+          <SheetContent side="bottom" className="reel-dark max-h-[62svh] gap-0 overflow-y-auto rounded-t-2xl border-border bg-card p-0 text-foreground">
             <SheetHeader className="sticky top-0 z-10 border-b border-border bg-card">
               <SheetTitle>{sheet === "inspector" ? "Edit selection" : PANELS.find((p) => p.key === panel)?.label}</SheetTitle>
               <SheetDescription className="sr-only">Editing controls for your reel</SheetDescription>
             </SheetHeader>
             {sheet === "inspector" ? <Inspector studio={studio} onExport={() => (setSheet(null), setExportOpen(true))} /> : <PanelBody panel={panel} studio={studio} />}
+            <div className="sticky bottom-0 z-10 border-t border-border bg-card/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+              <Button className="w-full" size="lg" onClick={() => setSheet(null)}>
+                Done
+              </Button>
+            </div>
           </SheetContent>
         </Sheet>
 
@@ -376,25 +439,15 @@ function StudioInner({ brief, demo }: { brief: ReelTripBrief; demo: boolean }) {
               <AlertDialogDescription>
                 {leave === "export"
                   ? "Your video is still being rendered. If you leave now it will be lost, though your edits are kept."
-                  : "You have changes that aren't saved as project settings. They're auto-saved as a draft in this browser, so you can pick them up next time."}
+                  : "You have changes that aren't saved as project settings. They're auto-saved as a draft to your account, so you can pick them up next time on any device."}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Keep editing</AlertDialogCancel>
-              {leave === "unsaved" ? (
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    if (studio.saveProject()) router.push(backHref);
-                  }}
-                >
-                  Save and leave
-                </Button>
-              ) : null}
               <AlertDialogAction
                 onClick={() => {
                   if (leave === "export") studio.cancelExport();
-                  router.push(backHref);
+                  goBack();
                 }}
               >
                 Leave

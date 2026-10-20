@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { cacheLife } from "next/cache";
+import { guides } from "@/features/seo/guides";
 import { templates } from "@/features/templates/registry";
 import { listDestinationThemes } from "@/features/themes/registry";
 import { createAnonClient } from "@/lib/supabase/anon";
@@ -24,14 +25,31 @@ async function indexableMemories(): Promise<Array<{ slug: string; updated_at: st
   return data ?? [];
 }
 
+type Entry = MetadataRoute.Sitemap[number];
+
+/** Pages are dated by their last meaningful content change, not by build time. */
+const SITE_UPDATED = new Date("2026-10-20");
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getSiteUrl();
-  const staticPaths = ["", "/destinations", "/templates", "/reels", "/photo-books", "/credits"];
   const memories = await indexableMemories();
+
+  const core: Array<[string, number, Entry["changeFrequency"]]> = [
+    ["", 1, "weekly"],
+    ["/destinations", 0.9, "weekly"],
+    ["/templates", 0.9, "weekly"],
+    ["/reels", 0.9, "weekly"],
+    ["/photo-books", 0.9, "weekly"],
+    ["/guides", 0.8, "weekly"],
+    ["/feedback", 0.3, "yearly"],
+    ["/credits", 0.2, "yearly"],
+  ];
+
   return [
-    ...staticPaths.map((path) => ({ url: `${base}${path}` })),
-    ...listDestinationThemes().map((t) => ({ url: `${base}/destinations/${t.slug}` })),
-    ...templates.map((t) => ({ url: `${base}/templates/${t.slug}` })),
-    ...memories.map((m) => ({ url: `${base}/memory/${m.slug}`, lastModified: m.updated_at })),
+    ...core.map(([path, priority, changeFrequency]) => ({ url: `${base}${path}`, lastModified: SITE_UPDATED, priority, changeFrequency })),
+    ...listDestinationThemes().map((t) => ({ url: `${base}/destinations/${t.slug}`, lastModified: SITE_UPDATED, priority: 0.8, changeFrequency: "monthly" as const })),
+    ...templates.map((t) => ({ url: `${base}/templates/${t.slug}`, lastModified: SITE_UPDATED, priority: 0.7, changeFrequency: "monthly" as const })),
+    ...guides.map((g) => ({ url: `${base}/guides/${g.slug}`, lastModified: new Date(g.updated), priority: 0.8, changeFrequency: "monthly" as const })),
+    ...memories.map((m) => ({ url: `${base}/memory/${m.slug}`, lastModified: m.updated_at, priority: 0.5, changeFrequency: "monthly" as const })),
   ];
 }

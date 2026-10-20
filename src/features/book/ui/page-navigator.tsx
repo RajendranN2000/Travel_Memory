@@ -1,6 +1,6 @@
 "use client";
 
-import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { closestCenter, DndContext, KeyboardSensor, MouseSensor, TouchSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Copy, FilePlus2, Plus, Trash2, TriangleAlert } from "lucide-react";
@@ -50,7 +50,7 @@ function Thumb({ studio, page, index, onDelete }: { studio: BookStudioApi; page:
         aria-pressed={selected}
         onClick={() => studio.selectElement(page.id, null)}
         onFocus={() => studio.selectElement(page.id, null)}
-        className={cn("cursor-grab touch-none overflow-hidden rounded-sm outline-none ring-offset-1 ring-offset-background transition-shadow focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing", selected ? "ring-2 ring-primary" : "ring-1 ring-border hover:ring-foreground/40", isDragging && "opacity-80 shadow-xl")}
+        className={cn("cursor-grab touch-pan-x overflow-hidden rounded-sm outline-none ring-offset-1 ring-offset-background transition-all duration-200 focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing", selected ? "-translate-y-0.5 shadow-md ring-2 ring-primary" : "ring-1 ring-border hover:-translate-y-0.5 hover:ring-foreground/40", isDragging && "opacity-80 shadow-xl")}
       >
         <LazyThumb studio={studio} page={page} index={index} />
       </div>
@@ -75,7 +75,12 @@ function Thumb({ studio, page, index, onDelete }: { studio: BookStudioApi; page:
 export function PageNavigator({ studio, onOpenPages }: { studio: BookStudioApi; onOpenPages: () => void }) {
   const { project } = studio;
   const [toDelete, setToDelete] = useState<string | null>(null);
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
+  // Mouse drags straight away; touch needs a short press-and-hold so a swipe scrolls the strip instead.
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 350, tolerance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
   const ids = project.pages.map((p) => p.id);
   const onDragEnd = (e: DragEndEvent) => {
     if (!e.over || e.active.id === e.over.id) return;
@@ -89,7 +94,7 @@ export function PageNavigator({ studio, onOpenPages }: { studio: BookStudioApi; 
     <section aria-label="Pages" className="border-t border-border bg-card/70">
       <div className="flex items-center gap-2 px-3 py-1.5">
         <p className="mr-auto text-xs text-muted-foreground">
-          <span className="font-medium text-foreground">Pages</span> · {project.pages.length} · {project.settings.widthMm} × {project.settings.heightMm} mm each
+          <span className="font-medium text-foreground">Pages</span> · {project.pages.length} · {project.settings.widthMm} × {project.settings.heightMm} mm each <span className="hidden sm:inline">· drag to reorder</span><span className="sm:hidden">· press and hold to reorder</span>
         </p>
         <Button size="xs" variant="secondary" onClick={() => studio.addPageAfter("photo-only")}>
           <Plus data-icon="inline-start" /> Add page
@@ -103,7 +108,7 @@ export function PageNavigator({ studio, onOpenPages }: { studio: BookStudioApi; 
       </div>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={ids} strategy={horizontalListSortingStrategy}>
-          <ol className="flex gap-3 overflow-x-auto px-3 pt-1 pb-2">
+          <ol className="flex gap-3 overflow-x-auto overscroll-x-contain px-3 pt-1 pb-2 [scrollbar-width:thin]">
             {project.pages.map((page, i) => (
               <Thumb key={page.id} studio={studio} page={page} index={i} onDelete={setToDelete} />
             ))}

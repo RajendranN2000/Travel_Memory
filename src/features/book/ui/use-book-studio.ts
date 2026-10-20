@@ -342,11 +342,16 @@ export function useBookStudio(brief: BookBrief, boot: BootData) {
   const addText = useCallback(
     (role: TextRole, text = "") => {
       if (!page) return;
-      const el = ops.newTextElement(latest.current.project, role, text || { title: "Your title", heading: "A heading", body: "Write your story here.", caption: "A caption", quote: "A memory worth keeping.", subtitle: "A subtitle", label: "Label", meta: "Details" }[role as string] || "Text");
-      update((p) => ops.addElement(p, page.id, el));
+      const cur = latest.current.project;
+      let el = ops.newTextElement(cur, role, text || { title: "Your title", heading: "A heading", body: "Write your story here.", caption: "A caption", quote: "A memory worth keeping.", subtitle: "A subtitle", label: "Label", meta: "Details" }[role as string] || "Text");
+      // Make sure the new text fits its box: grow the box first, then shrink the type if the page is too full.
+      el = { ...el, frame: ops.growTextBox(cur, el, fonts) };
+      el = { ...el, style: { ...el.style, sizePt: ops.fitTextSize(el, fonts) } };
+      const added = el;
+      update((p) => ops.addElement(p, page.id, added));
       setSelection({ pageId: page.id, elementId: el.id });
     },
-    [page, update],
+    [page, update, fonts],
   );
 
   const addShape = useCallback(

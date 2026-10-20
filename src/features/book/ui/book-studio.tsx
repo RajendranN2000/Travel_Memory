@@ -3,6 +3,7 @@
 import {
   ArrowLeft,
   BookOpen,
+  Check,
   Download,
   Eye,
   Files,
@@ -30,7 +31,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { buildBook, getTemplate } from "../templates";
-import { latestBookForTrip, loadBook, loadImages, saveBook } from "../storage";
+import { latestBookForTrip, loadBook, loadImages } from "../storage";
 import type { BookBrief } from "../types";
 import { CropDialog } from "./crop-dialog";
 import { ExportDialog } from "./export-dialog";
@@ -42,18 +43,31 @@ import { Properties } from "./properties";
 import { useBookStudio, useMounted, type BookStudioApi, type BootData, type PanelKey } from "./use-book-studio";
 import { Workspace } from "./workspace";
 
-const PANELS: { key: PanelKey; label: string; icon: LucideIcon }[] = [
-  { key: "templates", label: "Templates", icon: LayoutTemplate },
-  { key: "pages", label: "Pages", icon: Files },
-  { key: "uploads", label: "Uploads", icon: Upload },
-  { key: "photos", label: "Photos", icon: Images },
-  { key: "text", label: "Text", icon: Type },
-  { key: "backgrounds", label: "Backgrounds", icon: Paintbrush },
-  { key: "shapes", label: "Shapes", icon: Shapes },
-  { key: "layouts", label: "Layouts", icon: LayoutGrid },
-  { key: "themes", label: "Themes", icon: Palette },
-  { key: "print", label: "Print", icon: Printer },
+const PANELS: { key: PanelKey; label: string; hint: string; icon: LucideIcon }[] = [
+  { key: "templates", label: "Templates", hint: "Start a new book from a ready-made design.", icon: LayoutTemplate },
+  { key: "pages", label: "Pages", hint: "Add, reorder, duplicate or remove pages.", icon: Files },
+  { key: "uploads", label: "Uploads", hint: "Add photos from your device.", icon: Upload },
+  { key: "photos", label: "Photos", hint: "Photos from your memory. Click one to place it.", icon: Images },
+  { key: "text", label: "Text", hint: "Add a heading, caption or note.", icon: Type },
+  { key: "backgrounds", label: "Backgrounds", hint: "Change the colour or texture behind this page.", icon: Paintbrush },
+  { key: "shapes", label: "Shapes", hint: "Lines, frames and decorative shapes.", icon: Shapes },
+  { key: "layouts", label: "Layouts", hint: "Rearrange this page into a different layout.", icon: LayoutGrid },
+  { key: "themes", label: "Themes", hint: "Change colours and fonts across the whole book.", icon: Palette },
+  { key: "print", label: "Print", hint: "Page size, bleed and print settings.", icon: Printer },
 ];
+
+function PanelShell({ panel, studio }: { panel: PanelKey; studio: BookStudioApi }) {
+  const info = PANELS.find((p) => p.key === panel);
+  return (
+    <div key={panel} className="animate-in fade-in slide-in-from-left-2 duration-300">
+      <div className="sticky top-0 z-10 border-b border-border bg-card/90 px-4 py-3 backdrop-blur">
+        <h2 className="font-display text-base leading-tight">{info?.label}</h2>
+        <p className="mt-0.5 text-xs text-muted-foreground">{info?.hint}</p>
+      </div>
+      <PanelBody panel={panel} studio={studio} />
+    </div>
+  );
+}
 
 export function BookSkeleton() {
   return (
@@ -89,7 +103,7 @@ async function bootBook(brief: BookBrief, templateKey: string | null, projectId:
   }
   const template = getTemplate(templateKey) ?? getTemplate("travel-memories")!;
   const project = buildBook(template, brief);
-  void saveBook(project).catch(() => undefined);
+  // Not saved yet: a book is only kept once it is edited, so merely opening a template leaves no empty book behind.
   return { project, localImages: [], restored: false };
 }
 
@@ -133,10 +147,20 @@ function PanelBody({ panel, studio }: { panel: PanelKey; studio: BookStudioApi }
 }
 
 function SaveStatus({ studio }: { studio: BookStudioApi }) {
-  const text = { saved: "Saved in this browser", saving: "Saving…", dirty: "Unsaved changes", error: "Can't save in this browser" }[studio.saveState];
+  const text = { saved: "Saved to your account", saving: "Saving…", dirty: "Unsaved changes", error: "Can't save changes" }[studio.saveState];
   return (
-    <p role="status" className={cn("hidden text-xs md:block", studio.saveState === "error" ? "text-destructive" : "text-muted-foreground")}>
-      {text}
+    <p role="status" className={cn("flex shrink-0 items-center gap-1.5 text-xs", studio.saveState === "error" ? "text-destructive" : "text-muted-foreground")}>
+      <span
+        aria-hidden
+        className={cn(
+          "size-2 rounded-full transition-colors duration-500",
+          studio.saveState === "saved" && "bg-success",
+          studio.saveState === "saving" && "animate-pulse bg-warning",
+          studio.saveState === "dirty" && "bg-warning",
+          studio.saveState === "error" && "bg-destructive",
+        )}
+      />
+      <span className="hidden md:inline">{text}</span>
     </p>
   );
 }
@@ -202,7 +226,7 @@ function Studio({ brief, boot, backHref }: { brief: BookBrief; boot: BootData; b
       }
       if (mod && key === "s") {
         e.preventDefault();
-        void studio.saveNow().then((ok) => ok && toast.success("Saved in this browser"));
+        void studio.saveNow().then((ok) => ok && toast.success("Book saved"));
         return;
       }
       if (mod && key === "p") {
@@ -253,8 +277,8 @@ function Studio({ brief, boot, backHref }: { brief: BookBrief; boot: BootData; b
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-background text-foreground" onDragOver={onDragOver} onDragLeave={(e) => e.currentTarget === e.target && setDropping(false)} onDrop={onDrop}>
-      <header className="flex h-14 shrink-0 items-center gap-1.5 border-b border-border bg-card px-2 sm:gap-2 sm:px-3">
-        <Button variant="ghost" size="icon-sm" aria-label="Back to your memory" onClick={() => void requestLeave()}>
+      <header className="flex h-14 shrink-0 items-center gap-1.5 border-b border-border bg-card/95 px-2 backdrop-blur sm:gap-2 sm:px-3">
+        <Button variant="ghost" size="icon-sm" aria-label="Back to your memories" title="Back to your memories" onClick={() => void requestLeave()}>
           <ArrowLeft />
         </Button>
         <div className="min-w-0 flex-1 sm:flex-none sm:basis-72">
@@ -265,13 +289,15 @@ function Studio({ brief, boot, backHref }: { brief: BookBrief; boot: BootData; b
         </div>
         <SaveStatus studio={studio} />
         <div className="ml-auto flex items-center gap-0.5 sm:gap-1">
-          <Button variant="ghost" size="icon-sm" aria-label="Undo (Ctrl or ⌘ Z)" disabled={!studio.canUndo} onClick={studio.undo}>
-            <Undo2 />
-          </Button>
-          <Button variant="ghost" size="icon-sm" aria-label="Redo (Shift + Ctrl or ⌘ Z)" disabled={!studio.canRedo} onClick={studio.redo}>
-            <Redo2 />
-          </Button>
-          <Button variant="ghost" size="sm" className="hidden md:inline-flex" onClick={() => void studio.saveNow().then((ok) => ok && toast.success("Saved in this browser"))}>
+          <div className="mr-1 flex items-center rounded-lg bg-muted p-0.5" role="group" aria-label="History">
+            <Button variant="ghost" size="icon-sm" aria-label="Undo (Ctrl or ⌘ Z)" title="Undo (Ctrl+Z)" disabled={!studio.canUndo} onClick={studio.undo}>
+              <Undo2 />
+            </Button>
+            <Button variant="ghost" size="icon-sm" aria-label="Redo (Shift + Ctrl or ⌘ Z)" title="Redo (Ctrl+Shift+Z)" disabled={!studio.canRedo} onClick={studio.redo}>
+              <Redo2 />
+            </Button>
+          </div>
+          <Button variant="ghost" size="sm" className="hidden md:inline-flex" onClick={() => void studio.saveNow().then((ok) => ok && toast.success("Book saved"))}>
             <Save data-icon="inline-start" /> Save
           </Button>
           <Button variant="ghost" size="sm" className="hidden md:inline-flex" onClick={() => setProjectsOpen(true)}>
@@ -291,16 +317,27 @@ function Studio({ brief, boot, backHref }: { brief: BookBrief; boot: BootData; b
       </header>
 
       <div className="flex min-h-0 flex-1">
-        <nav aria-label="Design tools" className="hidden w-[4.5rem] shrink-0 flex-col gap-0.5 overflow-y-auto border-r border-border bg-card p-1.5 lg:flex">
-          {PANELS.map(({ key, label, icon: Icon }) => (
-            <button key={key} type="button" aria-pressed={panel === key} onClick={() => setPanel(key)} className={cn("flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-[0.65rem] transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/60", panel === key ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground")}>
-              <Icon aria-hidden className="size-5" />
+        <nav aria-label="Design tools" className="hidden w-[4.75rem] shrink-0 flex-col gap-1 overflow-y-auto border-r border-border bg-card p-1.5 lg:flex">
+          {PANELS.map(({ key, label, hint, icon: Icon }) => (
+            <button
+              key={key}
+              type="button"
+              title={hint}
+              aria-pressed={panel === key}
+              onClick={() => setPanel(key)}
+              className={cn(
+                "group relative flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-[0.7rem] font-medium transition-all duration-200 outline-none focus-visible:ring-3 focus-visible:ring-ring/60",
+                panel === key ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground",
+              )}
+            >
+              <span aria-hidden className={cn("absolute top-3 bottom-3 left-0 w-0.5 origin-center rounded-full bg-primary transition-transform duration-300", panel === key ? "scale-y-100" : "scale-y-0")} />
+              <Icon aria-hidden className="size-5 transition-transform duration-200 group-hover:scale-110" />
               {label}
             </button>
           ))}
         </nav>
-        <aside aria-label={PANELS.find((p) => p.key === panel)?.label} className="hidden w-80 shrink-0 overflow-y-auto border-r border-border bg-card/60 lg:block">
-          <PanelBody panel={panel} studio={studio} />
+        <aside aria-label={PANELS.find((p) => p.key === panel)?.label} className="hidden w-80 shrink-0 overflow-x-hidden overflow-y-auto border-r border-border bg-card/60 lg:block">
+          <PanelShell panel={panel} studio={studio} />
         </aside>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
@@ -308,7 +345,7 @@ function Studio({ brief, boot, backHref }: { brief: BookBrief; boot: BootData; b
           <PageNavigator studio={studio} onOpenPages={() => (window.matchMedia("(min-width: 1024px)").matches ? setPanel("pages") : openPanel("pages"))} />
         </div>
 
-        <aside aria-label="Properties" className="hidden w-80 shrink-0 overflow-y-auto border-l border-border bg-card/60 xl:block">
+        <aside aria-label="Properties" className="hidden w-80 shrink-0 overflow-x-hidden overflow-y-auto border-l border-border bg-card/60 xl:block">
           <Properties studio={studio} onCrop={setCropFor} />
         </aside>
       </div>
@@ -328,12 +365,17 @@ function Studio({ brief, boot, backHref }: { brief: BookBrief; boot: BootData; b
       </nav>
 
       <Sheet open={sheet !== null} onOpenChange={(o) => !o && setSheet(null)}>
-        <SheetContent side="bottom" className="max-h-[80svh] gap-0 overflow-y-auto rounded-t-2xl border-border bg-card p-0 text-foreground">
+        <SheetContent side="bottom" className={cn("gap-0 overflow-x-hidden overflow-y-auto rounded-t-2xl border-border bg-card p-0 text-foreground transition-transform duration-300 ease-out", sheet === "props" ? "max-h-[70svh]" : "max-h-[55svh]")}>
           <SheetHeader className="sticky top-0 z-10 border-b border-border bg-card">
             <SheetTitle>{sheet === "props" ? "Edit selection" : PANELS.find((p) => p.key === panel)?.label}</SheetTitle>
             <SheetDescription className="sr-only">Controls for your book</SheetDescription>
           </SheetHeader>
-          {sheet === "props" ? <Properties studio={studio} onCrop={(id) => (setSheet(null), setCropFor(id))} /> : <PanelBody panel={panel} studio={studio} />}
+          {sheet === "props" ? <Properties studio={studio} onCrop={(id) => (setSheet(null), setCropFor(id))} /> : <PanelShell panel={panel} studio={studio} />}
+          <div className="sticky bottom-0 z-10 mt-auto border-t border-border bg-card/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+            <Button className="w-full" size="lg" onClick={() => setSheet(null)}>
+              <Check data-icon="inline-start" /> Done
+            </Button>
+          </div>
         </SheetContent>
       </Sheet>
 
@@ -344,7 +386,7 @@ function Studio({ brief, boot, backHref }: { brief: BookBrief; boot: BootData; b
 
       {dropping ? (
         <div className="pointer-events-none absolute inset-0 z-50 grid place-items-center bg-black/40 backdrop-blur-sm" role="status">
-          <p className="rounded-xl border border-dashed border-primary bg-card px-6 py-4 text-sm">Drop photos to add them to this book</p>
+          <p className="animate-in zoom-in-95 fade-in rounded-2xl border-2 border-dashed border-primary bg-card px-8 py-6 text-base font-medium shadow-xl duration-200">Drop photos to add them to this book</p>
         </div>
       ) : null}
 

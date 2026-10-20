@@ -5,6 +5,7 @@ import { SupportEmail } from "@/components/site/social-links";
 import { FeedbackForm } from "./feedback-form";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/feedback" },
   title: "Send feedback",
   description: "Report a bug or suggest an improvement for My Travel Memory.",
 };

@@ -35,10 +35,10 @@ function Row({ href, label, icon: Icon, active }: { href: string; label: string;
         aria-current={active ? "page" : undefined}
         className={cn(
           "group flex min-h-13 items-center gap-3 rounded-xl px-3 text-[1.05rem] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          active ? "bg-primary/10 font-medium text-foreground" : "text-foreground/80 hover:bg-secondary/70 hover:text-foreground",
+          active ? "bg-brand/10 font-semibold text-foreground" : "text-foreground hover:bg-secondary/70",
         )}
       >
-        <span className={cn("grid size-9 shrink-0 place-items-center rounded-lg transition-colors", active ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground/70 group-hover:bg-card")}>
+        <span className={cn("grid size-9 shrink-0 place-items-center rounded-lg transition-colors", active ? "bg-gradient-to-br from-[#d9552b] to-[#f2a93b] text-white shadow-md" : "bg-secondary text-foreground group-hover:bg-card")}>
           <Icon aria-hidden className="size-[1.1rem]" />
         </span>
         <span className="flex-1">{label}</span>

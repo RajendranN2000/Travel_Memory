@@ -22,25 +22,24 @@ function YouTubeIcon({ className }: { className?: string }) {
   );
 }
 
-const button =
-  "inline-grid size-11 place-items-center rounded-full text-white shadow-soft transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none";
+const button = "group inline-grid size-11 place-items-center rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:text-white hover:shadow-lg active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none [&_svg]:transition-transform [&_svg]:duration-300 hover:[&_svg]:scale-110 hover:[&_svg]:-rotate-6";
 
 /** Round icon links to our social profiles, WhatsApp (when configured) and email. */
 export function SocialLinks({ className, whatsappMessage }: { className?: string; whatsappMessage?: string }) {
   return (
-    <ul className={cn("flex items-center gap-3", className)} aria-label="Follow and contact us">
+    <ul className={cn("flex items-center gap-2.5", className)} aria-label="Follow and contact us">
       <li>
-        <a href={SITE_CONTACT.instagram} target="_blank" rel="noopener noreferrer" aria-label="My Travel Memory on Instagram (opens in a new tab)" title="Instagram" className={cn(button, "bg-[radial-gradient(circle_at_30%_107%,#fdf497_0%,#fdf497_5%,#fd5949_45%,#d6249f_60%,#285AEB_90%)]")}>
+        <a href={SITE_CONTACT.instagram} target="_blank" rel="noopener noreferrer" aria-label="My Travel Memory on Instagram (opens in a new tab)" title="Instagram" className={cn(button, "text-[#d6249f] hover:bg-[radial-gradient(circle_at_30%_107%,#fdf497_0%,#fdf497_5%,#fd5949_45%,#d6249f_60%,#285AEB_90%)]")}>
           <InstagramIcon />
         </a>
       </li>
       <li>
-        <a href={SITE_CONTACT.youtube} target="_blank" rel="noopener noreferrer" aria-label="My Travel Memory on YouTube (opens in a new tab)" title="YouTube" className={cn(button, "bg-[#FF0000]")}>
+        <a href={SITE_CONTACT.youtube} target="_blank" rel="noopener noreferrer" aria-label="My Travel Memory on YouTube (opens in a new tab)" title="YouTube" className={cn(button, "text-[#FF0000] hover:bg-[#FF0000]")}>
           <YouTubeIcon />
         </a>
       </li>
       <li>
-        <a href={`mailto:${SITE_CONTACT.supportEmail}`} aria-label={`Email ${SITE_CONTACT.supportEmail}`} title="Email us" className={cn(button, "bg-brand")}>
+        <a href={`mailto:${SITE_CONTACT.supportEmail}`} aria-label={`Email ${SITE_CONTACT.supportEmail}`} title="Email us" className={cn(button, "text-brand hover:bg-gradient-to-br hover:from-[#d9552b] hover:to-[#f2a93b]")}>
           <Mail aria-hidden className="size-5" />
         </a>
       </li>

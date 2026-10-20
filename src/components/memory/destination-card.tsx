@@ -40,7 +40,7 @@ export function DestinationCard({
       href={`/destinations/${theme.slug}`}
       style={themeStyle(resolved)}
       className={cn(
-        "group relative isolate flex flex-col justify-end overflow-hidden rounded-lg bg-th-primary text-white shadow-soft transition-shadow duration-300 hover:shadow-lifted focus-visible:outline-offset-4",
+        "group relative isolate flex flex-col justify-end overflow-hidden rounded-lg bg-th-primary text-white shadow-soft lift focus-visible:outline-offset-4",
         aspect,
         className,
       )}

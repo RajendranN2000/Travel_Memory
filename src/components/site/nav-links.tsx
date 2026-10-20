@@ -30,8 +30,8 @@ export function NavLinks({ className, onNavigate }: { className?: string; onNavi
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "relative inline-flex min-h-11 items-center rounded-md px-3 text-[0.95rem] text-foreground/75 transition-colors hover:text-foreground",
-                active && "text-foreground after:absolute after:inset-x-3 after:bottom-1.5 after:h-px after:bg-brand",
+                "relative inline-flex min-h-10 items-center rounded-full px-4 text-sm font-semibold text-foreground transition-all duration-300 hover:bg-foreground/[0.07]",
+                active && "bg-gradient-to-r from-[#d9552b] via-[#e8742f] to-[#f2a93b] text-white shadow-[0_6px_16px_-6px_rgba(217,85,43,0.65)] hover:bg-transparent",
               )}
             >
               {item.label}
@@ -64,7 +64,7 @@ export function NavLinksFallback({ className }: { className?: string }) {
         <li key={item.href}>
           <Link
             href={item.href}
-            className="inline-flex min-h-11 items-center rounded-md px-3 text-[0.95rem] text-foreground/75 hover:text-foreground"
+            className="inline-flex min-h-10 items-center rounded-full px-4 text-sm font-semibold text-foreground hover:bg-foreground/[0.07]"
           >
             {item.label}
           </Link>

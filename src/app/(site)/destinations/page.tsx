@@ -4,6 +4,7 @@ import { PageIntro } from "@/components/site/page-intro";
 import { listDestinationThemes } from "@/features/themes/registry";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/destinations" },
   title: "Destinations",
   description: "Explore destination themes for Munnar, Goa, Ooty, Wayanad and Manali, each with its own palette, typography and photography.",
 };

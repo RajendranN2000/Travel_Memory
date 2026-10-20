@@ -4,6 +4,7 @@ import { PageIntro } from "@/components/site/page-intro";
 import { getAllImageCredits } from "@/features/themes/images";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/credits" },
   title: "Photo credits",
   description: "Attribution and licences for the destination photography used in My Travel Memory.",
 };

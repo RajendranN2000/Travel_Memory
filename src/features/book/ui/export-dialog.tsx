@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { pdfPageCount, spineWidthMm, type ExportScope } from "../pdf";
 import type { Issue } from "../lint";
 import type { BookStudioApi } from "./use-book-studio";
+import { PageView } from "./page-view";
 
 const SCOPES: { value: ExportScope; label: string; hint: string }[] = [
   { value: "all", label: "Whole book", hint: "Every page, one per PDF page" },
@@ -176,9 +177,7 @@ export function ExportDialog({ studio, open, onOpenChange }: { studio: BookStudi
 
         {exportUi.status === "done" ? (
           <div className="space-y-4">
-            <div className="relative h-[46svh] overflow-hidden rounded-lg border border-border bg-muted">
-              <iframe title="PDF preview" src={`${exportUi.url}#view=FitH`} className="h-full w-full" />
-            </div>
+            <PdfPreview studio={studio} url={exportUi.url} />
             <p className="flex items-start gap-2 text-sm text-muted-foreground">
               <CheckCircle2 aria-hidden className="mt-0.5 size-4 shrink-0 text-success" />
               <span>
@@ -217,5 +216,42 @@ export function ExportDialog({ studio, open, onOpenChange }: { studio: BookStudi
         ) : null}
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * Desktop browsers show the PDF inline. Phones and tablets usually can't render a PDF in a frame (it
+ * comes up blank), so there the pages are drawn from the book itself, with a button to open the file.
+ */
+function PdfPreview({ studio, url }: { studio: BookStudioApi; url: string }) {
+  const [inline] = useState(() => typeof navigator !== "undefined" && navigator.pdfViewerEnabled === true);
+  if (inline) {
+    return (
+      <div className="relative h-[46svh] overflow-hidden rounded-lg border border-border bg-muted">
+        <iframe title="PDF preview" src={`${url}#view=FitH`} className="h-full w-full" />
+      </div>
+    );
+  }
+  const s = studio.project.settings;
+  const h = 150;
+  const w = (h * s.widthMm) / s.heightMm;
+  return (
+    <div className="space-y-2 rounded-lg border border-border bg-muted p-3">
+      <ul className="flex gap-3 overflow-x-auto pb-2" aria-label="Pages in your PDF">
+        {studio.project.pages.map((page, i) => (
+          <li key={page.id} className="shrink-0">
+            <div className="overflow-hidden rounded-sm bg-white shadow-md ring-1 ring-black/10" style={{ width: w, height: h }}>
+              <PageView render={studio.renderOf(page, i)} images={studio.images} pxPerMm={h / s.heightMm} />
+            </div>
+            <span className="mt-1 block text-center text-[0.65rem] text-muted-foreground tabular-nums">{i + 1}</span>
+          </li>
+        ))}
+      </ul>
+      <Button asChild size="sm" variant="secondary" className="w-full">
+        <a href={url} target="_blank" rel="noopener">
+          Open the PDF
+        </a>
+      </Button>
+    </div>
   );
 }

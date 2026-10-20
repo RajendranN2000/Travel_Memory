@@ -10,7 +10,7 @@ import type { BookStudioApi } from "./use-book-studio";
 
 const when = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
-/** The books saved in this browser: open, duplicate or delete them. */
+/** Your saved books: open, duplicate or delete them. */
 export function ProjectsDialog({ studio, open, onOpenChange, onNew }: { studio: BookStudioApi; open: boolean; onOpenChange: (o: boolean) => void; onNew: () => void }) {
   const [confirm, setConfirm] = useState<string | null>(null);
   const { refreshBooks } = studio;
@@ -23,7 +23,7 @@ export function ProjectsDialog({ studio, open, onOpenChange, onNew }: { studio: 
       <DialogContent className="max-h-[90svh] gap-3 overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>Your books</DialogTitle>
-          <DialogDescription>Saved in this browser only. A downloaded PDF is independent of these projects.</DialogDescription>
+          <DialogDescription>Saved to your account. A downloaded PDF is independent of these projects.</DialogDescription>
         </DialogHeader>
         {studio.books.length === 0 ? (
           <p className="rounded-lg bg-muted p-4 text-center text-sm text-muted-foreground">No saved books yet. Yours will appear here after the first autosave.</p>

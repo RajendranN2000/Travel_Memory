@@ -25,7 +25,7 @@ export function WhatsAppLink({ message, className }: { message: string; classNam
       aria-label="Chat with us on WhatsApp (opens in a new tab)"
       title="Chat on WhatsApp"
       className={cn(
-        "inline-grid size-11 place-items-center rounded-full bg-[#25D366] text-white shadow-soft transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
+        "group inline-grid size-11 place-items-center rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:text-white hover:shadow-lg active:scale-95 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none [&_svg]:transition-transform [&_svg]:duration-300 hover:[&_svg]:scale-110 hover:[&_svg]:-rotate-6 text-[#25D366] hover:bg-[#25D366]",
         className,
       )}
     >

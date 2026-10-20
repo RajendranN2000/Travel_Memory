@@ -1,10 +1,13 @@
+import { cloudDeleteReelExport, cloudListReelExports, cloudSaveReelExport } from "./cloud";
 import { isReelProject } from "./defaults";
 import { totalDuration } from "./timeline";
 import type { ReelProject } from "./types";
 
 /*
- * Finished reels are kept in this browser's own storage (IndexedDB) so they can
- * be shown in My memories and downloaded again. Nothing here is sent to a server.
+ * The rendered video files are kept in this browser's own storage (IndexedDB) so they can be
+ * played and downloaded again; they are never uploaded. The details of each finished reel (title,
+ * size, length) are also saved to the signed-in user's account, so My memories lists them on every
+ * device. On another device the video itself is not there, only its details.
  */
 
 const DB_NAME = "tms-reels";
@@ -24,6 +27,8 @@ export interface ReelExportMeta {
   durationMs: number;
   sizeBytes: number;
   createdAt: number;
+  /** False when the details came from the account but the video was made on another device. */
+  onThisDevice?: boolean;
 }
 
 interface Row {
@@ -65,8 +70,14 @@ function run<T>(mode: IDBTransactionMode, work: (store: IDBObjectStore) => IDBRe
 }
 
 export async function listReelExports(): Promise<ReelExportMeta[]> {
-  const rows = await run<Row[]>("readonly", (s) => s.getAll());
-  return rows.map((r) => r.meta).sort((a, b) => b.createdAt - a.createdAt);
+  const rows = await run<Row[]>("readonly", (s) => s.getAll()).catch(() => [] as Row[]);
+  const merged = new Map<string, ReelExportMeta>(rows.map((r) => [r.meta.id, { ...r.meta, onThisDevice: true }]));
+  const remote = await cloudListReelExports().catch(() => [] as ReelExportMeta[]);
+  const remoteIds = new Set(remote.map((m) => m.id));
+  for (const m of remote) if (!merged.has(m.id)) merged.set(m.id, { ...m, onThisDevice: false });
+  // Reels rendered here before accounts synced are sent up once.
+  for (const r of rows) if (!remoteIds.has(r.meta.id)) void cloudSaveReelExport(r.meta).catch(() => undefined);
+  return [...merged.values()].sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export async function getReelExportBlob(id: string): Promise<Blob | null> {
@@ -75,7 +86,8 @@ export async function getReelExportBlob(id: string): Promise<Blob | null> {
 }
 
 export async function deleteReelExport(id: string): Promise<void> {
-  await run("readwrite", (s) => s.delete(id));
+  void cloudDeleteReelExport(id).catch(() => undefined);
+  await run("readwrite", (s) => s.delete(id)).catch(() => undefined);
 }
 
 export async function saveReelExport(meta: Omit<ReelExportMeta, "id" | "createdAt" | "sizeBytes">, blob: Blob): Promise<ReelExportMeta> {
@@ -86,6 +98,7 @@ export async function saveReelExport(meta: Omit<ReelExportMeta, "id" | "createdA
     sizeBytes: blob.size,
   };
   await run("readwrite", (s) => s.put({ meta: full, blob } satisfies Row));
+  void cloudSaveReelExport(full).catch(() => undefined);
   // Keep storage tidy: only the most recent reels are retained.
   const all = await listReelExports();
   for (const old of all.slice(KEEP_LATEST)) await deleteReelExport(old.id).catch(() => undefined);

@@ -1,35 +1,35 @@
 import Link from "next/link";
-import { listDestinationThemes } from "@/features/themes/registry";
 import { Logo } from "./logo";
 import { SocialLinks, SupportEmail } from "./social-links";
 
-const STUDIO_LINKS = [
+const PRODUCT_LINKS = [
   ["/templates", "Templates"],
-  ["/create", "Create a memory"],
-  ["/reels", "Make a reel"],
+  ["/reels", "Reels"],
   ["/photo-books", "Photo books"],
+  ["/destinations", "Destinations"],
   ["/my-memories", "My memories"],
-  ["/memory/sample-goa", "See a sample"],
 ] as const;
 
-const ABOUT_LINKS = [
+const COMPANY_LINKS = [
+  ["/guides", "Guides"],
+  ["/feedback", "Send feedback"],
   ["/privacy", "Privacy"],
   ["/terms", "Terms"],
   ["/credits", "Photo credits"],
-  ["/feedback", "Send feedback"],
 ] as const;
 
-const linkClass = "inline-flex min-h-10 items-center text-sm text-foreground/80 transition-colors hover:text-brand sm:min-h-9";
+const linkClass = "inline-flex min-h-10 items-center text-sm text-foreground/80 transition-all duration-200 hover:translate-x-0.5 hover:text-brand";
 
 export function SiteFooter() {
-  const destinations = listDestinationThemes();
   return (
-    <footer className="mt-auto border-t border-border bg-secondary/50">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-6 gap-y-10 px-5 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr] lg:px-8">
-        <div className="col-span-2 flex flex-col items-center text-center md:col-span-1 md:max-w-xs md:items-start md:text-left">
+    <footer className="relative mt-auto bg-secondary/40">
+      {/* gradient hairline */}
+      <div aria-hidden className="h-px w-full bg-gradient-to-r from-transparent via-[#e8742f] to-transparent opacity-70" />
+      <div className="mx-auto grid max-w-7xl gap-x-8 gap-y-10 px-5 py-12 sm:px-6 md:grid-cols-[1.6fr_1fr_1fr] lg:px-8">
+        <div className="flex flex-col items-center text-center md:items-start md:text-left">
           <Logo markClassName="h-14" />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
-            Turn trip photos into personal, shareable memory pages, reel videos and photo books, styled after the places you visited.
+            Turn trip photos into memory pages, reels and photo books, styled after the places you visited.
           </p>
           <SocialLinks className="mt-5 justify-center md:justify-start" whatsappMessage="Hi! I have a question about My Travel Memory." />
           <p className="mt-4 text-sm text-muted-foreground">
@@ -37,22 +37,10 @@ export function SiteFooter() {
           </p>
         </div>
 
-        <nav aria-label="Destinations">
-          <h2 className="eyebrow text-muted-foreground">Destinations</h2>
-          <ul className="mt-3 space-y-0.5">
-            {destinations.map((d) => (
-              <li key={d.slug}>
-                <Link href={`/destinations/${d.slug}`} className={linkClass}>
-                  {d.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
         <nav aria-label="Product">
-          <h2 className="eyebrow text-muted-foreground">Studio</h2>
-          <ul className="mt-3 space-y-0.5">
-            {STUDIO_LINKS.map(([href, label]) => (
+          <h2 className="eyebrow text-foreground">Explore</h2>
+          <ul className="mt-3 grid grid-cols-2 gap-x-4 md:block">
+            {PRODUCT_LINKS.map(([href, label]) => (
               <li key={href}>
                 <Link href={href} className={linkClass}>
                   {label}
@@ -61,10 +49,10 @@ export function SiteFooter() {
             ))}
           </ul>
         </nav>
-        <nav aria-label="Legal" className="col-span-2 border-t border-border/70 pt-8 md:col-span-1 md:border-t-0 md:pt-0">
-          <h2 className="eyebrow text-muted-foreground">About</h2>
-          <ul className="mt-3 grid grid-cols-2 gap-x-6 space-y-0.5 md:block">
-            {ABOUT_LINKS.map(([href, label]) => (
+        <nav aria-label="Company">
+          <h2 className="eyebrow text-foreground">More</h2>
+          <ul className="mt-3 grid grid-cols-2 gap-x-4 md:block">
+            {COMPANY_LINKS.map(([href, label]) => (
               <li key={href}>
                 <Link href={href} className={linkClass}>
                   {label}
@@ -75,13 +63,15 @@ export function SiteFooter() {
         </nav>
       </div>
       <div className="border-t border-border/70">
-        <p className="mx-auto max-w-7xl px-5 py-5 text-center text-xs leading-relaxed text-muted-foreground sm:px-6 md:text-left lg:px-8">
-          Destination photography from Wikimedia Commons contributors, used under their stated licences. See{" "}
-          <Link href="/credits" className="underline underline-offset-2 hover:text-foreground">
-            photo credits
-          </Link>
-          .
-        </p>
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-1 px-5 py-5 text-xs text-muted-foreground sm:px-6 md:flex-row lg:px-8">
+          <p>© My Travel Memory. Made for travellers.</p>
+          <p>
+            Photography from Wikimedia Commons contributors.{" "}
+            <Link href="/credits" className="underline underline-offset-2 hover:text-foreground">
+              Photo credits
+            </Link>
+          </p>
+        </div>
       </div>
     </footer>
   );

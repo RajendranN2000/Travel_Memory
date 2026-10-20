@@ -1,6 +1,6 @@
 "use client";
 
-import { BookImage, LogOut, Settings } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,11 +32,6 @@ export function AccountMenu({ user }: { user: HeaderUser }) {
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild className="min-h-10">
-          <Link href="/my-memories">
-            <BookImage /> My memories
-          </Link>
-        </DropdownMenuItem>
         <DropdownMenuItem asChild className="min-h-10">
           <Link href="/settings">
             <Settings /> Settings

@@ -6,7 +6,7 @@ export default function SiteLayout({ children }: LayoutProps<"/">) {
   return (
     <>
       <SiteHeader />
-      <main id="main" className="flex flex-1 flex-col">
+      <main id="main" className="site-ambient flex flex-1 flex-col">
         {children}
       </main>
       <SiteFooter />

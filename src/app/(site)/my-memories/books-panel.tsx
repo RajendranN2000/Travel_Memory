@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, Copy, Info, PencilLine, Trash2 } from "lucide-react";
+import { BookOpen, Copy, PencilLine, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -25,7 +25,7 @@ function BookCard({ book, item, onDuplicate, onDelete }: { book: BookMeta; item:
   const href = `/book/${book.tripId}?p=${encodeURIComponent(book.id)}`;
   const ratio = book.widthMm / book.heightMm;
   return (
-    <article className="flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-soft">
+    <article className="flex flex-col overflow-hidden card-glow rounded-2xl border border-border bg-card shadow-soft">
       <Link href={href} aria-label={`Open ${book.title || "book"}`} className="relative grid aspect-[4/3] place-items-center overflow-hidden bg-secondary/60 focus-visible:outline-offset-[-4px]" style={item ? { backgroundColor: item.swatch } : undefined}>
         {/* A closed book: the page shape of this book, with the memory's cover photo on it. */}
         <span className="relative block overflow-hidden rounded-[3px] bg-white shadow-print ring-1 ring-black/10" style={{ height: "78%", aspectRatio: ratio }}>
@@ -37,7 +37,7 @@ function BookCard({ book, item, onDuplicate, onDelete }: { book: BookMeta; item:
           )}
           <span aria-hidden className="absolute inset-y-0 left-0 w-2 bg-gradient-to-r from-black/30 to-transparent" />
         </span>
-        <Badge className="absolute top-3 left-3 bg-white/95 text-foreground">{book.kind === "magazine" ? "Magazine" : book.kind === "print" ? "Print" : "Photo book"}</Badge>
+        <Badge variant="overlay" className="absolute top-3 left-3">{book.kind === "magazine" ? "Magazine" : book.kind === "print" ? "Print" : "Photo book"}</Badge>
       </Link>
       <div className="flex flex-1 flex-col p-4">
         <p className="eyebrow text-muted-foreground">{template?.name ?? "Photo book"}</p>
@@ -98,7 +98,7 @@ function BookCard({ book, item, onDuplicate, onDelete }: { book: BookMeta; item:
   );
 }
 
-/** The "Books" tab: photo books and magazines being designed, kept in this browser. */
+/** The "Books" tab: photo books and magazines being designed, saved to your account. */
 export function BooksPanel({ items, books }: { items: TripItem[]; books: Books }) {
   const byTrip = new Map(items.map((i) => [i.trip.id, i]));
   const withPhotos = items.filter((i) => i.trip.photoCount > 0);
@@ -121,10 +121,6 @@ export function BooksPanel({ items, books }: { items: TripItem[]; books: Books }
 
   return (
     <div className="space-y-6">
-      <p className="flex items-start gap-2 rounded-lg bg-secondary/60 px-4 py-3 text-sm text-muted-foreground">
-        <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
-        <span>Books are designed and kept in this browser only. They aren&apos;t uploaded and won&apos;t appear on your other devices. Download the PDF to keep or print a finished book.</span>
-      </p>
       {books.unavailable ? (
         <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
           This browser isn&apos;t letting us keep books (private browsing can do this). You can still design and download a PDF in one sitting.

@@ -25,7 +25,7 @@ const TEXT_ROLES: { role: TextRole; label: string }[] = [
   { role: "caption", label: "Caption" },
   { role: "quote", label: "Quote" },
   { role: "label", label: "Label" },
-  { role: "meta", label: "Location or date" },
+  { role: "meta", label: "Place / date" },
 ];
 
 // -- Templates -------------------------------------------------------------------------------------
@@ -276,8 +276,8 @@ export function TextPanel({ studio }: { studio: BookStudioApi }) {
       <Section title="Add text to this page">
         <div className="grid grid-cols-2 gap-2">
           {TEXT_ROLES.map(({ role, label }) => (
-            <Button key={role} variant="secondary" size="sm" className="justify-start" onClick={() => studio.addText(role)}>
-              <Type data-icon="inline-start" /> {label}
+            <Button key={role} variant="secondary" size="sm" className="min-w-0 justify-start" title={label} onClick={() => studio.addText(role)}>
+              <Type data-icon="inline-start" /> <span className="min-w-0 truncate">{label}</span>
             </Button>
           ))}
         </div>

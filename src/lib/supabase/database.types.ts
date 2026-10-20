@@ -132,6 +132,83 @@ export type Database = {
         };
         Relationships: [];
       };
+      book_projects: {
+        Row: {
+          owner_id: string;
+          id: string;
+          trip_id: string;
+          title: string;
+          template_key: string;
+          kind: string;
+          page_count: number;
+          width_mm: number;
+          height_mm: number;
+          created_at_ms: number;
+          updated_at_ms: number;
+          project: Json;
+        };
+        Insert: {
+          owner_id: string;
+          id: string;
+          trip_id: string;
+          title?: string;
+          template_key: string;
+          kind: string;
+          page_count: number;
+          width_mm: number;
+          height_mm: number;
+          created_at_ms: number;
+          updated_at_ms: number;
+          project: Json;
+        };
+        Update: Partial<{
+          trip_id: string;
+          title: string;
+          template_key: string;
+          kind: string;
+          page_count: number;
+          width_mm: number;
+          height_mm: number;
+          created_at_ms: number;
+          updated_at_ms: number;
+          project: Json;
+        }>;
+        Relationships: [];
+      };
+      reel_projects: {
+        Row: { owner_id: string; trip_id: string; draft: Json | null; saved: Json | null; saved_at: string | null; updated_at_ms: number };
+        Insert: { owner_id: string; trip_id: string; draft?: Json | null; saved?: Json | null; saved_at?: string | null; updated_at_ms: number };
+        Update: Partial<{ draft: Json | null; saved: Json | null; saved_at: string | null; updated_at_ms: number }>;
+        Relationships: [];
+      };
+      reel_exports: {
+        Row: { owner_id: string; id: string; trip_id: string; meta: Json; created_at_ms: number };
+        Insert: { owner_id: string; id: string; trip_id: string; meta: Json; created_at_ms: number };
+        Update: Partial<{ meta: Json; created_at_ms: number }>;
+        Relationships: [];
+      };
+      book_images: {
+        Row: {
+          owner_id: string;
+          project_id: string;
+          image_id: string;
+          name: string;
+          width: number;
+          height: number;
+          storage_path: string;
+        };
+        Insert: {
+          owner_id: string;
+          project_id: string;
+          image_id: string;
+          name?: string;
+          width: number;
+          height: number;
+          storage_path: string;
+        };
+        Update: Partial<{ name: string; width: number; height: number; storage_path: string }>;
+        Relationships: [];
+      };
       feedback: {
         Row: {
           id: string;

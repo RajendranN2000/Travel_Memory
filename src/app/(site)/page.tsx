@@ -58,7 +58,7 @@ function Hero() {
             <span aria-hidden className="size-1.5 rounded-full bg-brand" /> Memory pages · Reels
           </p>
           <h1 className="mt-6 font-display text-[clamp(2.5rem,6.2vw,4.75rem)] leading-[1] font-medium tracking-tight text-balance">
-            Your trips deserve more than a <span className="italic text-paper/95 underline decoration-brand decoration-[0.06em] underline-offset-[0.12em]">camera roll.</span>
+            Your trips deserve more than a <span className="text-gradient underline decoration-brand decoration-[0.06em] underline-offset-[0.12em]">camera roll.</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-paper/85 sm:text-xl">
             Turn your travel photos into a memory page styled after the place you visited, or a cinematic reel with music, ready for Instagram. Your words, your favourite shots, shared with the people who were there.
@@ -302,11 +302,16 @@ function PhotoBooks() {
     <section className="border-y border-border bg-secondary/40">
       <div className="mx-auto grid max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1.1fr_1fr] lg:gap-20 lg:px-8">
         <Reveal className="min-w-0">
-          <div className="min-w-0 space-y-6">
-            {picks.map((t, i) => (
-              <div key={t.key} className={i === 1 ? "min-w-0 lg:ml-10" : i === 2 ? "min-w-0 lg:ml-4" : "min-w-0"}>
-                <TemplatePreview template={t} brief={brief} height={150} className="rounded-lg bg-card px-4 pt-5 pb-3 shadow-soft ring-1 ring-border" />
-                <p className="mt-2 px-1 text-sm font-medium">{t.name}</p>
+          <div className="grid min-w-0 gap-4">
+            {picks.map((t) => (
+              <div key={t.key} className="card-glow group flex min-w-0 items-center gap-4 rounded-3xl border border-border bg-card p-3 shadow-soft">
+                <div className="grid h-40 w-44 shrink-0 place-items-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#fff1e6] via-[#fde7f3] to-[#e6ecff] px-2 py-3 transition-transform duration-500 group-hover:scale-[1.03] sm:w-52 dark:from-[#2b1d18] dark:via-[#271a2b] dark:to-[#1a2033]">
+                  <TemplatePreview template={t} brief={brief} height={130} />
+                </div>
+                <div className="min-w-0 flex-1 pr-2">
+                  <p className="font-display text-lg leading-snug">{t.name}</p>
+                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{t.blurb}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -322,7 +327,7 @@ function PhotoBooks() {
           </p>
           <ul className="mt-8 grid gap-4 sm:grid-cols-2">
             {points.map(({ icon: Icon, title, body }) => (
-              <li key={title} className="rounded-lg border border-border bg-card p-5">
+              <li key={title} className="card-glow rounded-2xl border border-border bg-card p-5">
                 <span className="grid size-10 place-items-center rounded-md bg-brand/10 text-brand">
                   <Icon aria-hidden className="size-5" />
                 </span>
@@ -380,7 +385,7 @@ function HowItWorks() {
       <ol className="mt-14 grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-5">
         {steps.map((step, i) => (
           <Reveal as="li" key={step.title} delay={i * 0.08} className="border-t border-foreground/15 pt-6">
-            <span className="font-display text-5xl text-brand/90 italic" aria-hidden>
+            <span className="font-display text-5xl text-brand/90" aria-hidden>
               {String(i + 1).padStart(2, "0")}
             </span>
             <h3 className="mt-4 text-lg font-semibold">
@@ -435,7 +440,7 @@ function Privacy() {
     {
       icon: Lock,
       title: "Drafts are yours alone",
-      body: "Unpublished trips and photos are stored privately and are only visible to you while signed in. Reels and music are made in your browser and never uploaded.",
+      body: "Unpublished trips and photos are stored privately and are only visible to you while signed in. Your books and reel settings are saved to your account; reel videos and music are made in your browser and never uploaded.",
     },
     {
       icon: Link2,
@@ -467,7 +472,7 @@ function Privacy() {
         </Reveal>
         <ul className="grid gap-4 sm:grid-cols-2">
           {points.map(({ icon: Icon, title, body }, i) => (
-            <Reveal as="li" key={title} delay={i * 0.06} className="rounded-lg border border-border bg-card p-6">
+            <Reveal as="li" key={title} delay={i * 0.06} className="card-glow rounded-2xl border border-border bg-card p-6">
               <Icon aria-hidden className="size-5 text-brand" />
               <h3 className="mt-4 font-semibold">{title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>

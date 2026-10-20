@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { deleteReelExport, listReelDrafts, listReelExports, type ReelDraftSummary, type ReelExportMeta } from "./reel-library";
-import { clearReelProject } from "./storage";
+import { clearReelProject, syncReelProjects } from "./storage";
 
 /** The reels kept in this browser: finished videos and drafts still being edited. */
 export function useLocalReels() {
@@ -13,7 +13,8 @@ export function useLocalReels() {
 
   useEffect(() => {
     let cancelled = false;
-    listReelExports()
+    syncReelProjects()
+      .then(() => listReelExports())
       .catch(() => {
         if (!cancelled) setUnavailable(true);
         return [] as ReelExportMeta[];

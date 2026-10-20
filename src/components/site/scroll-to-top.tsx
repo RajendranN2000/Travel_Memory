@@ -4,15 +4,27 @@ import { ArrowUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
-/** A round button that appears after scrolling and takes the visitor back to the top of the page. */
+const RADIUS = 21;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+/** A round button with a progress ring that appears after scrolling and takes the visitor back to the top. */
 export function ScrollToTop() {
   const [visible, setVisible] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const update = () => setVisible(window.scrollY > 600);
+    const update = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setVisible(window.scrollY > 600);
+      setProgress(max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0);
+    };
     update();
     window.addEventListener("scroll", update, { passive: true });
-    return () => window.removeEventListener("scroll", update);
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
   }, []);
 
   const toTop = () => {
@@ -29,11 +41,26 @@ export function ScrollToTop() {
       tabIndex={visible ? 0 : -1}
       aria-hidden={!visible}
       className={cn(
-        "fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 grid size-12 place-items-center rounded-full bg-primary text-primary-foreground shadow-lifted outline-none transition-all duration-300 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transition-none sm:right-6 sm:bottom-6",
-        visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0",
+        "group fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 grid size-12 place-items-center rounded-full bg-card text-brand shadow-lifted outline-none ring-1 ring-border transition-all duration-300 hover:-translate-y-1 hover:bg-gradient-to-br hover:from-[#d9552b] hover:to-[#f2a93b] hover:text-white hover:shadow-[0_14px_30px_-8px_rgba(217,85,43,0.7)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-95 motion-reduce:transition-none sm:right-6 sm:bottom-6",
+        visible ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none translate-y-4 scale-90 opacity-0",
       )}
     >
-      <ArrowUp aria-hidden className="size-5" />
+      {/* scroll progress ring */}
+      <svg aria-hidden viewBox="0 0 48 48" className="absolute inset-0 size-full -rotate-90">
+        <circle cx="24" cy="24" r={RADIUS} fill="none" strokeWidth="2.5" className="stroke-border" />
+        <circle
+          cx="24"
+          cy="24"
+          r={RADIUS}
+          fill="none"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          className="stroke-brand transition-[stroke-dashoffset] duration-150 group-hover:stroke-white"
+          strokeDasharray={CIRCUMFERENCE}
+          strokeDashoffset={CIRCUMFERENCE * (1 - progress)}
+        />
+      </svg>
+      <ArrowUp aria-hidden className="relative size-5 transition-transform duration-300 group-hover:-translate-y-0.5" />
     </button>
   );
 }

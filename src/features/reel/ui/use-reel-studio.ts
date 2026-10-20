@@ -583,17 +583,20 @@ export function useReelStudio(brief: ReelTripBrief) {
 
   // -- project -------------------------------------------------------------
 
-  const saveProject = useCallback(() => {
-    const res = saveReelProject(brief.tripId, latest.current.project);
-    if (!res.ok) {
-      toast.error("Your browser wouldn't let this be saved. Storage may be full or blocked.");
-      return false;
-    }
-    setSavedJson(JSON.stringify(latest.current.project));
-    setSavedAt(res.savedAt);
-    toast.success("Project settings saved in this browser");
-    return true;
-  }, [brief.tripId]);
+  const saveProject = useCallback(
+    (options?: { quiet?: boolean }) => {
+      const res = saveReelProject(brief.tripId, latest.current.project);
+      if (!res.ok) {
+        toast.error("Your browser wouldn't let this be saved. Storage may be full or blocked.");
+        return false;
+      }
+      setSavedJson(JSON.stringify(latest.current.project));
+      setSavedAt(res.savedAt);
+      if (!options?.quiet) toast.success("Project settings saved");
+      return true;
+    },
+    [brief.tripId],
+  );
 
   const resetProject = useCallback(() => {
     clearReelProject(brief.tripId);

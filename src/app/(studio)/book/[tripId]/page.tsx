@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { requireUser } from "@/features/auth/session";
 import { demoTrip } from "@/features/editor/demo";
-import { buildBookBrief, scratchBrief } from "@/features/book/brief";
+import { buildBookBrief, sampleBookBrief, scratchBrief } from "@/features/book/brief";
 import { getTemplate } from "@/features/book/templates";
 import { BookSkeleton, BookStudio } from "@/features/book/ui/book-studio";
 import { getOwnedTrip } from "@/features/trips/queries";
@@ -35,12 +35,24 @@ async function BookLoader({ params, searchParams }: Pick<PageProps<"/book/[tripI
     await requireUser(here);
     return <BookStudio brief={scratchBrief()} templateKey={template} projectId={project} backHref="/my-memories" />;
   }
+  if (tripId.startsWith("sample:")) {
+    // Books started from a template preview use the licensed sample photography as their photos.
+    await requireUser(here);
+    return <BookStudio brief={sampleBookBrief(tripId.slice("sample:".length))} templateKey={template} projectId={project} backHref="/my-memories" />;
+  }
   if (tripId === "demo") {
     if (!isDemoMode()) notFound();
     return <BookStudio brief={buildBookBrief(demoTrip())} templateKey={template} projectId={project} backHref="/editor/demo" />;
   }
   const { user, supabase } = await requireUser(here);
   const trip = await getOwnedTrip(supabase, user.id, tripId);
-  if (!trip) notFound();
+  if (!trip) {
+    // Books live in the browser, so one can outlive its memory (deleted, or made under another account).
+    // Open it from its saved layout rather than a 404; only a link with no saved book is truly missing.
+    if (project) {
+      return <BookStudio brief={{ ...scratchBrief(), tripId }} templateKey={template} projectId={project} backHref="/my-memories" />;
+    }
+    notFound();
+  }
   return <BookStudio key={trip.id} brief={buildBookBrief(trip)} templateKey={template} projectId={project} backHref={`/editor/${trip.id}`} />;
 }

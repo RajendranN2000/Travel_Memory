@@ -75,8 +75,9 @@ export function Workspace({ studio }: { studio: BookStudioApi }) {
     i === null ? <div style={{ width: pageW * pxPerMm, height: pageH * pxPerMm }} aria-hidden /> : <PageCanvas studio={studio} page={project.pages[i]} index={i} pxPerMm={pxPerMm} />;
 
   return (
-    <section aria-label="Page canvas" className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-[color-mix(in_oklab,var(--background),#000_10%)]">
-      <div className="flex flex-wrap items-center gap-1 border-b border-border bg-card/70 px-2 py-1">
+    <section aria-label="Page canvas" className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-[color-mix(in_oklab,var(--background),#000_8%)] bg-[radial-gradient(circle,color-mix(in_oklab,var(--foreground),transparent_88%)_1px,transparent_1px)] bg-[length:18px_18px]">
+      <div className="flex flex-wrap items-center gap-1 border-b border-border bg-card/90 px-2 py-1 backdrop-blur">
+        <span className="mr-1 hidden text-[0.68rem] font-semibold tracking-wider text-muted-foreground uppercase sm:inline">View</span>
         <Toggle on={!view.spread} onClick={() => studio.setView({ spread: false })} label="Single page view">
           <Square />
         </Toggle>
@@ -117,7 +118,7 @@ export function Workspace({ studio }: { studio: BookStudioApi }) {
 
       <div ref={holder} className="relative min-h-0 flex-1 overflow-auto">
         <div className="flex min-h-full min-w-full items-center justify-center" style={{ padding: pad }}>
-          <div className={cn("relative flex items-start")} style={{ gap: gap * pxPerMm }}>
+          <div key={pageIndex} className={cn("relative flex animate-in items-start fade-in duration-300")} style={{ gap: gap * pxPerMm }}>
             {view.rulers && !showSpread ? (
               <>
                 <Ruler_ lengthMm={s.widthMm} pxPerMm={pxPerMm} offsetMm={bleed} />
@@ -131,10 +132,10 @@ export function Workspace({ studio }: { studio: BookStudioApi }) {
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-between px-2">
-        <Button size="icon" variant="secondary" className="pointer-events-auto rounded-full opacity-80 shadow-lg hover:opacity-100" aria-label="Previous page" disabled={pageIndex === 0} onClick={() => studio.goToPage(pageIndex - 1)}>
+        <Button size="icon" variant="secondary" className="pointer-events-auto rounded-full opacity-70 shadow-lg transition-all duration-300 hover:-translate-x-0.5 hover:opacity-100" aria-label="Previous page" disabled={pageIndex === 0} onClick={() => studio.goToPage(pageIndex - 1)}>
           <ChevronLeft />
         </Button>
-        <Button size="icon" variant="secondary" className="pointer-events-auto rounded-full opacity-80 shadow-lg hover:opacity-100" aria-label="Next page" disabled={pageIndex >= project.pages.length - 1} onClick={() => studio.goToPage(pageIndex + 1)}>
+        <Button size="icon" variant="secondary" className="pointer-events-auto rounded-full opacity-70 shadow-lg transition-all duration-300 hover:translate-x-0.5 hover:opacity-100" aria-label="Next page" disabled={pageIndex >= project.pages.length - 1} onClick={() => studio.goToPage(pageIndex + 1)}>
           <ChevronRight />
         </Button>
       </div>

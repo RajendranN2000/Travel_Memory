@@ -35,8 +35,8 @@ export const fallbackTheme: DestinationTheme = {
     },
   ],
   typography: {
-    heading: "fraunces",
-    body: "dm-sans",
+    heading: "bricolage",
+    body: "jakarta",
     headingWeight: 500,
     headingCase: "normal",
     headingTracking: "tight",

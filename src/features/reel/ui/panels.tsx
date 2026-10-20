@@ -386,12 +386,12 @@ export function SettingsPanel({ studio }: { studio: ReelStudioApi }) {
       </Section>
       <Section title="Project">
         <div className="flex flex-col gap-2">
-          <Button variant="secondary" onClick={studio.saveProject}>
+          <Button variant="secondary" onClick={() => studio.saveProject()}>
             <Save data-icon="inline-start" /> Save project settings
           </Button>
           <p className="text-xs text-muted-foreground">
             {studio.savedAt ? `Saved ${new Date(studio.savedAt).toLocaleTimeString()}. ` : ""}
-            Settings are kept in this browser only. Your photos, music and video are never uploaded.
+            Settings are saved to your account. Your photos, music and video are never uploaded.
           </p>
           {confirmReset ? (
             <div className="space-y-2 rounded-lg border border-border bg-muted p-3">

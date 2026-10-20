@@ -243,7 +243,11 @@ function TextProperties({ studio, page, el }: { studio: BookStudioApi; page: Boo
           <p className="rounded-lg bg-muted p-3 text-xs text-muted-foreground">This is the page number. It fills itself in and follows the page order.</p>
         ) : (
           <Field label="Content" htmlFor={textId}>
-            <textarea id={textId} value={el.text} rows={5} onChange={(e) => set({ text: e.target.value }, `text:${el.id}`)} className="w-full resize-y rounded-lg border border-input bg-muted px-3 py-2 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/40" />
+            <textarea id={textId} value={el.text} rows={5} onChange={(e) => {
+              // Longer text (a place name, a date range) grows the box instead of spilling out of it.
+              const next = { ...el, text: e.target.value };
+              set({ text: next.text, frame: growTextBox(studio.project, next, studio.fonts) }, `text:${el.id}`);
+            }} className="block w-full max-w-full resize-y rounded-lg break-words border border-input bg-muted px-3 py-2 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/40" />
           </Field>
         )}
         {layout?.overflow ? (
@@ -387,8 +391,31 @@ const unplacedToNewPageOp = (p: Parameters<typeof unplacedToNewPage>[0], id: str
 export function Properties({ studio, onCrop }: { studio: BookStudioApi; onCrop: (elementId: string) => void }) {
   const { page, selectedElement } = studio;
   if (!page) return null;
-  if (selectedElement?.type === "image") return <ImageProperties studio={studio} page={page} el={selectedElement} onCrop={onCrop} />;
-  if (selectedElement?.type === "text") return <TextProperties studio={studio} page={page} el={selectedElement} />;
-  if (selectedElement?.type === "shape") return <ShapeProperties studio={studio} page={page} el={selectedElement} />;
-  return <PageProperties studio={studio} page={page} />;
+  const index = studio.project.pages.findIndex((p) => p.id === page.id);
+  const kind = selectedElement?.type === "image" ? "Photo" : selectedElement?.type === "text" ? "Text" : selectedElement?.type === "shape" ? "Shape" : `Page ${index + 1}`;
+  const hint = selectedElement ? "Adjust the selected item. Press Esc to go back to the page." : "Nothing selected. Click anything on the page to edit it.";
+  return (
+    <div key={selectedElement?.id ?? page.id} className="animate-in fade-in slide-in-from-right-2 duration-300">
+      <div className="sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-border bg-card/90 px-4 py-3 backdrop-blur">
+        <div>
+          <h2 className="font-display text-base leading-tight">{kind}</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>
+        </div>
+        {selectedElement ? (
+          <Button size="xs" variant="secondary" onClick={() => studio.selectElement(page.id, null)}>
+            Done
+          </Button>
+        ) : null}
+      </div>
+      {selectedElement?.type === "image" ? (
+        <ImageProperties studio={studio} page={page} el={selectedElement} onCrop={onCrop} />
+      ) : selectedElement?.type === "text" ? (
+        <TextProperties studio={studio} page={page} el={selectedElement} />
+      ) : selectedElement?.type === "shape" ? (
+        <ShapeProperties studio={studio} page={page} el={selectedElement} />
+      ) : (
+        <PageProperties studio={studio} page={page} />
+      )}
+    </div>
+  );
 }

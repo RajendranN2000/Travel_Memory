@@ -1,7 +1,8 @@
 "use client";
 
-import { AudioWaveform, Music2, Pause, Play, Trash2, Upload, Volume2, VolumeX } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { AudioWaveform, Check, Loader2, Music2, Pause, Play, Trash2, Upload, Volume2, VolumeX } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { AUDIO_ACCEPT } from "../audio-engine";
@@ -34,6 +35,60 @@ function Waveform({ peaks, startFrac, endFrac }: { peaks: Float32Array; startFra
     }
   }, [peaks, startFrac, endFrac]);
   return <canvas ref={ref} role="img" aria-label="Waveform of the music track" className="h-14 w-full rounded-lg bg-muted" />;
+}
+
+/** Original, royalty-free tracks that ship with the app, so a reel can have music without importing a file. */
+const LIBRARY = [
+  { file: "golden-hour", name: "Golden Hour", mood: "Warm and dreamy", bpm: 84 },
+  { file: "open-road", name: "Open Road", mood: "Upbeat travel groove", bpm: 112 },
+  { file: "quiet-shore", name: "Quiet Shore", mood: "Slow and calm", bpm: 66 },
+  { file: "city-lights", name: "City Lights", mood: "Energetic night out", bpm: 124 },
+] as const;
+
+function MusicLibrary({ studio, current }: { studio: ReelStudioApi; current: string }) {
+  const [busy, setBusy] = useState<string | null>(null);
+  const pick = async (t: (typeof LIBRARY)[number]) => {
+    setBusy(t.file);
+    try {
+      const res = await fetch(`/music/${t.file}.wav`);
+      if (!res.ok) throw new Error("fetch");
+      const blob = await res.blob();
+      await studio.importMusic(new File([blob], `${t.name}.wav`, { type: "audio/wav" }));
+    } catch {
+      toast.error("That track couldn't be loaded. Check your connection and try again.");
+    } finally {
+      setBusy(null);
+    }
+  };
+  return (
+    <ul className="space-y-1.5" aria-label="Free music library">
+      {LIBRARY.map((t) => {
+        const active = current === `${t.name}.wav` || current === t.name;
+        return (
+          <li key={t.file}>
+            <button
+              type="button"
+              disabled={!studio.audio.available || busy !== null}
+              onClick={() => void pick(t)}
+              aria-pressed={active}
+              className="flex min-h-12 w-full items-center gap-3 rounded-xl border border-border bg-muted px-3 py-2 text-left transition-all duration-200 outline-none hover:border-primary/60 focus-visible:ring-3 focus-visible:ring-ring/50 active:scale-[0.98] disabled:opacity-60 aria-pressed:border-primary aria-pressed:bg-primary/10"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary">
+                {busy === t.file ? <Loader2 aria-hidden className="size-4 animate-spin" /> : <Music2 aria-hidden className="size-4" />}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium">{t.name}</span>
+                <span className="block truncate text-xs text-muted-foreground">
+                  {t.mood} · {t.bpm} BPM
+                </span>
+              </span>
+              {active ? <Check aria-hidden className="size-4 shrink-0 text-primary" /> : null}
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
 }
 
 export function MusicControls({ studio }: { studio: ReelStudioApi }) {
@@ -102,6 +157,11 @@ export function MusicControls({ studio }: { studio: ReelStudioApi }) {
             )}
           </div>
         )}
+        <div className="space-y-2">
+          <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Free tracks</h3>
+          <MusicLibrary studio={studio} current={track?.name ?? ""} />
+          <p className="text-xs text-muted-foreground">Original tracks made for this app. Free to use in any reel.</p>
+        </div>
         <p className="rounded-lg bg-muted p-3 text-xs leading-relaxed text-muted-foreground">
           Only use music you have the right to use. Platforms like Instagram can mute or remove videos with unlicensed tracks.
         </p>

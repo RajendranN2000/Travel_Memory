@@ -57,7 +57,7 @@ function ExportCard({ reel, item, onDelete }: { reel: ReelExportMeta; item: Trip
   const load = async (): Promise<string | null> => {
     const blob = await getReelExportBlob(reel.id).catch(() => null);
     if (!blob) {
-      toast.error("This reel's video is no longer stored in this browser.");
+      toast.error(reel.onThisDevice === false ? "This reel's video was made on another device. Its details are here, but the video file stays on the device that rendered it." : "This reel's video is no longer stored in this browser.");
       return null;
     }
     return URL.createObjectURL(blob);
@@ -83,7 +83,7 @@ function ExportCard({ reel, item, onDelete }: { reel: ReelExportMeta; item: Trip
   };
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-soft">
+    <article className="flex flex-col overflow-hidden card-glow rounded-2xl border border-border bg-card shadow-soft">
       {url ? (
         <video src={url} controls autoPlay playsInline className="aspect-[9/12] w-full bg-black object-contain" aria-label={`Reel: ${reel.title}`} />
       ) : (
@@ -99,7 +99,7 @@ function ExportCard({ reel, item, onDelete }: { reel: ReelExportMeta; item: Trip
               {loading ? <Loader2 aria-hidden className="size-6 animate-spin" /> : <Play aria-hidden className="size-6 fill-current" />}
             </span>
           </button>
-          <Badge className="absolute top-3 left-3 bg-white/95 text-foreground">{reel.format.toUpperCase()}</Badge>
+          <Badge variant="overlay" className="absolute top-3 left-3">{reel.format.toUpperCase()}</Badge>
         </Poster>
       )}
       <div className="flex flex-1 flex-col p-4">
@@ -159,7 +159,7 @@ function DraftCard({ draft, item, onRemove }: { draft: ReelDraftSummary; item: T
   return (
     <article className="flex flex-col overflow-hidden rounded-lg border border-dashed border-input bg-card">
       <Poster item={item}>
-        <Badge variant="secondary" className="absolute top-3 left-3 bg-white/95">
+        <Badge variant="overlay" className="absolute top-3 left-3">
           In progress
         </Badge>
         <Clapperboard aria-hidden className="absolute inset-0 m-auto size-10 text-white/90" />
@@ -185,7 +185,7 @@ function DraftCard({ draft, item, onRemove }: { draft: ReelDraftSummary; item: T
   );
 }
 
-/** The "Reels" tab: finished videos and drafts, all kept on this device. */
+/** The "Reels" tab: finished videos and drafts, details saved to your account, video files kept on this device. */
 export function ReelsPanel({ items, reels }: { items: TripItem[]; reels: Reels }) {
   const byTrip = new Map(items.map((i) => [i.trip.id, i]));
   const exportedTrips = new Set(reels.exports.map((e) => e.tripId));
@@ -213,7 +213,7 @@ export function ReelsPanel({ items, reels }: { items: TripItem[]; reels: Reels }
       <p className="flex items-start gap-2 rounded-lg bg-secondary/60 px-4 py-3 text-sm text-muted-foreground">
         <Info aria-hidden className="mt-0.5 size-4 shrink-0" />
         <span>
-          Reels are made and kept in this browser only. They are never uploaded, so they won&apos;t appear on your other devices. Download a reel to keep it safe.
+          Your reel settings and details are saved to your account and appear on every device you sign in on. The video files themselves are never uploaded: they stay in the browser that made them, so download a reel to keep it safe.
         </span>
       </p>
 

@@ -40,7 +40,7 @@ function ListSkeleton() {
   return (
     <ul aria-busy aria-label="Loading your memories" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: 3 }, (_, i) => (
-        <li key={i} className="overflow-hidden rounded-lg border border-border">
+        <li key={i} className="overflow-hidden rounded-3xl border border-border">
           <Skeleton className="aspect-[4/3] rounded-none" />
           <div className="space-y-2 p-4">
             <Skeleton className="h-4 w-20" />
@@ -60,8 +60,8 @@ async function TripList() {
   if (trips.length === 0) {
     const resolved = resolveTheme("munnar");
     return (
-      <div className="grid items-center gap-10 rounded-lg border border-dashed border-input bg-card p-6 sm:p-10 md:grid-cols-2">
-        <div className="relative aspect-[16/10] overflow-hidden rounded-md">
+      <div className="grid items-center gap-10 rounded-3xl border border-border bg-gradient-to-br from-[#fff1e6] via-[#fde7f3] to-[#e6ecff] p-6 sm:p-10 md:grid-cols-2 dark:from-[#2b1d18] dark:via-[#271a2b] dark:to-[#1a2033]">
+        <div className="relative aspect-[16/10] overflow-hidden rounded-2xl shadow-lifted">
           <ThemeIllustration theme={resolved.theme} palette={resolved.palette} className="absolute inset-0 h-full w-full" />
         </div>
         <div>
@@ -74,7 +74,7 @@ async function TripList() {
             <Button asChild size="lg">
               <Link href="/create">Create your first memory</Link>
             </Button>
-            <Button asChild size="lg" variant="outline">
+            <Button asChild size="lg" variant="glass">
               <Link href="/templates">Browse templates</Link>
             </Button>
           </div>

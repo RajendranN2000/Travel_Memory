@@ -94,7 +94,7 @@ export function CreateTripForm({
                 ) : null}
                 <span className="absolute inset-0 -z-10 bg-gradient-to-t from-black/75 to-black/5" />
                 {checked ? (
-                  <span className="absolute top-2.5 right-2.5 grid size-7 place-items-center rounded-full bg-white text-primary">
+                  <span className="absolute top-2.5 right-2.5 grid size-7 place-items-center rounded-full bg-white text-ink">
                     <Check className="size-4" aria-hidden />
                   </span>
                 ) : null}

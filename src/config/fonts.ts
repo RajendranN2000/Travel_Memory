@@ -1,4 +1,5 @@
 import {
+  Bricolage_Grotesque,
   Caveat,
   Cormorant_Garamond,
   DM_Sans,
@@ -8,6 +9,7 @@ import {
   Karla,
   Nunito_Sans,
   Outfit,
+  Plus_Jakarta_Sans,
   Playfair_Display,
   Source_Sans_3,
   Work_Sans,
@@ -20,13 +22,18 @@ import {
  * only downloads a file once text actually renders in that family.
  */
 
-const appDisplay = Fraunces({
+const appDisplay = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-app-display", display: "swap" });
+const appBody = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-app-body", display: "swap" });
+
+/* Still available to destination themes and the reel studio, which pick them by key. */
+const fraunces = Fraunces({
   subsets: ["latin"],
-  variable: "--font-app-display",
   style: ["normal", "italic"],
+  variable: "--font-fraunces",
+  preload: false,
   display: "swap",
 });
-const appBody = DM_Sans({ subsets: ["latin"], variable: "--font-app-body", display: "swap" });
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans", preload: false, display: "swap" });
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -69,6 +76,8 @@ const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat", preload: 
 export const fontVariables = [
   appDisplay,
   appBody,
+  fraunces,
+  dmSans,
   cormorant,
   nunitoSans,
   dmSerif,
@@ -86,8 +95,10 @@ export const fontVariables = [
 
 /** Font keys that destination themes may reference. */
 export const themeFonts = {
-  fraunces: "var(--font-app-display)",
-  "dm-sans": "var(--font-app-body)",
+  bricolage: "var(--font-app-display)",
+  jakarta: "var(--font-app-body)",
+  fraunces: "var(--font-fraunces)",
+  "dm-sans": "var(--font-dm-sans)",
   cormorant: "var(--font-cormorant)",
   "nunito-sans": "var(--font-nunito-sans)",
   "dm-serif": "var(--font-dm-serif)",
