@@ -13,8 +13,8 @@ const DARK = { src: "/brand/Dark_Logo.png", width: 800, height: 312 };
 function LogoImage({ alt, className, alwaysDark = false, priority = false }: { alt: string; className?: string; alwaysDark?: boolean; priority?: boolean }) {
   return (
     <>
-      {alwaysDark ? null : <Image src={LIGHT.src} alt={alt} width={LIGHT.width} height={LIGHT.height} priority={priority} unoptimized className={cn("w-auto dark:hidden", className)} />}
-      <Image src={DARK.src} alt={alwaysDark ? alt : ""} aria-hidden={alwaysDark ? undefined : true} width={DARK.width} height={DARK.height} priority={priority} unoptimized className={cn("w-auto", alwaysDark ? "" : "hidden dark:block", className)} />
+      {alwaysDark ? null : <Image src={LIGHT.src} alt={alt} width={LIGHT.width} height={LIGHT.height} priority={priority} sizes="(min-width: 640px) 160px, 120px" quality={75} className={cn("w-auto dark:hidden", className)} />}
+      <Image src={DARK.src} alt={alwaysDark ? alt : ""} aria-hidden={alwaysDark ? undefined : true} width={DARK.width} height={DARK.height} priority={priority && alwaysDark} loading={alwaysDark ? undefined : "lazy"} sizes="(min-width: 640px) 160px, 120px" quality={75} className={cn("w-auto", alwaysDark ? "" : "hidden dark:block", className)} />
     </>
   );
 }

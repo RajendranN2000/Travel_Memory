@@ -23,8 +23,12 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [60, 75, 85],
+    // Optimised images are keyed by URL, so they can be cached for a year.
+    minimumCacheTTL: 31536000,
   },
   experimental: {
+    // Styles ship inside the HTML instead of a render-blocking stylesheet request.
+    inlineCss: true,
     serverActions: {
       // Photos upload straight to Supabase Storage; actions only carry metadata.
       bodySizeLimit: "1mb",
@@ -33,6 +37,11 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
+      // Static assets: destination photos never change in place; brand and music files may, so revalidate monthly.
+      { source: "/images/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      { source: "/fonts/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      { source: "/brand/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=2592000, stale-while-revalidate=86400" }] },
+      { source: "/music/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=2592000, stale-while-revalidate=86400" }] },
       // Unlisted memory links must not leak through the Referer header.
       { source: "/memory/:path*", headers: [{ key: "Referrer-Policy", value: "no-referrer" }] },
     ];

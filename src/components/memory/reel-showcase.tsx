@@ -21,11 +21,11 @@ export function ReelShowcase({ className }: { className?: string }) {
       <div className="rounded-[2.25rem] border border-white/25 bg-black p-2 shadow-lifted ring-4 ring-white/40">
         <div className="relative aspect-[9/16] overflow-hidden rounded-[1.75rem] bg-ink">
           {/* A still frame always sits underneath, so the phone is never empty while the others load. */}
-          {firstImage ? <Image src={firstImage.src} alt="" fill sizes="(min-width: 640px) 720px, 640px" quality={85} priority className={cn("object-cover", SLIDES[0].treatment)} /> : null}
+          {firstImage ? <Image src={firstImage.src} alt="" fill sizes="(min-width: 640px) 560px, 480px" quality={80} className={cn("object-cover", SLIDES[0].treatment)} /> : null}
           {SLIDES.map((s) => {
             const img = getDestinationImage(s.image);
             return img ? (
-              <Image key={s.image} src={img.src} alt="" fill sizes="(min-width: 640px) 720px, 640px" quality={85} loading="eager" fetchPriority="low" className={cn("reel-slide object-cover", s.treatment)} />
+              <Image key={s.image} src={img.src} alt="" fill sizes="(min-width: 640px) 560px, 480px" quality={75} loading="lazy" className={cn("reel-slide object-cover", s.treatment)} />
             ) : null;
           })}
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/15" />

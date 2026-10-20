@@ -13,17 +13,33 @@ export function ScrollToTop() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const update = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      setVisible(window.scrollY > 600);
-      setProgress(max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0);
+    let max = 0;
+    let frame = 0;
+    // Page height is measured when the page's size changes, never inside the scroll handler.
+    const measure = () => {
+      max = document.documentElement.scrollHeight - window.innerHeight;
     };
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
+    const paint = () => {
+      frame = 0;
+      const y = window.scrollY;
+      setVisible(y > 600);
+      setProgress(max > 0 ? Math.min(1, Math.max(0, y / max)) : 0);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(paint);
+    };
+    const observer = new ResizeObserver(() => {
+      measure();
+      onScroll();
+    });
+    observer.observe(document.body);
+    measure();
+    paint();
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
+      observer.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
     };
   }, []);
 
