@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { DestinationMemories } from "@/components/memory/destination-memories";
 import { TemplateThumbnail } from "@/components/memory/template-thumbnail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -207,6 +208,11 @@ async function Destination({ params }: Pick<PageProps<"/destinations/[slug]">, "
           </ul>
         </section>
       ) : null}
+
+      {/* Published by travellers */}
+      <Suspense fallback={null}>
+        <DestinationMemories theme={theme} />
+      </Suspense>
 
       {/* Templates */}
       {sample ? (

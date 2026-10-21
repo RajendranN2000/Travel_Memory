@@ -273,6 +273,19 @@ export type Database = {
         Args: { p_slug: string };
         Returns: Array<{ rating: number; comment: string; created_at: string; reviewer: string; is_mine: boolean }>;
       };
+      list_destination_memories: {
+        Args: { p_destination: string; p_limit?: number };
+        Returns: Array<{
+          slug: string;
+          title: string;
+          description: string;
+          template_slug: string;
+          cover_path: string | null;
+          published_at: string;
+          avg_rating: number;
+          review_count: number;
+        }>;
+      };
       submit_memory_review: { Args: { p_slug: string; p_rating: number; p_comment: string }; Returns: undefined };
       delete_my_memory_review: { Args: { p_slug: string }; Returns: undefined };
       get_published_memory: {
