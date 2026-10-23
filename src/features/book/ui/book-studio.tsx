@@ -303,6 +303,9 @@ function Studio({ brief, boot, backHref }: { brief: BookBrief; boot: BootData; b
           <Button variant="ghost" size="sm" className="hidden md:inline-flex" onClick={() => setProjectsOpen(true)}>
             <BookOpen data-icon="inline-start" /> Books
           </Button>
+          <Button variant="secondary" size="icon-sm" className="sm:hidden" aria-label="Preview book" title="Preview" onClick={() => setPreviewOpen(true)}>
+            <Eye />
+          </Button>
           <Button variant="secondary" size="sm" className="hidden sm:inline-flex" onClick={() => setPreviewOpen(true)}>
             <Eye data-icon="inline-start" /> Preview
           </Button>
